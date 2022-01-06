@@ -27,8 +27,15 @@ impl Character {
             None => 0, // TODO!
         }
     }
-    pub fn equip(&mut self, item: Item) {
-        self.items.push(Some(item));
+    pub fn equip_to_slot(&mut self, item: Item, slot: String) -> Option<item::Item> {
+        let prev_equip = self.items.remove(&slot).unwrap();
+        self.items.insert(slot, Some(item));
+        prev_equip
+    }
+    pub fn unequip_from_slot(&mut self, slot: String) -> Option<item::Item> {
+        let prev_equip = self.items.remove(&slot).unwrap();
+        self.items.insert(slot, None);
+        prev_equip
     }
 }
 
@@ -38,7 +45,7 @@ pub fn create(name: Name) -> Character {
         name,
         base_stats,
         stats,
-        items: EquipmentSet::new(),
+        items: item::generate_equipment_set(),
     }
 }
 
@@ -55,7 +62,7 @@ mod tests {
             name: String::from(name),
             base_stats,
             stats,
-            items: EquipmentSet::new(),
+            items: item::generate_equipment_set(),
         };
         assert_eq!(mog.whoami(), name);
         assert_eq!(mog.get_stat(String::from("Strength")), 10);

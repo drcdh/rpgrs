@@ -13,7 +13,8 @@ fn equip_mog() {
         0,
         0,
     );
-    mog.equip(spear);
+    let prev_weapon = mog.equip_to_slot(spear, String::from("Weapon"));
+    //assert_eq!(prev_weapon, None::<rpg::item::Item>);
     assert_eq!(mog.get_stat(String::from("Offense")), nude_offense + spear_power);
 
     let nude_defense = mog.get_stat(String::from("Defense"));
@@ -24,6 +25,12 @@ fn equip_mog() {
         0,
         0,
     );
-    mog.equip(shield);
+    let prev_shield = mog.equip_to_slot(shield, String::from("Shield"));
+    //assert_eq!(prev_shield, None::<rpg::item::Item>);
     assert_eq!(mog.get_stat(String::from("Defense")), nude_defense + shield_power);
+
+    mog.unequip_from_slot(String::from("Weapon"));
+    mog.unequip_from_slot(String::from("Shield"));
+    assert_eq!(mog.get_stat(String::from("Offense")), nude_offense);
+    assert_eq!(mog.get_stat(String::from("Defense")), nude_defense);
 }

@@ -17,11 +17,11 @@ fn trivial_derived_stat(bs: &BaseStats, key_bs: String) -> Stat {
     *bs.get(&key_bs).unwrap()
 }
 
-fn default_derived_stat(bs: &BaseStats, eq: &EquipmentSet, key_bs: String, key_eq: usize) -> Stat {
+fn default_derived_stat(bs: &BaseStats, eq: &EquipmentSet, key_bs: String, key_eq: String) -> Stat {
     let base_stat: Stat = *bs.get(&key_bs).unwrap();
     let mult_mod: Stat = 1;  // todo, use something like Decimal
-    let plus_mod: Stat = eq.iter().map(|i| item::equipment_mod(&i, &key_bs)).sum();
-    let eq_power: Stat = match eq.get(key_eq) {
+    let plus_mod: Stat = eq.into_iter().map(|(_n, i)| item::equipment_mod(&i, &key_bs)).sum();
+    let eq_power: Stat = match eq.get(&key_eq) {
         Some(slot) => item::equipment_power(&slot),
         None => item::equipment_power(&None::<Item>),
     };
@@ -39,8 +39,8 @@ pub fn generate_stats() -> (BaseStats, DerivedStats) {
     bs.insert(String::from("Stamina"), 10);
 
     let mut ds = DerivedStats::new();
-    ds.insert(String::from("Offense"), |bs, eq| default_derived_stat(bs, eq, String::from("Strength"), 0));
-    ds.insert(String::from("Defense"), |bs, eq| default_derived_stat(bs, eq, String::from("Stamina"), 1));
+    ds.insert(String::from("Offense"), |bs, eq| default_derived_stat(bs, eq, String::from("Strength"), String::from("Weapon")));
+    ds.insert(String::from("Defense"), |bs, eq| default_derived_stat(bs, eq, String::from("Stamina"), String::from("Shield")));
     /*
     for (bs_name, _) in &bs {
         ds.insert(bs_name.to_string(), |bs, eq| trivial_derived_stat(bs, bs_name.clone()));
@@ -57,7 +57,7 @@ mod tests {
 
     #[test]
     fn empty_test() {
-        let eq: EquipmentSet = vec![None::<Item>, None::<Item>];
+        let eq: EquipmentSet = item::generate_equipment_set();
         let (bs, ds) = generate_stats();
         for (bs_name, bs_value) in &bs {
             assert_eq!(ds.get(bs_name).unwrap()(&bs, &eq), *bs_value);

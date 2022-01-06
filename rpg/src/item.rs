@@ -19,18 +19,17 @@ impl Item {
     }
 }
 
-pub type Equipment = Option<Item>;
-// todo pub type EquipmentSet = HashMap<Name, Equipment>;
-pub type EquipmentSet = Vec<Equipment>;
+pub type EquipmentSlot = Option<Item>;
+pub type EquipmentSet = HashMap<Name, EquipmentSlot>;
 
-pub fn equipment_power(equipment: &Equipment) -> i32 {
+pub fn equipment_power(equipment: &EquipmentSlot) -> i32 {
     match equipment {
         None => 0,
         Some(i) => i.power,
     }
 }
 
-pub fn equipment_mod(equipment: &Equipment, name: &Name) -> i32 {
+pub fn equipment_mod(equipment: &EquipmentSlot, name: &Name) -> i32 {
     match equipment {
         None => 0,
         Some(i) => i.get_modifier(&name),
@@ -41,6 +40,12 @@ pub fn create(name: String, power: i32, strength_mod: i32, stamina_mod: i32) -> 
     Item {name, power, strength_mod, stamina_mod}
 }
 
+pub fn generate_equipment_set() -> EquipmentSet {
+    let mut equips = EquipmentSet::new();
+    equips.insert(String::from("Weapon"), None::<Item>);
+    equips.insert(String::from("Shield"), None::<Item>);
+    equips
+}
 
 #[cfg(test)]
 mod tests {
@@ -48,8 +53,8 @@ mod tests {
 
     #[test]
     fn instance_test() {
-        let empty: Equipment = None;
-        let item: Equipment = Some(Item {
+        let empty: EquipmentSlot = None;
+        let item: EquipmentSlot = Some(Item {
             name: String::from("Debug Stick"),
             power: 0,
             strength_mod: -1,

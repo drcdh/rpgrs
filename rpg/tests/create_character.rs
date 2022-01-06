@@ -2,7 +2,7 @@ use rpg;
 
 #[test]
 fn equip_mog() {
-    let mut mog = rpg::character::create(
+    let mut mog = rpg::character::Character::new(
         String::from("Mog"),
     );
     let nude_offense = mog.get_stat(String::from("Offense"));

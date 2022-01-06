@@ -16,6 +16,16 @@ pub struct Character {
 }
 
 impl Character {
+    pub fn new(name: Name) -> Character {
+        let (base_stats, stats) = stats::generate_stats();
+        Character {
+            id: 0,  // TODO
+            name,
+            base_stats,
+            stats,
+            items: item::generate_equipment_set(),
+        }
+    }
     // `&self` is short for `self: &Self`
     // Here `Self` is short for `Character`
     pub fn whoami(&self) -> &str {
@@ -39,26 +49,15 @@ impl Character {
     }
 }
 
-pub fn create(name: Name) -> Character {
-    let (base_stats, stats) = stats::generate_stats();
-    Character {
-        id: 0,  // TODO
-        name,
-        base_stats,
-        stats,
-        items: item::generate_equipment_set(),
-    }
-}
-
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn instance_test() {
+    fn new_test() {
         let name = "Mog";
-        let mog = create(
+        let mog = Character::new(
             String::from(name),
         );
         assert_eq!(mog.id, 0);

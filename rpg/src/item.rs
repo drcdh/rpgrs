@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-type Name = String;
+use crate::common::Name;
 
 #[derive(Debug)]
 pub struct Item {

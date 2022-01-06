@@ -1,10 +1,12 @@
+use crate::common::Id;
+use crate::common::Name;
+
 use crate::item;
 use crate::stats;
 
 
-type Name = String;
-
 pub struct Character {
+    pub id: Id,
     name: Name,
 
     base_stats: stats::BaseStats,
@@ -40,6 +42,7 @@ impl Character {
 pub fn create(name: Name) -> Character {
     let (base_stats, stats) = stats::generate_stats();
     Character {
+        id: 0,  // TODO
         name,
         base_stats,
         stats,
@@ -55,16 +58,10 @@ mod tests {
     #[test]
     fn instance_test() {
         let name = "Mog";
-        let (base_stats, stats) = stats::generate_stats();
-        let mog = Character {
-            name: String::from(name),
-            base_stats,
-            stats,
-            items: item::generate_equipment_set(),
-        };
+        let mog = create(
+            String::from(name),
+        );
+        assert_eq!(mog.id, 0);
         assert_eq!(mog.whoami(), name);
-        assert_eq!(mog.get_stat(String::from("Strength")), 10);
-        assert_eq!(mog.get_stat(String::from("Stamina")), 10);
-        //assert_eq!(mog.get_stat(String::from("Moxie")), None);
     }
 }

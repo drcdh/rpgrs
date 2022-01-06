@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 type Name = String;
 
+#[derive(Debug)]
 pub struct Item {
     pub name: Name,
     pub power: i32,
@@ -56,17 +57,15 @@ mod tests {
         let empty: EquipmentSlot = None;
         let item: EquipmentSlot = Some(Item {
             name: String::from("Debug Stick"),
-            power: 0,
+            power: 1,
             strength_mod: -1,
             stamina_mod: -2,
         });
-        let STAMINA = String::from("Stamina");
-        let STRENGTH = String::from("Strength");
-        assert_eq!(equipment_power(&item), 0);
+        assert_eq!(equipment_power(&item), 1);
         assert_eq!(equipment_power(&empty), 0);
-        assert_eq!(equipment_mod(&item, &STAMINA), -2);
-        assert_eq!(equipment_mod(&empty, &STAMINA), 0);
-        assert_eq!(equipment_mod(&item, &STRENGTH), -1);
-        assert_eq!(equipment_mod(&empty, &STRENGTH), 0);
+        assert_eq!(equipment_mod(&item, &String::from("Stamina")), -2);
+        assert_eq!(equipment_mod(&empty, &String::from("Stamina")), 0);
+        assert_eq!(equipment_mod(&item, &String::from("Strength")), -1);
+        assert_eq!(equipment_mod(&empty, &String::from("Strength")), 0);
     }
 }

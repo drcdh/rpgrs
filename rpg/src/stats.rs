@@ -1,15 +1,13 @@
 use std::collections::HashMap;
 
 use crate::item;
-use crate::item::EquipmentSet;
-use crate::item::Item;
 
 type _Stat = i32;
 pub type Stat = _Stat;//Option<_Stat>;
 
 pub type BaseStats = HashMap<String, _Stat>;
 
-type DerivedStat = fn(&BaseStats, &EquipmentSet) -> Stat;
+type DerivedStat = fn(&BaseStats, &item::EquipmentSet) -> Stat;
 
 pub type DerivedStats = HashMap<String, DerivedStat>;
 
@@ -19,7 +17,7 @@ fn trivial_derived_stat(bs: &BaseStats, key_bs: String) -> Stat {
 
 fn default_derived_stat(
     bs: &BaseStats,
-    eq: &EquipmentSet,
+    eq: &item::EquipmentSet,
     key_bs: String,
     key_eq: String,
     key_ds: String,
@@ -29,7 +27,7 @@ fn default_derived_stat(
     let plus_mod: Stat = eq.into_iter().map(|(_n, i)| item::equipment_mod(&i, &key_bs)).sum();
     let eq_power: Stat = match eq.get(&key_eq) {
         Some(slot) => item::equipment_power(slot),
-        None => item::equipment_power(&None::<Item>),
+        None => item::equipment_power(&None::<item::Item>),
     };
     let ds_mult_mod: Stat = 1;  // todo, use something like Decimal
     let ds_plus_mod: Stat = eq.into_iter().map(|(_n, i)| item::equipment_mod(&i, &key_ds)).sum();
@@ -65,7 +63,7 @@ mod tests {
 
     #[test]
     fn empty_test() {
-        let eq: EquipmentSet = item::generate_equipment_set();
+        let eq: item::EquipmentSet = item::generate_equipment_set();
         let (bs, ds) = generate_stats();
         for (bs_name, bs_value) in &bs {
             assert_eq!(ds.get(bs_name).unwrap()(&bs, &eq), *bs_value);

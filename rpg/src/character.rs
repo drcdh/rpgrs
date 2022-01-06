@@ -1,6 +1,4 @@
 use crate::item;
-use crate::item::EquipmentSet;
-use crate::item::Item;
 use crate::stats;
 
 
@@ -12,7 +10,7 @@ pub struct Character {
     base_stats: stats::BaseStats,
     stats: stats::DerivedStats,
 
-    items: EquipmentSet,
+    items: item::EquipmentSet,
 }
 
 impl Character {
@@ -27,7 +25,7 @@ impl Character {
             None => 0, // TODO!
         }
     }
-    pub fn equip_to_slot(&mut self, item: Item, slot: String) -> Option<item::Item> {
+    pub fn equip_to_slot(&mut self, item: item::Item, slot: String) -> Option<item::Item> {
         let prev_equip = self.items.remove(&slot).unwrap();
         self.items.insert(slot, Some(item));
         prev_equip

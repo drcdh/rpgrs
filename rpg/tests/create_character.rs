@@ -14,7 +14,7 @@ fn equip_mog() {
         0,
     );
     let prev_weapon = mog.equip_to_slot(spear, String::from("Weapon"));
-    //assert_eq!(prev_weapon, None::<rpg::item::Item>);
+    assert!(prev_weapon.is_none());
     assert_eq!(mog.get_stat(String::from("Offense")), nude_offense + spear_power);
 
     let nude_defense = mog.get_stat(String::from("Defense"));
@@ -26,11 +26,13 @@ fn equip_mog() {
         0,
     );
     let prev_shield = mog.equip_to_slot(shield, String::from("Shield"));
-    //assert_eq!(prev_shield, None::<rpg::item::Item>);
+    assert!(prev_shield.is_none());
     assert_eq!(mog.get_stat(String::from("Defense")), nude_defense + shield_power);
 
-    mog.unequip_from_slot(String::from("Weapon"));
-    mog.unequip_from_slot(String::from("Shield"));
+    let prev_weapon = mog.unequip_from_slot(String::from("Weapon"));
+    assert!(prev_weapon.is_some());
+    let prev_shield = mog.unequip_from_slot(String::from("Shield"));
+    assert!(prev_shield.is_some());
     assert_eq!(mog.get_stat(String::from("Offense")), nude_offense);
     assert_eq!(mog.get_stat(String::from("Defense")), nude_defense);
 }

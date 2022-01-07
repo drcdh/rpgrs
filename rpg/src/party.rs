@@ -1,20 +1,24 @@
 use crate::common::Id;
 use crate::common::Name;
 use crate::character;
+use crate::item;
 
+// todo: use HashSet and/or make OrderedSet struct
 type Group = Vec<character::Character>;
-type Formation = Vec<usize>;
+type Ordering = Vec<usize>;
+type ItemPool = Vec<item::Item>;
 
 pub struct Party {
     id: Id,
     name: Name,
     group: Group,
-    formation: Formation,
+    formation: Ordering,
+    items: ItemPool,
 }
 
 impl Party {
     pub fn new(name: Name) -> Party {
-        Party { id: 0, name, group: Group::new(), formation: Formation::new(), }
+        Party { id: 0, name, group: Group::new(), formation: Ordering::new(), items: ItemPool::new() }
     }
     pub fn add_character(&mut self, ch: character::Character) {
         self.group.push(ch);

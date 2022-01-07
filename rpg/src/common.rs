@@ -1,2 +1,2 @@
-pub type Id = u32;
+pub type Id = u64;  // Conform to serde_json::Value
 pub type Name = String;

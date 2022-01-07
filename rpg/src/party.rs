@@ -47,7 +47,7 @@ mod tests {
     #[test]
     fn add_remove_character_test() {
         let mut party = Party::new(String::from("Test"));
-        let mog = character::Character::new(String::from("Mog"));
+        let mog = character::Character::new(0, String::from("Mog"));
         party.add_character(mog);
         assert_eq!(party.group.len(), 1);
         assert_eq!(party.formation.len(), 1);

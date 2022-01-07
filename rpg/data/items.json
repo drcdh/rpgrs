@@ -1,0 +1,12 @@
+[
+    {
+        "id": 0,
+        "name": "Potion",
+        "effect": 0
+    },
+    {
+        "id": 1,
+        "name": "Elixer",
+        "effect": 1
+    }
+]

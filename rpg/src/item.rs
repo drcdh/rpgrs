@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 
-use serde::Deserialize;
+use serde::{Serialize, Deserialize};
 
 use crate::common::Name;
 
-#[derive(Debug, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Item {
     pub name: Name,
     pub power: i32,

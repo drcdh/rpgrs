@@ -1,0 +1,20 @@
+[
+    {
+        "id": 0,
+        "name": "Mog",
+        "base_stats": {
+            "Strength": 10,
+            "Stamina": 12
+        },
+        "stats": 0,
+        "actions": {
+            "Attack": 0,
+            "Dance": [30, 31],
+            "Magic": [1],
+            "Item": 2
+        },
+        "items": [
+            0,0,1
+        ]
+    }
+]

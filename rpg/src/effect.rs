@@ -1,28 +1,30 @@
+use std::collections::HashMap;
 use std::fmt;
 
-use crate::common::Id;
-use crate::common::Name;
+use serde::{Serialize, Deserialize};
 
-pub enum Scope {
-    None,
-    Me,
-    Ally,
-    Enemy,
-    One,
-    Allies,
-    Enemies,
-    All,
+use crate::common::{Id, Name};
+
+#[derive(Serialize, Deserialize, Debug)]
+enum Hit {
+    Constant(i64),
+    Formula(String),
 }
 
+type Hits = HashMap::<String, Hit>;
+type Traits = Vec::<Name>;
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Effect {
     id: Id,
     name: Name,
-    scope: Scope,
+    hits: Hits,
+    traits: Traits,
 }
 
 impl Effect {
-    pub fn new(id: Id, name: Name, scope: Scope) -> Effect {
-        Effect { id, name, scope }
+    pub fn new(id: Id, name: Name) -> Effect {
+        Effect { id, name, hits: Hits::new(), traits: Traits::new() }
     }
 }
 
@@ -38,7 +40,7 @@ mod tests {
 
     #[test]
     fn new_test() {
-        let effect = Effect::new(0, String::from("Potion"), Scope::One);
+        let effect = Effect::new(0, String::from("Potion"));
         println!(">>> Test effect: {}", effect);
     }
 }

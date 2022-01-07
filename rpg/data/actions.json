@@ -1,0 +1,16 @@
+[
+    {
+        "id": 0,
+        "name": "Attack",
+        "costs": {},
+        "effects": 2,
+        "scope": "One"
+    },
+    {
+        "id": 1,
+        "name": "Candlelight",
+        "costs": {"MP": 3},
+        "effects": 2,
+        "scope": "One"
+    }
+]

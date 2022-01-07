@@ -1,0 +1,28 @@
+{
+    "listing": [
+        {
+            "id": 0,
+            "name": "Potion",
+            "hits": {"HP": {"Constant": -50}},
+            "traits": []
+        },
+        {
+            "id": 1,
+            "name": "Elixer",
+            "hits": {"HP": {"Constant": -9999}, "MP": {"Constant": -9999}},
+            "traits": []
+        },
+        {
+            "id": 2,
+            "name": "Attack",
+            "hits": {"HP": {"Formula": "- ^Offense $Defense"}},
+            "traits": []
+        },
+        {
+            "id": 3,
+            "name": "Candlelight",
+            "hits": {"HP": {"Formula": "- ^Magic * 0.2 $Magic"}},
+            "traits": ["Fire", "Hot", "Elemental"]
+        }
+    ]
+}

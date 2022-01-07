@@ -12,7 +12,7 @@ pub struct Character {
     base_stats: stats::BaseStats,
     stats: stats::DerivedStats,
 
-    items: item::EquipmentSet,
+    equips: item::EquipmentSet,
 }
 
 impl Character {
@@ -23,7 +23,7 @@ impl Character {
             name,
             base_stats,
             stats,
-            items: item::generate_equipment_set(),
+            equips: item::generate_equipment_set(),
         }
     }
     // `&self` is short for `self: &Self`
@@ -33,18 +33,18 @@ impl Character {
     }
     pub fn get_stat(&self, name: Name) -> stats::Stat {
         match self.stats.get(&name) {
-            Some(ds) => ds(&self.base_stats, &self.items),
+            Some(ds) => ds(&self.base_stats, &self.equips),
             None => 0, // TODO!
         }
     }
     pub fn equip_to_slot(&mut self, item: item::Item, slot: String) -> Option<item::Item> {
-        let prev_equip = self.items.remove(&slot).unwrap();
-        self.items.insert(slot, Some(item));
+        let prev_equip = self.equips.remove(&slot).unwrap();
+        self.equips.insert(slot, Some(item));
         prev_equip
     }
     pub fn unequip_from_slot(&mut self, slot: String) -> Option<item::Item> {
-        let prev_equip = self.items.remove(&slot).unwrap();
-        self.items.insert(slot, None);
+        let prev_equip = self.equips.remove(&slot).unwrap();
+        self.equips.insert(slot, None);
         prev_equip
     }
 }

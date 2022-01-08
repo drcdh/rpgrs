@@ -1,37 +1,57 @@
-use std::collections::HashMap;
+use std::fmt;
 
 use serde::{Serialize, Deserialize};
 use serde_json;
-use serde_json::Value;
 
+use crate::action::{CharacterAction, CharacterActions};
 use crate::common::{Id, Name};
-use crate::item;
-use crate::stats;
+use crate::item::Item;
+use crate::stats::{BaseStats, Stat, generate_stats};
 
-type Actions = serde_json::Map<Name, Value>;// HashMap::<Name, Id>;
-type Items = Vec::<Value>;
+
+type Items = Vec::<Id>; // todo, allow literals in JSON with CharacterItem
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Character {
-    pub id: Id, // todo, make private (impacts party.rs)
+    id: Id,
     name: Name,
-
-    base_stats: stats::BaseStats,
-    stats: Id, // stats::DerivedStats,
-    actions: Actions,
-    items: Items, //Vec::<item::Item>,
+    #[serde(default = "Character::default_base_stats")]
+    base_stats: BaseStats,
+    #[serde(default = "Character::default_stats")]
+    stats: Id,
+    #[serde(default = "Character::default_actions")]
+    actions: CharacterActions,
+    #[serde(default)]
+    items: Items,
     // equips: item::EquipmentSet,
 }
 
 impl Character {
+    fn default_actions() -> CharacterActions {
+        let mut ca = CharacterActions::new();
+        ca.insert(String::from("Attack"), CharacterAction::Index(0));
+        ca.insert(String::from("Item"), CharacterAction::UseItem);
+        ca
+    }
+    fn default_base_stats() -> BaseStats {
+        let mut bs = BaseStats::new();
+        bs.insert(String::from("Strength"), 10);
+        bs.insert(String::from("Stamina"), 10);
+        bs.insert(String::from("Magic"), 10);
+        bs.insert(String::from("Speed"), 10);
+        bs
+    }
+    fn default_stats() -> Id {
+        0
+    }
     pub fn new(id: Id, name: Name) -> Character {
-        let (base_stats, stats) = stats::generate_stats();
+        let (base_stats, stats) = generate_stats();
         Character {
             id,
             name,
             base_stats,
             stats: 0, //stats,
-            actions: Actions::new(),
+            actions: CharacterActions::new(),
             items: Items::new(),
             //equips: item::generate_equipment_set(),
         }
@@ -39,32 +59,14 @@ impl Character {
     fn from_json(data: &str) -> Character {
         let c: Character = serde_json::from_str(data).expect("Character JSON was not well-formatted");
         c
-/*
-        let id = json["id"].as_u64().expect("No id in JSON");
-        let name = json["name"].as_str().expect("No name in JSON").to_string();
-        let (mut base_stats, stats) = stats::generate_stats();
-        if let Some(new_base_stats) = json["base_stats"].as_array() {
-            // update base_stats
-        }
-        let actions: Actions = *json["actions"].as_object().expect("No actions in JSON");
-        let items = *json["items"].as_array().expect("No items in JSON");
-        Character {
-            id,
-            name,
-            base_stats,
-            stats: 0, // todo
-            actions,
-            items,
-        }
-*/
     }
     // `&self` is short for `self: &Self`
     // Here `Self` is short for `Character`
-    pub fn whoami(&self) -> &str {
-        &self.name[..]
+    pub fn whoami(&self) -> (Id, &str) {
+        (self.id, &self.name[..])
     }
-    pub fn get_stat(&self, name: Name) -> stats::Stat {
-        let (_bsset, dsset) = stats::generate_stats();
+    pub fn get_stat(&self, name: Name) -> Stat {
+        let (_bsset, dsset) = generate_stats();
         match dsset.get(&name) { //self.stats.get(&name) {
             Some(ds) => 1,//ds(&self.base_stats, &self.equips),
             None => 0, // TODO!
@@ -83,6 +85,12 @@ impl Character {
     }*/
 }
 
+impl fmt::Display for Character {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}.{}", self.id, self.name)
+    }
+}
+
 
 #[cfg(test)]
 mod tests {
@@ -95,8 +103,7 @@ mod tests {
             0,
             String::from(name),
         );
-        assert_eq!(mog.id, 0);
-        assert_eq!(mog.whoami(), name);
+        assert_eq!(mog.whoami(), (0, "Mog"));
     }
     #[test]
     fn from_json_test() {
@@ -107,19 +114,9 @@ mod tests {
                 "Strength": 10,
                 "Stamina": 12
             },
-            "stats": 0,
-            "actions": {
-                "Attack": 0,
-                "Dance": 30,
-                "Magic": 1,
-                "Item": 2
-            },
-            "items": [
-                0,0,5
-            ]
+            "stats": 0
         }"#;
-        let mog = Character::from_json(mog_json);//.expect("Mog JSON was not well-formatted");
-        assert_eq!(mog.id, 0);
-        assert_eq!(mog.whoami(), "Mog");
+        let mog = Character::from_json(mog_json);
+        assert_eq!(mog.whoami(), (0, "Mog"));
     }
 }

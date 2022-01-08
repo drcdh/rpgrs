@@ -1,15 +1,29 @@
 use std::collections::HashMap;
+use std::fmt;
 
 use serde::{Serialize, Deserialize};
 
-use crate::common::Name;
+use crate::common::{Id, Name};
+use crate::effect::Effect;
+
+#[derive(Serialize, Deserialize, Debug)]
+enum ItemEffect {
+    Index(Id),
+    Literal(Effect),
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Item {
+    id: Id,
+    #[serde(default)]
     pub name: Name,
+    #[serde(default)]
     pub power: i32,
+    #[serde(default)]
     pub stamina_mod: i32,
+    #[serde(default)]
     pub strength_mod: i32,
+    effect: ItemEffect,
 }
 
 impl Item {
@@ -19,6 +33,12 @@ impl Item {
             "Stamina" => self.stamina_mod,
             _ => 0,
         }
+    }
+}
+
+impl fmt::Display for Item {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}.{}", self.id, self.name)
     }
 }
 
@@ -39,10 +59,6 @@ pub fn equipment_mod(equipment: &EquipmentSlot, name: &Name) -> i32 {
     }
 }
 
-pub fn create(name: String, power: i32, strength_mod: i32, stamina_mod: i32) -> Item {
-    Item {name, power, strength_mod, stamina_mod}
-}
-
 pub fn generate_equipment_set() -> EquipmentSet {
     let mut equips = EquipmentSet::new();
     equips.insert(String::from("Weapon"), None::<Item>);
@@ -58,10 +74,12 @@ mod tests {
     fn instance_test() {
         let empty: EquipmentSlot = None;
         let item: EquipmentSlot = Some(Item {
+            id: 255,
             name: String::from("Debug Stick"),
             power: 1,
             strength_mod: -1,
             stamina_mod: -2,
+            effect: ItemEffect::Index(2), // Attack
         });
         assert_eq!(equipment_power(&item), 1);
         assert_eq!(equipment_power(&empty), 0);

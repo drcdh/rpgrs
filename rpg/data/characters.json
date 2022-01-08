@@ -1,4 +1,4 @@
-[
+{ "listing": [
     {
         "id": 0,
         "name": "Mog",
@@ -8,13 +8,26 @@
         },
         "stats": 0,
         "actions": {
-            "Attack": 0,
-            "Dance": [30, 31],
-            "Magic": [1],
-            "Item": 2
+            "Attack": {"Index": 0},
+            "Dance": {"Selection": [
+                {"Index": 30},
+                {"Literal": {
+                    "id": 31,
+                    "name": "Desert Lullaby",
+                    "effects": [{ "Literal": {
+                            "id": 404,
+                            "name": "Desert Lullaby",
+                            "hits": {"HP": {"Formula": "- * 3 ^Magic * 0.6 $Magic"}},
+                            "traits": ["Wind", "Nature"]
+                    }}],
+                    "scope": "Enemies"
+                }}
+            ]},
+            "Magic": {"Selection": [{"Index": 1}]},
+            "Item": "UseItem"
         },
         "items": [
             0,0,1
         ]
     }
-]
+]}

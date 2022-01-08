@@ -1,12 +1,22 @@
-[
+{ "listing": [
     {
         "id": 0,
         "name": "Potion",
-        "effect": 0
+        "effect": {"Index": 0}
     },
     {
         "id": 1,
         "name": "Elixer",
-        "effect": 1
+        "effect": {"Index": 1}
+    },
+    {
+        "id": 15,
+        "name": "Fabulous Jerky",
+        "effect": {"Literal": {
+            "id": 404,
+            "hits": {"*HP": {"Constant": -10}},
+            "traits": ["Food"],
+            "msg": "{:target} ate {:item}, and it was delicious! Gained 10 Max Hitpoints, sweet!"
+        }}
     }
-]
+]}

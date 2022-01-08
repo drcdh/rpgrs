@@ -1,24 +1,24 @@
-{ "listing": [
-    {
-        "id": 0,
-        "name": "Attack",
-        "effects": [{"Index": 2}]
+{
+    "0": {
+            "id": 0,
+            "name": "Attack",
+            "effects": [{"Index": 2}]
     },
-    {
-        "id": 1,
-        "name": "Candlelight",
-        "costs": {"MP": 3},
-        "effects": [{"Index": 3}]
+    "1": {
+            "id": 1,
+            "name": "Candlelight",
+            "costs": {"MP": 3},
+            "effects": [{"Index": 3}]
     },
-    {
-        "id": 30,
-        "name": "Water Harmony",
-        "effects": [{ "Literal": {
-                "id": 404,
-                "name": "Water Harmony",
-                "hits": {"HP": {"Formula": "- * 3 ^Magic * 0.6 $Magic"}},
-                "traits": ["Water", "Nature"]
-        }}],
-        "scope": "Enemies"
+    "30":{
+            "id": 30,
+            "name": "Water Harmony",
+            "effects": [{ "Literal": {
+                    "id": 404,
+                    "name": "Water Harmony",
+                    "hits": {"HP": {"Formula": "- * 3 ^Magic * 0.6 $Magic"}},
+                    "traits": ["Water", "Nature"]
+            }}],
+            "scope": "Enemies"
     }
-]}
+}

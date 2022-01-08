@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 use std::error::Error;
-use std::fs::File;
-use std::io::BufReader;
 
 use serde::{Serialize, Deserialize};
 
 use crate::common::{Id, Name, Formula};
+use crate::encyclopedia::{Encyclopedia, get_encyclopedia};
+
 
 pub type Stat = i64;
 pub type BaseStats = HashMap<Name, Stat>;
@@ -18,14 +18,10 @@ pub struct StatBlock {
     stats: DerivedStats,
 }
 
-pub type StatBlocks = HashMap<Id, StatBlock>;
+pub type StatBlocks = Encyclopedia<StatBlock>;
 
-// TODO: Compare this with encyclopedia
 pub fn get_statblocks(filename: &str) -> Result<StatBlocks, Box<dyn Error>> {
-    let file = File::open(filename)?;
-    let reader = BufReader::new(file);
-    let en = serde_json::from_reader(reader)?;
-    Ok(en)
+    get_encyclopedia::<StatBlock>(filename)
 }
 
 // TODO: this is of course terrible

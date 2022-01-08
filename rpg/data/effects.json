@@ -1,27 +1,25 @@
 {
-    "listing": [
-        {
+    "0": {
             "id": 0,
             "name": "Potion",
             "hits": {"HP": {"Constant": -50}},
             "traits": ["Quaffable"]
-        },
-        {
+    },
+    "1": {
             "id": 1,
             "name": "Elixer",
             "hits": {"HP": {"Constant": -9999}, "MP": {"Constant": -9999}},
             "traits": ["Quaffable"]
-        },
-        {
+    },
+    "2": {
             "id": 2,
             "name": "Attack",
             "hits": {"HP": {"Formula": "- ^Offense $Defense"}}
-        },
-        {
+    },
+    "3": {
             "id": 3,
             "name": "Candlelight",
             "hits": {"HP": {"Formula": "- ^Magic * 0.2 $Magic"}},
             "traits": ["Fire", "Hot", "Elemental"]
-        }
-    ]
+    }
 }

@@ -1,0 +1,18 @@
+{
+    "0": {
+        "base_stats": {
+            "Strength": 10,
+            "Stamina": 10,
+            "Magic": 10,
+            "Speed": 10
+        },
+        "stats": {
+            "Offense":  "+ .AddMod * .MultMod + Weapon.power + Strength.AddMod * Strength.MultMod Strength",
+            "Defense":  "+ .AddMod * .MultMod + Armor.power + Stamina.AddMod * Stamina.MultMod Stamina",
+            "Strength": "+ .AddMod * .MultMod .",
+            "Stamina":  "+ .AddMod * .MultMod .",
+            "Magic":    "+ .AddMod * .MultMod .",
+            "Speed":    "+ .AddMod * .MultMod ."
+        }
+    }
+}

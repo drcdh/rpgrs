@@ -25,7 +25,7 @@ impl Party {
         self.formation.push(self.group.len()-1);
     }
     pub fn remove_character(&mut self, id: Id) -> character::Character {
-        let index = self.group.iter().position(|ch| ch.id == id).unwrap();
+        let index = self.group.iter().position(|ch| ch.matches(id)).unwrap();
         let removed: character::Character = self.group.remove(index);
         self.formation.retain(|&i| i != index);
         removed
@@ -53,7 +53,7 @@ mod tests {
         assert_eq!(party.formation.len(), 1);
         assert_eq!(*party.formation.get(0).unwrap(), 0);
         let mog = party.remove_character(0);
-        assert_eq!(mog.whoami(), "Mog");
+        assert_eq!(mog.whoami(), (0, "Mog"));
         assert_eq!(party.group.len(), 0);
         assert_eq!(party.formation.len(), 0);
     }

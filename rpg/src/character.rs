@@ -6,7 +6,7 @@ use serde_json;
 use crate::action::{CharacterAction, CharacterActions};
 use crate::common::{Id, Name};
 use crate::item::Item;
-use crate::stats::{BaseStats, Stat, generate_stats};
+use crate::stats::{BaseStats, Stat, DerivedStat, DerivedStats, generate_stats};
 
 
 type Items = Vec::<Id>; // todo, allow literals in JSON with CharacterItem
@@ -45,16 +45,20 @@ impl Character {
         0
     }
     pub fn new(id: Id, name: Name) -> Character {
-        let (base_stats, stats) = generate_stats();
+        let sb_id: Id = 0;
+        let (base_stats, _stats) = generate_stats(&sb_id);
         Character {
             id,
             name,
             base_stats,
-            stats: 0, //stats,
+            stats: sb_id,
             actions: CharacterActions::new(),
             items: Items::new(),
             //equips: item::generate_equipment_set(),
         }
+    }
+    pub fn matches(&self, id: Id) -> bool {
+        self.id == id
     }
     fn from_json(data: &str) -> Character {
         let c: Character = serde_json::from_str(data).expect("Character JSON was not well-formatted");
@@ -65,11 +69,11 @@ impl Character {
     pub fn whoami(&self) -> (Id, &str) {
         (self.id, &self.name[..])
     }
-    pub fn get_stat(&self, name: Name) -> Stat {
-        let (_bsset, dsset) = generate_stats();
-        match dsset.get(&name) { //self.stats.get(&name) {
-            Some(ds) => 1,//ds(&self.base_stats, &self.equips),
-            None => 0, // TODO!
+    pub fn get_stat(&self, name: Name) -> DerivedStat {
+        let (_, dstats) = generate_stats(&self.stats);
+        match dstats.get(&name) {
+            Some(ds) => ds.clone(),
+            None => String::from(".Default"), // TODO: game-global defaults
         }
     }
     /*

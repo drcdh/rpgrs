@@ -4,7 +4,7 @@ use std::error::Error;
 use serde::{Serialize, Deserialize};
 
 use crate::common::{Id, Name, Formula};
-use crate::encyclopedia::{Encyclopedia, get_encyclopedia};
+use crate::encyclopedia::{Encyclopedia, read_encyclopedia};
 
 
 pub type Stat = i64;
@@ -21,7 +21,7 @@ pub struct StatBlock {
 pub type StatBlocks = Encyclopedia<StatBlock>;
 
 pub fn get_statblocks(filename: &str) -> Result<StatBlocks, Box<dyn Error>> {
-    get_encyclopedia::<StatBlock>(filename)
+    read_encyclopedia::<StatBlock>(filename)
 }
 
 // TODO: this is of course terrible

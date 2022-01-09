@@ -35,5 +35,35 @@
             {"name": "HP", "current": 95, "maximum": 100},
             {"name": "MP", "current": 9, "maximum": 26}
         ]
+    },
+    "101": {
+        "id": 101,
+        "name": "Mouse-Sized Rat",
+        "base_stats": {
+            "Strength": 9,
+            "Stamina": 6,
+            "Magic": 2,
+            "Speed": 40
+        },
+        "stats": 0,
+        "actions": {"Attack": {"Index": 0}},
+        "pools": [
+            {"name": "HP", "current": 10, "maximum": 10}
+        ]
+    },
+    "102": {
+        "id": 102,
+        "name": "Rat-Sized Mouse",
+        "base_stats": {
+            "Strength": 6,
+            "Stamina": 8,
+            "Magic": 2,
+            "Speed": 35
+        },
+        "stats": 0,
+        "actions": {"Attack": {"Index": 0}},
+        "pools": [
+            {"name": "HP", "current": 15, "maximum": 15}
+        ]
     }
 }

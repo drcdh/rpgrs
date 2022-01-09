@@ -39,12 +39,13 @@ impl<R: Read, W: Write> Menu<R, W> {
 
 fn bcli_test<R: Read, W: Write>(stdin: R, stdout: W, ch_enc: &Encyclopedia<Character>) {
     let mut allies = Party::new("Allies".to_string());
-    allies.add_character(IndexedOrLiteral::Literal(Character::new(0, "Mog".to_string())));
-    allies.add_character(IndexedOrLiteral::Literal(Character::new(10, "Deirdre".to_string())));
+    allies.add_character(IndexedOrLiteral::Index(0)); // Mog
+
     let mut baddies = Party::new("Baddies".to_string());
-    baddies.add_character(IndexedOrLiteral::Literal(Character::new(101, "Rat-Sized Mouse".to_string())));
-    baddies.add_character(IndexedOrLiteral::Literal(Character::new(102, "Mouse-Sized Rat".to_string())));
-    baddies.add_character(IndexedOrLiteral::Literal(Character::new(105, "Ball of Sharp Things".to_string())));
+    baddies.add_character(IndexedOrLiteral::Index(101));
+    baddies.add_character(IndexedOrLiteral::Index(102));
+    baddies.add_character(IndexedOrLiteral::Index(101));
+
     let mut battle = Battle {
         allies,
         baddies,

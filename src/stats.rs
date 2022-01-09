@@ -28,7 +28,7 @@ impl StatBlock {
 
 impl fmt::Display for StatBlock {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}.{}", self.id, self.name)
+        write!(f, "{}. {} ({})", self.id, self.name, self.stats.keys().map(|s| &**s).collect::<Vec<_>>().join(", "))
     }
 }
 // TODO: this is of course terrible

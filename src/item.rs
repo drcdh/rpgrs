@@ -3,14 +3,9 @@ use std::fmt;
 
 use serde::{Serialize, Deserialize};
 
-use crate::common::{Id, Name};
+use crate::common::*;
 use crate::effect::Effect;
 
-#[derive(Serialize, Deserialize, Debug)]
-enum ItemEffect {
-    Index(Id),
-    Literal(Effect),
-}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Item {
@@ -23,7 +18,7 @@ pub struct Item {
     pub stamina_mod: i32,
     #[serde(default)]
     pub strength_mod: i32,
-    effect: ItemEffect,
+    effect: IndexedOrLiteral<Effect>,
 }
 
 impl Item {
@@ -38,7 +33,7 @@ impl Item {
 
 impl fmt::Display for Item {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.name)
+        write!(f, "{}.{}", self.id, self.name)
     }
 }
 
@@ -79,7 +74,7 @@ mod tests {
             power: 1,
             strength_mod: -1,
             stamina_mod: -2,
-            effect: ItemEffect::Index(2), // Attack
+            effect: IndexedOrLiteral::<Effect>::Index(2), // Attack
         });
         assert_eq!(equipment_power(&item), 1);
         assert_eq!(equipment_power(&empty), 0);

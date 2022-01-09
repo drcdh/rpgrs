@@ -14,7 +14,7 @@
         "name": "Fabulous Jerky",
         "effect": {"Literal": {
             "id": 404,
-            "hits": {"*HP": {"Constant": -10}},
+            "hits": {"MaxHP": {"Constant": -10}},
             "traits": ["Food"],
             "msg": "{:target} ate {:item}, and it was delicious! Gained 10 Max Hitpoints, sweet!"
         }}

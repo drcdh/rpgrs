@@ -9,6 +9,8 @@ use termion::raw::IntoRawMode;
 
 use rpgrs::battle::{Battle, BattleCLI};
 use rpgrs::character::Character;
+use rpgrs::common::*;
+use rpgrs::encyclopedia::{Encyclopedia, read_encyclopedia};
 use rpgrs::party::Party;
 
 struct Menu<R: Read, W: Write> {
@@ -33,32 +35,32 @@ impl<R: Read, W: Write> Menu<R, W> {
     }
 }
 
-fn bcli_test<R: Read, W: Write>(stdin: R, stdout: W) {
-    let mut cli = BattleCLI {
+fn bcli_test<R: Read, W: Write>(stdin: R, stdout: W, ch_enc: &Encyclopedia<Character>) {
+    let cli = BattleCLI {
         stdin: stdin.keys(),
         stdout: stdout,
     };
     let mut allies = Party::new("Allies".to_string());
-    allies.add_character(Character::new(0, "Mog".to_string()));
-    allies.add_character(Character::new(10, "Deirdre".to_string()));
+    allies.add_character(IndexedOrLiteral::Literal(Character::new(0, "Mog".to_string())));
+    allies.add_character(IndexedOrLiteral::Literal(Character::new(10, "Deirdre".to_string())));
     let mut baddies = Party::new("Baddies".to_string());
-    baddies.add_character(Character::new(101, "Rat-Sized Mouse".to_string()));
-    baddies.add_character(Character::new(102, "Mouse-Sized Rat".to_string()));
-    baddies.add_character(Character::new(105, "Ball of Sharp Things".to_string()));
+    baddies.add_character(IndexedOrLiteral::Literal(Character::new(101, "Rat-Sized Mouse".to_string())));
+    baddies.add_character(IndexedOrLiteral::Literal(Character::new(102, "Mouse-Sized Rat".to_string())));
+    baddies.add_character(IndexedOrLiteral::Literal(Character::new(105, "Ball of Sharp Things".to_string())));
     let mut battle = Battle {
         allies,
         baddies,
         cli,
     };
-    battle.run();
+    battle.run(ch_enc);
 }
 
 fn main() {
+    let phonebook = read_encyclopedia::<Character>("data/characters.json");
+
     let termsize = termion::terminal_size().ok();
     let termwidth = termsize.map(|(w,_)| w - 2).unwrap();
     let termheight = termsize.map(|(_,h)| h - 2).unwrap();
-
-    println!("Terminal width, height is ({}, {})", termwidth, termheight);
 
     let stdout = io::stdout();
     let stdout = stdout.lock();
@@ -68,7 +70,7 @@ fn main() {
     // We go to raw mode to make the control over the terminal more fine-grained.
     let stdout = stdout.into_raw_mode().unwrap();
 
-    bcli_test(stdin, stdout);
+    bcli_test(stdin, stdout, &phonebook);
 /*
     let allies = Party::new("Allies");
     let baddies = Party::new("Baddies");
@@ -78,6 +80,7 @@ fn main() {
     //let answer = menu_test();
     //print!("{}Got answer {}", Goto(15, 15), answer);
     print!("{}{}{}", ClearAll, termion::style::Reset, Goto(1, 1));
+    println!("Terminal width, height is ({}, {})", termwidth, termheight);
 }
 
 fn menu_test() -> String {

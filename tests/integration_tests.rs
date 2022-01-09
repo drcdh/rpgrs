@@ -11,8 +11,16 @@ use rpgrs::encyclopedia::read_encyclopedia;
 fn read_encyclopedias() {
     let filename = "data/actions.json";
     let actions = read_encyclopedia::<Action>(filename);
+    println!("\n>>> ACTIONS <<<");
+    for (_, act) in actions {
+        println!("{}", act);
+    }
     let filename = "data/characters.json";
     let characters = read_encyclopedia::<Character>(filename);
+    println!("\n>>> CHARACTERS <<<");
+    for (_, ch) in characters {
+        println!("{}", ch);
+    }
     let filename = "data/effects.json";
     let effects = read_encyclopedia::<Effect>(filename);
     println!("\n>>> EFFECTS <<<");
@@ -27,6 +35,10 @@ fn read_encyclopedias() {
     }
     let filename = "data/stats.json";
     let statblocks = read_encyclopedia::<StatBlock>(filename);
+    println!("\n>>> STATBLOCKS <<<");
+    for (_, sb) in statblocks {
+        println!("{}", sb);
+    }
 }
 
 /*

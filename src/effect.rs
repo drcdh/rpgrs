@@ -63,7 +63,7 @@ impl fmt::Display for Effect {
             conditions = "Causes ".to_owned() + &conditions;
             conditions += ". ";
         }
-        write!(f, "{}: {}{}", self.name, traits, conditions)
+        write!(f, "{}.{}: {}{}", self.id, self.name, traits, conditions)
     }
 }
 

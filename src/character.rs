@@ -4,16 +4,22 @@ use serde::{Serialize, Deserialize};
 use serde_json;
 
 use crate::action::{CharacterAction, CharacterActions};
-use crate::common::{Id, Name};
+use crate::common::*;
 use crate::item::Item;
 use crate::stats::{BaseStats, Stat, DerivedStat, DerivedStats, StatBlock};
 
 use crate::encyclopedia::Encyclopedia;
-use crate::encyclopedia::read_encyclopedia;
 
 
 type CharacterStats = Id; // todo, allow literals in JSON with enum
 type Items = Vec::<Id>; // todo, allow literals in JSON with CharacterItem
+
+#[derive(Serialize, Deserialize, Debug)]
+struct Pool {
+    name: Name,
+    current: u32,
+    maximum: u32,
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Character {
@@ -28,6 +34,8 @@ pub struct Character {
     #[serde(default)]
     items: Items,
     // equips: item::EquipmentSet,
+    #[serde(default)]
+    pools: Vec::<Pool>,
 }
 
 impl Character {
@@ -57,6 +65,7 @@ impl Character {
             actions: CharacterActions::new(),
             items: Items::new(),
             //equips: item::generate_equipment_set(),
+            pools: Vec::<Pool>::new(),
         }
     }
     pub fn matches(&self, id: Id) -> bool {
@@ -91,6 +100,13 @@ impl Character {
         self.equips.insert(slot, None);
         prev_equip
     }*/
+}
+
+pub fn resolve<'a>(iol: &'a IndexedOrLiteral::<Character>, ch_enc: &'a Encyclopedia::<Character>) -> Option<&'a Character> {
+    match iol {
+        IndexedOrLiteral::<Character>::Index(i) => ch_enc.get(&i),
+        IndexedOrLiteral::<Character>::Literal(c) => Some(&c),
+    }
 }
 
 impl fmt::Display for Character {
@@ -139,6 +155,7 @@ mod tests {
     }
     #[test]
     fn get_stat_test() {
+        use crate::encyclopedia::read_encyclopedia;
         let statblocks = read_encyclopedia::<StatBlock>("data/stats.json");
         let mog = Character::from_json(r#"{"id": 0, "name": "Mog"}"#);
         assert!(mog.get_stat(String::from("Strength"), &statblocks).is_some());

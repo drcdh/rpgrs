@@ -4,14 +4,15 @@ use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 use termion::style;
+use std::io::Write;
 
-use std::io;
-use std::io::{Read, Write};
 
+use crate::character::Character;
+use crate::character::resolve as resolve_character;
+use crate::encyclopedia::Encyclopedia;
 use crate::party::Party;
 
 
-const BOX_SEPARATION: u16 = 2;
 const OUTER_ROW: &'static str = " ============================== ";
 const INNER_ROW: &'static str = " |                            | ";
 const BOX_HEIGHT: u16 = 8;
@@ -41,12 +42,12 @@ impl<R: Iterator<Item=Result<Key, std::io::Error>>, W: Write> BattleCLI<R, W> {
             for _ in 0..n {
                 write!(self.stdout, "{}", INNER_ROW).unwrap();
             }
-            write!(self.stdout, "\r\n");
+            write!(self.stdout, "\r\n").unwrap();
         }
         for _ in 0..n {
             write!(self.stdout, "{}", OUTER_ROW).unwrap();
         }
-        write!(self.stdout, "\r\n");
+        write!(self.stdout, "\r\n").unwrap();
     }
     fn draw_boxes(&mut self, num_baddies: usize, num_allies: usize) {
         self.clear();
@@ -54,12 +55,13 @@ impl<R: Iterator<Item=Result<Key, std::io::Error>>, W: Write> BattleCLI<R, W> {
         write!(self.stdout, "\n\n\n").unwrap();
         self._draw_boxes(num_allies);
     }
-    fn write_party_info(&mut self, p: &Party, y: u16) {
+    fn write_party_info(&mut self, p: &Party, y: u16, ch_enc: &Encyclopedia<Character>) {
 /*
         for i in &p.formation {
             let c = p.group.get(i).unwrap();
             */
-        for (i, c) in p.group.iter().enumerate() {
+        for i in 0..p.len() {
+            let c = resolve_character(p.get_character(i), ch_enc).unwrap();
             let (_, name) = c.whoami();
             let i: u16 = i.try_into().unwrap();
             write!(self.stdout, "{} {}", Goto(i*BOX_WIDTH + 3, y+1), name).unwrap();
@@ -79,11 +81,11 @@ pub struct Battle<R, W: Write> {
 }
 
 impl<R: Iterator<Item=Result<Key, std::io::Error>>, W: Write> Battle<R, W> {
-    pub fn run(&mut self) {
+    pub fn run(&mut self, ch_enc: &Encyclopedia<Character>) {
         self.cli.clear();
-        self.cli.draw_boxes(self.baddies.group.len(), self.allies.group.len()); // todo
-        self.cli.write_party_info(&self.baddies, 1);
-        self.cli.write_party_info(&self.allies, BOX_HEIGHT+5);
+        self.cli.draw_boxes(self.baddies.len(), self.allies.len());
+        self.cli.write_party_info(&self.baddies, 1, ch_enc);
+        self.cli.write_party_info(&self.allies, BOX_HEIGHT+5, ch_enc);
         self.cli.get_key(); // pause
     }
 }

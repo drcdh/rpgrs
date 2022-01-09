@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::error::Error;
+use std::fmt;
 
 use serde::{Serialize, Deserialize};
 
@@ -14,6 +14,8 @@ pub type DerivedStats = HashMap<Name, DerivedStat>;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct StatBlock {
+    id: Id,
+    name: Name,
     base_stats: BaseStats,
     stats: DerivedStats,
 }
@@ -24,6 +26,11 @@ impl StatBlock {
     }
 }
 
+impl fmt::Display for StatBlock {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}.{}", self.id, self.name)
+    }
+}
 // TODO: this is of course terrible
 pub fn generate_stats(id: &Id) -> (BaseStats, DerivedStats) {
     let statblocks = read_encyclopedia::<StatBlock>("data/stats.json");
@@ -32,7 +39,9 @@ pub fn generate_stats(id: &Id) -> (BaseStats, DerivedStats) {
     (bs, ds)
 }
 
+/*
 #[cfg(test)]
 mod tests {
     use super::*;
 }
+*/

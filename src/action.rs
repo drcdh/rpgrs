@@ -3,7 +3,7 @@ use std::fmt;
 
 use serde::{Serialize, Deserialize};
 
-use crate::common::{Id, Name};
+use crate::common::*;
 use crate::effect::Effect;
 
 pub type Costs = HashMap::<String, u16>;
@@ -25,19 +25,12 @@ pub enum Scope {
 
 #[derive(Serialize, Deserialize, Debug)]
 #[derive(PartialEq)]
-pub enum ActionEffect {
-    Index(Id),
-    Literal(Effect),
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-#[derive(PartialEq)]
 pub struct Action {
     id: Id,
     name: Name,
     #[serde(default)]
     costs: Costs,
-    effects: Vec::<ActionEffect>,
+    effects: Vec::<IndexedOrLiteral<Effect>>,
     #[serde(default = "Action::default_scope")]
     scope: Scope,
 }
@@ -46,7 +39,7 @@ pub struct Action {
 #[derive(PartialEq)]
 pub enum CharacterAction {
     Index(Id),
-    Selection(Vec::<CharacterAction>),
+    Selection(Vec::<CharacterAction>), // e.g. Magic, Techs, Dance, etc.
     Literal(Action),
     UseItem,
 }

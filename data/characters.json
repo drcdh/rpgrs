@@ -30,6 +30,10 @@
         },
         "items": [
             0,0,1
+        ],
+        "pools": [
+            {"name": "HP", "current": 95, "maximum": 100},
+            {"name": "MP", "current": 9, "maximum": 26}
         ]
     }
 }

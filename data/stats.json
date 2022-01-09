@@ -1,5 +1,7 @@
 {
     "0": {
+        "id": 0,
+        "name": "FFVI",
         "base_stats": {
             "Strength": 10,
             "Stamina": 10,
@@ -16,6 +18,8 @@
         }
     },
     "1": {
+        "id": 1,
+        "name": "D&D",
         "base_stats": {
             "Strength": 10,
             "Dexterity": 10,

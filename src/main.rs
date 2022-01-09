@@ -9,6 +9,7 @@ use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 
+use crate::rpgrs::rpg::battle::{Battle, BattleCLI};
 
 struct Menu<R: Read, W: Write> {
     options: Vec<String>,
@@ -34,14 +35,31 @@ impl<R: Read, W: Write> Menu<R, W> {
 
 fn main() {
     let termsize = termion::terminal_size().ok();
-    let _termwidth = termsize.map(|(w,_)| w - 2);
-    let _termheight = termsize.map(|(_,h)| h - 2);
+    let termwidth = termsize.map(|(w,_)| w - 2);
+    let termheight = termsize.map(|(_,h)| h - 2);
 
-    let answer = menu_test();
+    println!("Terminal width, height is ({}, {})", termwidth, termheight);
 
-    print!("{}Got answer {}", Goto(15, 15), answer);
+    let stdout = io::stdout();
+    let stdout = stdout.lock();
+    let stdin = io::stdin();
+    let stdin = stdin.lock();
 
-    //print!("{}{}{}", ClearAll, termion::style::Reset, Goto(1, 1));
+    // We go to raw mode to make the control over the terminal more fine-grained.
+    let stdout = stdout.into_raw_mode().unwrap();
+
+    let mut bcli = BattleCLI{ stdin, stdout };
+    bcli.draw_windows(1, 1);
+
+/*
+    let allies = Party::new("Allies");
+    let baddies = Party::new("Baddies");
+    let mut battle = battle::Battle {allies, baddies}
+*/
+    
+    //let answer = menu_test();
+    //print!("{}Got answer {}", Goto(15, 15), answer);
+    print!("{}{}{}", ClearAll, termion::style::Reset, Goto(1, 1));
 }
 
 fn menu_test() -> String {

@@ -1,5 +1,3 @@
-extern crate termion;
-
 use std::io;
 use std::io::{Read, Write};
 
@@ -9,7 +7,9 @@ use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 
-use crate::rpgrs::rpg::battle::{Battle, BattleCLI};
+use rpgrs::battle::{Battle, BattleCLI};
+use rpgrs::character::Character;
+use rpgrs::party::Party;
 
 struct Menu<R: Read, W: Write> {
     options: Vec<String>,
@@ -33,10 +33,30 @@ impl<R: Read, W: Write> Menu<R, W> {
     }
 }
 
+fn bcli_test<R: Read, W: Write>(stdin: R, stdout: W) {
+    let mut cli = BattleCLI {
+        stdin: stdin.keys(),
+        stdout: stdout,
+    };
+    let mut allies = Party::new("Allies".to_string());
+    allies.add_character(Character::new(0, "Mog".to_string()));
+    allies.add_character(Character::new(10, "Deirdre".to_string()));
+    let mut baddies = Party::new("Baddies".to_string());
+    baddies.add_character(Character::new(101, "Rat-Sized Mouse".to_string()));
+    baddies.add_character(Character::new(102, "Mouse-Sized Rat".to_string()));
+    baddies.add_character(Character::new(105, "Ball of Sharp Things".to_string()));
+    let mut battle = Battle {
+        allies,
+        baddies,
+        cli,
+    };
+    battle.run();
+}
+
 fn main() {
     let termsize = termion::terminal_size().ok();
-    let termwidth = termsize.map(|(w,_)| w - 2);
-    let termheight = termsize.map(|(_,h)| h - 2);
+    let termwidth = termsize.map(|(w,_)| w - 2).unwrap();
+    let termheight = termsize.map(|(_,h)| h - 2).unwrap();
 
     println!("Terminal width, height is ({}, {})", termwidth, termheight);
 
@@ -48,9 +68,7 @@ fn main() {
     // We go to raw mode to make the control over the terminal more fine-grained.
     let stdout = stdout.into_raw_mode().unwrap();
 
-    let mut bcli = BattleCLI{ stdin, stdout };
-    bcli.draw_windows(1, 1);
-
+    bcli_test(stdin, stdout);
 /*
     let allies = Party::new("Allies");
     let baddies = Party::new("Baddies");

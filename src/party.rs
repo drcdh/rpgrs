@@ -11,7 +11,7 @@ type ItemPool = Vec<item::Item>;
 pub struct Party {
     id: Id,
     name: Name,
-    group: Group,
+    pub group: Group,
     formation: Ordering,
     items: ItemPool,
 }

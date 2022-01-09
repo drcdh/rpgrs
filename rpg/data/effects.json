@@ -20,6 +20,7 @@
             "id": 3,
             "name": "Candlelight",
             "hits": {"HP": {"Formula": "- ^Magic * 0.2 $Magic"}},
-            "traits": ["Fire", "Hot", "Elemental"]
+            "traits": ["Fire", "Hot", "Elemental"],
+            "conditions": {"Burn": {"Constant": 75}}
     }
 }

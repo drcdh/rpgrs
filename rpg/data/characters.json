@@ -3,8 +3,10 @@
         "id": 0,
         "name": "Mog",
         "base_stats": {
-            "Strength": 10,
-            "Stamina": 12
+            "Strength": 29,
+            "Stamina": 26,
+            "Magic": 35,
+            "Speed": 36
         },
         "stats": 0,
         "actions": {

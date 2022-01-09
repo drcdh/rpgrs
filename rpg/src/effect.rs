@@ -7,6 +7,7 @@ use crate::common::{Id, Name};
 
 
 #[derive(Serialize, Deserialize, Debug)]
+#[derive(PartialEq)]
 enum Hit {
     Constant(i64),
     Formula(String),
@@ -17,6 +18,7 @@ type Hits = HashMap::<String, Hit>;
 type Traits = Vec::<Name>;
 
 #[derive(Serialize, Deserialize, Debug)]
+#[derive(PartialEq)]
 pub struct Effect {
     id: Id,
     #[serde(default)]

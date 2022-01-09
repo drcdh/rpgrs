@@ -4,7 +4,7 @@ use std::error::Error;
 use serde::{Serialize, Deserialize};
 
 use crate::common::{Id, Name, Formula};
-use crate::encyclopedia::{Encyclopedia, read_encyclopedia};
+use crate::encyclopedia::read_encyclopedia;
 
 
 pub type Stat = i64;
@@ -18,15 +18,15 @@ pub struct StatBlock {
     stats: DerivedStats,
 }
 
-pub type StatBlocks = Encyclopedia<StatBlock>;
-
-pub fn get_statblocks(filename: &str) -> Result<StatBlocks, Box<dyn Error>> {
-    read_encyclopedia::<StatBlock>(filename)
+impl StatBlock {
+    pub fn get_stat(&self, name: Name) -> Option<&DerivedStat> {
+        self.stats.get(&name)
+    }
 }
 
 // TODO: this is of course terrible
 pub fn generate_stats(id: &Id) -> (BaseStats, DerivedStats) {
-    let statblocks = get_statblocks("data/stats.json").unwrap();
+    let statblocks = read_encyclopedia::<StatBlock>("data/stats.json");
     let sb = statblocks.get(&id).unwrap();
     let (bs, ds) = (sb.base_stats.clone(), sb.stats.clone());
     (bs, ds)
@@ -35,9 +35,4 @@ pub fn generate_stats(id: &Id) -> (BaseStats, DerivedStats) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    #[test]
-    fn statblocks_test() {
-        let filename = "data/stats.json";
-        let _ = get_statblocks(filename).expect("Failed to get stack blocks").get(&0).expect("Mssing zero-th statblock");
-    }
 }

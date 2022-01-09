@@ -9,6 +9,7 @@ use crate::effect::Effect;
 pub type Costs = HashMap::<String, u16>;
 
 #[derive(Serialize, Deserialize, Debug)]
+#[derive(PartialEq)]
 pub enum Scope {
     None,
     Me,
@@ -23,12 +24,14 @@ pub enum Scope {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+#[derive(PartialEq)]
 pub enum ActionEffect {
     Index(Id),
     Literal(Effect),
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+#[derive(PartialEq)]
 pub struct Action {
     id: Id,
     name: Name,
@@ -40,6 +43,7 @@ pub struct Action {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+#[derive(PartialEq)]
 pub enum CharacterAction {
     Index(Id),
     Selection(Vec::<CharacterAction>),

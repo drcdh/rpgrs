@@ -6,9 +6,13 @@ use serde_json;
 use crate::action::{CharacterAction, CharacterActions};
 use crate::common::{Id, Name};
 use crate::item::Item;
-use crate::stats::{BaseStats, Stat, DerivedStat, DerivedStats, generate_stats};
+use crate::stats::{BaseStats, Stat, DerivedStat, DerivedStats, StatBlock};
+
+use crate::encyclopedia::Encyclopedia;
+use crate::encyclopedia::read_encyclopedia;
 
 
+type CharacterStats = Id; // todo, allow literals in JSON with enum
 type Items = Vec::<Id>; // todo, allow literals in JSON with CharacterItem
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -18,7 +22,7 @@ pub struct Character {
     #[serde(default = "Character::default_base_stats")]
     base_stats: BaseStats,
     #[serde(default = "Character::default_stats")]
-    stats: Id,
+    stats: CharacterStats,
     #[serde(default = "Character::default_actions")]
     actions: CharacterActions,
     #[serde(default)]
@@ -45,13 +49,11 @@ impl Character {
         0
     }
     pub fn new(id: Id, name: Name) -> Character {
-        let sb_id: Id = 0;
-        let (base_stats, _stats) = generate_stats(&sb_id);
         Character {
             id,
             name,
-            base_stats,
-            stats: sb_id,
+            base_stats: BaseStats::new(),
+            stats: 0, // DerivedStats::new(),
             actions: CharacterActions::new(),
             items: Items::new(),
             //equips: item::generate_equipment_set(),
@@ -69,11 +71,13 @@ impl Character {
     pub fn whoami(&self) -> (Id, &str) {
         (self.id, &self.name[..])
     }
-    pub fn get_stat(&self, name: Name) -> DerivedStat {
-        let (_, dstats) = generate_stats(&self.stats);
-        match dstats.get(&name) {
-            Some(ds) => ds.clone(),
-            None => String::from(".Default"), // TODO: game-global defaults
+    pub fn get_base_stat(&self, name: Name) -> Option<&Stat> {
+        self.base_stats.get(&name)
+    }
+    pub fn get_stat<'a>(&self, name: Name, statblocks: &'a Encyclopedia<StatBlock>) -> Option<&'a DerivedStat> {
+        match statblocks.get(&self.stats) {
+            Some(statblock) => statblock.get_stat(name),
+            None => None,
         }
     }
     /*
@@ -102,25 +106,43 @@ mod tests {
 
     #[test]
     fn new_test() {
-        let name = "Mog";
+        let (id, name) = (0, "Mog");
         let mog = Character::new(
-            0,
+            id,
             String::from(name),
         );
-        assert_eq!(mog.whoami(), (0, "Mog"));
+        assert!(mog.matches(id));
+        assert_eq!(mog.whoami(), (id, "Mog"));
     }
     #[test]
     fn from_json_test() {
-        let mog_json = r#"{
-            "id": 0,
-            "name": "Mog",
-            "base_stats": {
-                "Strength": 10,
-                "Stamina": 12
-            },
-            "stats": 0
-        }"#;
-        let mog = Character::from_json(mog_json);
-        assert_eq!(mog.whoami(), (0, "Mog"));
+        let (id, name) = (0, "Mog");
+        let mog_json = format!("{{\"id\": {}, \"name\": \"{}\"}}", id, String::from(name));
+        let mog = Character::from_json(&mog_json);
+        assert!(mog.matches(id));
+        assert_eq!(mog.whoami(), (id, name));
+    }
+    #[test]
+    fn serde_defaults_test() {
+        let (id, name) = (0, "Mog");
+        let mog_json = format!("{{\"id\": {}, \"name\": \"{}\"}}", id, String::from(name));
+        let mog = Character::from_json(&mog_json);
+        assert_eq!(mog.actions, Character::default_actions());
+        assert_eq!(mog.base_stats, Character::default_base_stats());
+        assert_eq!(mog.stats, Character::default_stats())
+    }
+    #[test]
+    fn get_base_stat_test() {
+        let mog = Character::from_json(r#"{"id": 0, "name": "Mog"}"#);
+        assert!(mog.get_base_stat(String::from("Strength")).is_some());
+        assert!(mog.get_base_stat(String::from("Moxie")).is_none());
+    }
+    #[test]
+    fn get_stat_test() {
+        let statblocks = read_encyclopedia::<StatBlock>("data/stats.json");
+        let mog = Character::from_json(r#"{"id": 0, "name": "Mog"}"#);
+        assert!(mog.get_stat(String::from("Strength"), &statblocks).is_some());
+        assert!(mog.get_stat(String::from("Offense"), &statblocks).is_some());
+        assert!(mog.get_stat(String::from("Moxie"), &statblocks).is_none());
     }
 }

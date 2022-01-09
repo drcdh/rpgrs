@@ -1,5 +1,27 @@
-use rpg;
+use rpg::action::Action;
+use rpg::character::Character;
+use rpg::effect::Effect;
+use rpg::item::Item;
+use rpg::stats::StatBlock;
 
+use rpg::encyclopedia::read_encyclopedia;
+
+
+#[test]
+fn read_encyclopedias() {
+    let filename = "data/actions.json";
+    let actions = read_encyclopedia::<Action>(filename);
+    let filename = "data/characters.json";
+    let characters = read_encyclopedia::<Character>(filename);
+    let filename = "data/effects.json";
+    let effects = read_encyclopedia::<Effect>(filename);
+    let filename = "data/items.json";
+    let items = read_encyclopedia::<Item>(filename);
+    let filename = "data/stats.json";
+    let statblocks = read_encyclopedia::<StatBlock>(filename);
+}
+
+/*
 #[test]
 fn equip_mog() {
     let mut mog = rpg::character::Character::new(
@@ -14,7 +36,7 @@ fn equip_mog() {
         0,
         0,
     );
-    /*
+
     let prev_weapon = mog.equip_to_slot(spear, String::from("Weapon"));
     assert!(prev_weapon.is_none());
     assert_eq!(mog.get_stat(String::from("Offense")), nude_offense + spear_power);
@@ -37,5 +59,5 @@ fn equip_mog() {
     assert!(prev_shield.is_some());
     assert_eq!(mog.get_stat(String::from("Offense")), nude_offense);
     assert_eq!(mog.get_stat(String::from("Defense")), nude_defense);
-*/
 }
+*/

@@ -1,10 +1,10 @@
-use rpg::action::Action;
-use rpg::character::Character;
-use rpg::effect::Effect;
-use rpg::item::Item;
-use rpg::stats::StatBlock;
+use rpgrs::action::Action;
+use rpgrs::character::Character;
+use rpgrs::effect::Effect;
+use rpgrs::item::Item;
+use rpgrs::stats::StatBlock;
 
-use rpg::encyclopedia::read_encyclopedia;
+use rpgrs::encyclopedia::read_encyclopedia;
 
 
 #[test]
@@ -32,13 +32,13 @@ fn read_encyclopedias() {
 /*
 #[test]
 fn equip_mog() {
-    let mut mog = rpg::character::Character::new(
+    let mut mog = rpgrs::character::Character::new(
         0,
         String::from("Mog"),
     );
     let nude_offense = mog.get_stat(String::from("Offense"));
     let spear_power = 6;
-    let spear = rpg::item::create(
+    let spear = rpgrs::item::create(
         String::from("Spear"),
         spear_power,
         0,
@@ -51,7 +51,7 @@ fn equip_mog() {
 
     let nude_defense = mog.get_stat(String::from("Defense"));
     let shield_power = 7;
-    let shield = rpg::item::create(
+    let shield = rpgrs::item::create(
         String::from("Shield"),
         shield_power,
         0,

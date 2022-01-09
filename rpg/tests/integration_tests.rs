@@ -15,8 +15,16 @@ fn read_encyclopedias() {
     let characters = read_encyclopedia::<Character>(filename);
     let filename = "data/effects.json";
     let effects = read_encyclopedia::<Effect>(filename);
+    println!("\n>>> EFFECTS <<<");
+    for (_, effect) in effects {
+        println!("{}", effect);
+    }
     let filename = "data/items.json";
     let items = read_encyclopedia::<Item>(filename);
+    println!("\n>>> ITEMS <<<");
+    for (_, item) in items {
+        println!("{}", item);
+    }
     let filename = "data/stats.json";
     let statblocks = read_encyclopedia::<StatBlock>(filename);
 }

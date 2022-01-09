@@ -47,11 +47,23 @@ impl Effect {
     fn default_msg() -> String {
         String::from("{:effect} was used on {:target}, and something happened maybe!")
     }
+    pub fn whoami(&self) -> (Id, &str) {
+        (self.id, &self.name[..])
+    }
 }
 
 impl fmt::Display for Effect {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}.{}", self.id, self.name)
+        let mut traits: String = self.traits.join(", ");
+        if traits.len() > 0 {
+            traits += ". ";
+        }
+        let mut conditions: String = self.conditions.keys().map(|s| &**s).collect::<Vec<_>>().join(", ");
+        if conditions.len() > 0 {
+            conditions = "Causes ".to_owned() + &conditions;
+            conditions += ". ";
+        }
+        write!(f, "{}: {}{}", self.name, traits, conditions)
     }
 }
 
@@ -65,7 +77,8 @@ mod tests {
 
     #[test]
     fn new_test() {
-        let effect = Effect::new(0, String::from("Potion"));
-        println!(">>> Test effect: {}", effect);
+        let (id, name) = (0, "Thingamajig");
+        let effect = Effect::new(id, String::from("Thingamajig"));
+        assert_eq!(effect.whoami(), (id, name));
     }
 }

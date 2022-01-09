@@ -6,8 +6,10 @@ use termion::cursor::Goto;
 use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
+use termion::style;
 
-use rpgrs::battle::{Battle, BattleCLI};
+use rpgrs::battle::Battle;
+use rpgrs::battlecli::BattleCLI;
 use rpgrs::character::Character;
 use rpgrs::common::*;
 use rpgrs::encyclopedia::{Encyclopedia, read_encyclopedia};
@@ -36,10 +38,6 @@ impl<R: Read, W: Write> Menu<R, W> {
 }
 
 fn bcli_test<R: Read, W: Write>(stdin: R, stdout: W, ch_enc: &Encyclopedia<Character>) {
-    let cli = BattleCLI {
-        stdin: stdin.keys(),
-        stdout: stdout,
-    };
     let mut allies = Party::new("Allies".to_string());
     allies.add_character(IndexedOrLiteral::Literal(Character::new(0, "Mog".to_string())));
     allies.add_character(IndexedOrLiteral::Literal(Character::new(10, "Deirdre".to_string())));
@@ -50,9 +48,13 @@ fn bcli_test<R: Read, W: Write>(stdin: R, stdout: W, ch_enc: &Encyclopedia<Chara
     let mut battle = Battle {
         allies,
         baddies,
-        cli,
     };
-    battle.run(ch_enc);
+    let mut cli = BattleCLI {
+        stdin: stdin.keys(),
+        stdout: stdout,
+        battle,
+    };
+    cli.run(ch_enc);
 }
 
 fn main() {

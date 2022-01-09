@@ -1,5 +1,6 @@
 pub mod action;
 pub mod battle;
+pub mod battlecli;
 pub mod character;
 pub mod common;
 pub mod effect;

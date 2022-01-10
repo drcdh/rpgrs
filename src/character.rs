@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fmt;
 
 use serde::{Serialize, Deserialize};
@@ -17,9 +18,11 @@ type Items = Vec::<Id>; // todo, allow literals in JSON with CharacterItem
 #[derive(Serialize, Deserialize, Debug)]
 struct Pool {
     name: Name,
-    current: u32,
-    maximum: u32,
+    current: i32,
+    maximum: i32,
 }
+
+type Pools = HashMap::<Name, Pool>;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Character {
@@ -35,7 +38,7 @@ pub struct Character {
     items: Items,
     // equips: item::EquipmentSet,
     #[serde(default)]
-    pools: Vec::<Pool>,
+    pools: HashMap::<String, Pool>,
 }
 
 impl Character {
@@ -65,7 +68,7 @@ impl Character {
             actions: CharacterActions::new(),
             items: Items::new(),
             //equips: item::generate_equipment_set(),
-            pools: Vec::<Pool>::new(),
+            pools: Pools::new(),
         }
     }
     pub fn matches(&self, id: Id) -> bool {
@@ -163,3 +166,50 @@ mod tests {
         assert!(mog.get_stat(String::from("Moxie"), &statblocks).is_none());
     }
 }
+
+
+pub mod dummies {
+    use super::*;
+
+    pub struct DummyTarget {
+        name: Name,
+    }
+    pub struct AdvancedDummyTarget {
+        name: Name,
+        conditions: Vec::<Name>,
+        pools: HashMap::<Name, Pool>,
+    }
+    impl DummyTarget {
+        pub fn new() -> DummyTarget { DummyTarget { name: String::from("Test Dummy") } }
+    }
+    impl Target for DummyTarget {
+        fn take_hit(&mut self, hit: &Hit) -> i32 { match &hit.amount { HitAmt::Constant(v) => *v, HitAmt::Formula(s) => 0 } }
+        fn take_condition(&mut self, hit: &Hit) -> bool { true }
+    }
+    impl AdvancedDummyTarget {
+        pub fn new() -> AdvancedDummyTarget {
+            let conditions = Vec::<Name>::new();
+            let mut pools = Pools::new();
+            pools.insert(String::from("HP"), Pool { name: String::from("HP"), current: 100, maximum: 100 });
+            AdvancedDummyTarget { name: String::from("Advanced Test Dummy"), conditions, pools }
+        }
+    }
+    impl Target for AdvancedDummyTarget {
+        fn take_hit(&mut self, hit: &Hit) -> i32 {
+            let mut affected_pool = self.pools.get(&hit.pool).expect(format!("Target \"{}\" does not have pool \"{}\"", self.name, hit.pool).as_str());
+            if let HitAmt::Constant(v) = hit.amount {
+                let mut curr = affected_pool.current;
+                if curr-v < 0 {
+                    curr = 0;
+                } else {
+                    curr -= v;
+                }
+                return v;
+            }
+            panic!();
+        }
+        fn take_condition(&mut self, hit: &Hit) -> bool {
+            true // fixme
+        }
+    }
+} // mod dummies

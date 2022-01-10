@@ -6,7 +6,7 @@ use serde::{Serialize, Deserialize};
 use crate::common::*;
 use crate::effect::Effect;
 
-pub type Costs = HashMap::<String, u16>;
+pub type Costs = HashMap::<String, u32>;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[derive(PartialEq)]

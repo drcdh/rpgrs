@@ -19,7 +19,7 @@
                     "effects": [{ "Literal": {
                             "id": 404,
                             "name": "Desert Lullaby",
-                            "hits": {"HP": {"Formula": "- * 3 ^Magic * 0.6 $Magic"}},
+                            "hits": [{"pool": "HP", "amount": {"Formula": "- * 3 ^Magic * 0.6 $Magic"}}],
                             "traits": ["Wind", "Nature"]
                     }}],
                     "scope": "Enemies"
@@ -31,10 +31,10 @@
         "items": [
             0,0,1
         ],
-        "pools": [
-            {"name": "HP", "current": 95, "maximum": 100},
-            {"name": "MP", "current": 9, "maximum": 26}
-        ]
+        "pools": {
+            "HP": {"name": "HP", "current": 95, "maximum": 100},
+            "MP": {"name": "MP", "current": 9, "maximum": 26}
+        }
     },
     "101": {
         "id": 101,
@@ -47,9 +47,9 @@
         },
         "stats": 0,
         "actions": {"Attack": {"Index": 0}},
-        "pools": [
-            {"name": "HP", "current": 10, "maximum": 10}
-        ]
+        "pools": {
+            "HP": {"name": "HP", "current": 10, "maximum": 10}
+        }
     },
     "102": {
         "id": 102,
@@ -62,8 +62,8 @@
         },
         "stats": 0,
         "actions": {"Attack": {"Index": 0}},
-        "pools": [
-            {"name": "HP", "current": 15, "maximum": 15}
-        ]
+        "pools": {
+            "HP": {"name": "HP", "current": 15, "maximum": 15}
+        }
     }
 }

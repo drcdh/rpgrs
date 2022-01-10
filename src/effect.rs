@@ -3,17 +3,8 @@ use std::fmt;
 
 use serde::{Serialize, Deserialize};
 
-use crate::common::{Id, Name};
+use crate::common::*;
 
-
-#[derive(Serialize, Deserialize, Debug)]
-#[derive(PartialEq)]
-enum Hit {
-    Constant(i64),
-    Formula(String),
-}
-
-type Hits = HashMap::<String, Hit>;
 
 type Traits = Vec::<Name>;
 
@@ -58,7 +49,10 @@ impl fmt::Display for Effect {
         if traits.len() > 0 {
             traits += ". ";
         }
-        let mut conditions: String = self.conditions.keys().map(|s| &**s).collect::<Vec<_>>().join(", ");
+        let mut conditions: String = "".to_string();
+        for con in &self.conditions {
+            conditions += &con.pool;
+        }
         if conditions.len() > 0 {
             conditions = "Causes ".to_owned() + &conditions;
             conditions += ". ";
@@ -67,18 +61,25 @@ impl fmt::Display for Effect {
     }
 }
 
-pub trait Target {
-    fn feel_effect(&mut self, effect: &Effect);
-}
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::character::dummies::{DummyTarget, AdvancedDummyTarget};
 
     #[test]
     fn new_test() {
         let (id, name) = (0, "Thingamajig");
         let effect = Effect::new(id, String::from("Thingamajig"));
         assert_eq!(effect.whoami(), (id, name));
+    }
+    #[test]
+    fn hit_target_test() {
+        let mut t = DummyTarget::new();
+        let v = 10;
+        let h = Hit { pool: String::from("HP"), amount: HitAmt::Constant(v) };
+        assert_eq!(t.take_hit(&h), v);
+        assert_eq!(t.take_hit(&h), v);
+        assert_eq!(t.take_hit(&h), v);
     }
 }

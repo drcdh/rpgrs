@@ -7,7 +7,7 @@ use serde::Serialize;
 use serde::de::DeserializeOwned;
 use serde_json;
 
-use crate::common::Id;
+use crate::common::{Id, IndexedOrLiteral};
 
 
 pub type Encyclopedia<T> = HashMap::<Id, T>;
@@ -23,6 +23,12 @@ pub fn read_encyclopedia<T: Serialize + DeserializeOwned>(filename: &str) -> Enc
     _read_encyclopedia::<T>(filename).expect(format!("Failed to read encyclopedia from {}", filename).as_str())
 }
 
+pub fn resolve<'a, T>(iol: &'a IndexedOrLiteral::<T>, enc: &'a Encyclopedia::<T>) -> Option<&'a T> {
+    match iol {
+        IndexedOrLiteral::<T>::Index(i) => enc.get(&i),
+        IndexedOrLiteral::<T>::Literal(c) => Some(&c),
+    }
+}
 
 #[cfg(test)]
 mod tests {

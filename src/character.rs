@@ -38,7 +38,7 @@ pub struct Character {
     items: Items,
     // equips: item::EquipmentSet,
     #[serde(default)]
-    pools: HashMap::<String, Pool>,
+    pools: Pools,
 }
 
 impl Character {
@@ -111,12 +111,6 @@ impl Character {
     }*/
 }
 
-pub fn resolve<'a>(iol: &'a IndexedOrLiteral::<Character>, ch_enc: &'a Encyclopedia::<Character>) -> Option<&'a Character> {
-    match iol {
-        IndexedOrLiteral::<Character>::Index(i) => ch_enc.get(&i),
-        IndexedOrLiteral::<Character>::Literal(c) => Some(&c),
-    }
-}
 
 impl fmt::Display for Character {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

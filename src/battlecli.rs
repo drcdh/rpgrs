@@ -8,8 +8,8 @@ use std::io::Write;
 
 use crate::battle::Battle;
 use crate::character::Character;
-use crate::character::resolve as resolve_character;
 use crate::encyclopedia::Encyclopedia;
+use crate::encyclopedia::resolve;
 use crate::party::Party;
 
 
@@ -62,7 +62,7 @@ BattleCLI<R, W> {
     fn write_baddies_info(&mut self, ch_enc: &Encyclopedia<Character>) {
         let p = &self.battle.baddies;
         for i in 0..p.len() {
-            let c = resolve_character(p.get_character(i), ch_enc).unwrap();
+            let c = resolve(p.get_character(i), ch_enc).unwrap();
             let (_, name) = c.whoami();
             let i: u16 = i.try_into().unwrap();
             write!(self.stdout, "{} {}", Goto(i*BOX_WIDTH + 3, 2), name).unwrap();
@@ -72,7 +72,7 @@ BattleCLI<R, W> {
     fn write_allies_info(&mut self, ch_enc: &Encyclopedia<Character>) {
         let p = &self.battle.allies;
         for i in 0..p.len() {
-            let c = resolve_character(p.get_character(i), ch_enc).unwrap();
+            let c = resolve(p.get_character(i), ch_enc).unwrap();
             let (_, name) = c.whoami();
             let i: u16 = i.try_into().unwrap();
             write!(self.stdout, "{} {}", Goto(i*BOX_WIDTH + 3, BOX_HEIGHT+4+2), name).unwrap();

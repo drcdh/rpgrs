@@ -6,11 +6,9 @@ use serde_json;
 
 use crate::action::{CharacterAction, CharacterActions};
 use crate::common::*;
+use crate::encyclopedia::StatBlockEncyclopedia;
 use crate::item::Item;
 use crate::stats::{BaseStats, Stat, DerivedStat, DerivedStats, StatBlock};
-
-use crate::encyclopedia::Encyclopedia;
-
 
 type CharacterStats = Id; // todo, allow literals in JSON with enum
 type Items = Vec::<Id>; // todo, allow literals in JSON with CharacterItem
@@ -86,7 +84,7 @@ impl Character {
     pub fn get_base_stat(&self, name: Name) -> Option<&Stat> {
         self.base_stats.get(&name)
     }
-    pub fn get_stat<'a>(&self, name: Name, statblocks: &'a Encyclopedia<StatBlock>) -> Option<&'a DerivedStat> {
+    pub fn get_stat<'a>(&self, name: Name, statblocks: &'a StatBlockEncyclopedia) -> Option<&'a DerivedStat> {
         match statblocks.get(&self.stats) {
             Some(statblock) => statblock.get_stat(name),
             None => None,
@@ -158,8 +156,8 @@ mod tests {
     }
     #[test]
     fn get_stat_test() {
-        use crate::encyclopedia::read_encyclopedia;
-        let statblocks = read_encyclopedia::<StatBlock>("data/stats.json");
+        use crate::encyclopedia::StatBlockEncyclopedia;
+        let statblocks = StatBlockEncyclopedia::new("data/stats.json");
         let mog = Character::from_json(r#"{"id": 0, "name": "Mog"}"#);
         assert!(mog.get_stat(String::from("Strength"), &statblocks).is_some());
         assert!(mog.get_stat(String::from("Offense"), &statblocks).is_some());

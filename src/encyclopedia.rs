@@ -1,3 +1,4 @@
+use std::collections::binary_heap::Iter;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fs::File;
@@ -7,66 +8,71 @@ use serde::Serialize;
 use serde::de::DeserializeOwned;
 use serde_json;
 
-use crate::common::{Id, IndexedOrLiteral};
+use crate::common::*;
 
+type _Encyclopedia<T> = HashMap::<Id, T>;
+pub struct Encyclopedia<T> {
+    pub en: _Encyclopedia<T>,
+}
 
-pub type Encyclopedia<T> = HashMap::<Id, T>;
-
-fn _read_encyclopedia<T: Serialize + DeserializeOwned>(filename: &str) -> Result<Encyclopedia<T>, Box<dyn Error>> {
+fn _read_encyclopedia<T: Serialize + DeserializeOwned>(filename: &str) -> Result<_Encyclopedia<T>, Box<dyn Error>> {
     let file = File::open(filename)?;
     let reader = BufReader::new(file);
     let en = serde_json::from_reader(reader)?;
     Ok(en)
 }
 
-pub fn read_encyclopedia<T: Serialize + DeserializeOwned>(filename: &str) -> Encyclopedia<T> {
-    _read_encyclopedia::<T>(filename).expect(format!("Failed to read encyclopedia from {}", filename).as_str())
-}
-
-pub fn resolve<'a, T>(iol: &'a IndexedOrLiteral::<T>, enc: &'a Encyclopedia::<T>) -> Option<&'a T> {
-    match iol {
-        IndexedOrLiteral::<T>::Index(i) => enc.get(&i),
-        IndexedOrLiteral::<T>::Literal(c) => Some(&c),
+impl<T: Serialize + DeserializeOwned> Encyclopedia<T> {
+    pub fn new(filename: &str) -> Encyclopedia<T> {
+        Encyclopedia { en: _read_encyclopedia::<T>(filename).expect(format!("Failed to read encyclopedia from {}", filename).as_str()) }
+    }
+    pub fn len(&self) -> usize { self.en.len() }
+    pub fn get(&self, id: &Id) -> Option<&T> { self.en.get(id) }
+    //pub fn iter(&self) -> Iter<'_, Id, T> { self.en.iter() }
+    pub fn resolve<'a>(&'a self, iol: &'a IndexedOrLiteral::<T>) -> Option<&'a T> {
+        match iol {
+            IndexedOrLiteral::<T>::Index(i) => self.en.get(&i),
+            IndexedOrLiteral::<T>::Literal(c) => Some(&c),
+        }
     }
 }
+
+
+use crate::action::Action;
+use crate::character::Character;
+use crate::effect::Effect;
+use crate::item::Item;
+use crate::stats::StatBlock;
+
+pub type ActionEncyclopedia    = Encyclopedia<Action>;
+pub type CharacterEncyclopedia = Encyclopedia<Character>;
+pub type EffectEncyclopedia    = Encyclopedia<Effect>;
+pub type ItemEncyclopedia      = Encyclopedia<Item>;
+pub type StatBlockEncyclopedia = Encyclopedia<StatBlock>;
+
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::action::Action;
-    use crate::character::Character;
-    use crate::effect::Effect;
-    use crate::item::Item;
-    use crate::stats::StatBlock;
 
     #[test]
     fn read_action_encyclopedia_test() {
-        let filename = "data/actions.json";
-        let actions = read_encyclopedia::<Action>(filename);
-        assert_ne!(actions.len(), 0);
+        assert_ne!(ActionEncyclopedia::new("data/actions.json").len(), 0);
     }
     #[test]
     fn read_character_encyclopedia_test() {
-        let filename = "data/characters.json";
-        let characters = read_encyclopedia::<Character>(filename);
-        assert_ne!(characters.len(), 0);
+        assert_ne!(CharacterEncyclopedia::new("data/characters.json").len(), 0);
     }
     #[test]
     fn read_effect_encyclopedia_test() {
-        let filename = "data/effects.json";
-        let effects = read_encyclopedia::<Effect>(filename);
-        assert_ne!(effects.len(), 0);
+        assert_ne!(EffectEncyclopedia::new("data/effects.json").len(), 0);
     }
     #[test]
     fn read_item_encyclopedia_test() {
-        let filename = "data/items.json";
-        let items = read_encyclopedia::<Item>(filename);
-        assert_ne!(items.len(), 0);
+        assert_ne!(ItemEncyclopedia::new("data/items.json").len(), 0);
     }
     #[test]
     fn read_statblocks_encyclopedia_test() {
-        let filename = "data/stats.json";
-        let statblocks = read_encyclopedia::<StatBlock>(filename);
-        assert_ne!(statblocks.len(), 0);
+        assert_ne!(StatBlockEncyclopedia::new("data/stats.json").len(), 0);
     }
 }

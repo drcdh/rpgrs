@@ -8,10 +8,8 @@ use std::io::Write;
 
 use crate::battle::Battle;
 use crate::character::Character;
-use crate::encyclopedia::Encyclopedia;
-use crate::encyclopedia::resolve;
+use crate::encyclopedia::CharacterEncyclopedia;
 use crate::party::Party;
-
 
 const OUTER_ROW: &'static str = " ============================== ";
 const INNER_ROW: &'static str = " |                            | ";
@@ -59,20 +57,20 @@ BattleCLI<R, W> {
         write!(self.stdout, "\n\n\n").unwrap();
         self._draw_boxes(num_allies);
     }
-    fn write_baddies_info(&mut self, ch_enc: &Encyclopedia<Character>) {
+    fn write_baddies_info(&mut self, ch_enc: &CharacterEncyclopedia) {
         let p = &self.battle.baddies;
         for i in 0..p.len() {
-            let c = resolve(p.get_character(i), ch_enc).unwrap();
+            let c = ch_enc.resolve(p.get_character(i)).unwrap();
             let (_, name) = c.whoami();
             let i: u16 = i.try_into().unwrap();
             write!(self.stdout, "{} {}", Goto(i*BOX_WIDTH + 3, 2), name).unwrap();
             write!(self.stdout, "{} HP: ", Goto(i*BOX_WIDTH + 3, 3)).unwrap(); // todo
         }
     }
-    fn write_allies_info(&mut self, ch_enc: &Encyclopedia<Character>) {
+    fn write_allies_info(&mut self, ch_enc: &CharacterEncyclopedia) {
         let p = &self.battle.allies;
         for i in 0..p.len() {
-            let c = resolve(p.get_character(i), ch_enc).unwrap();
+            let c = ch_enc.resolve(p.get_character(i)).unwrap();
             let (_, name) = c.whoami();
             let i: u16 = i.try_into().unwrap();
             write!(self.stdout, "{} {}", Goto(i*BOX_WIDTH + 3, BOX_HEIGHT+4+2), name).unwrap();
@@ -83,7 +81,7 @@ BattleCLI<R, W> {
         self.stdout.flush().unwrap();
         self.stdin.next().unwrap().unwrap();
     }
-    pub fn run(&mut self, ch_enc: &Encyclopedia<Character>) {
+    pub fn run(&mut self, ch_enc: &CharacterEncyclopedia) {
         self.clear();
         self.draw_boxes(self.battle.baddies.len(), self.battle.allies.len());
         self.write_baddies_info(ch_enc);

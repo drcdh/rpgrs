@@ -4,41 +4,37 @@ use rpgrs::effect::Effect;
 use rpgrs::item::Item;
 use rpgrs::stats::StatBlock;
 
-use rpgrs::encyclopedia::read_encyclopedia;
+use rpgrs::encyclopedia::*;
 
 
 #[test]
 fn read_encyclopedias() {
-    let filename = "data/actions.json";
-    let actions = read_encyclopedia::<Action>(filename);
     println!("\n>>> ACTIONS <<<");
-    for (_, act) in actions {
+    let actions = ActionEncyclopedia::new("data/actions.json");
+    for (_, act) in actions.en {
         println!("{}", act);
     }
-    let filename = "data/characters.json";
-    let characters = read_encyclopedia::<Character>(filename);
     println!("\n>>> CHARACTERS <<<");
-    for (_, ch) in characters {
+    let characters = CharacterEncyclopedia::new("data/characters.json");
+    for (_, ch) in characters.en {
         println!("{}", ch);
     }
-    let filename = "data/effects.json";
-    let effects = read_encyclopedia::<Effect>(filename);
     println!("\n>>> EFFECTS <<<");
-    for (_, effect) in effects {
+    let effects = EffectEncyclopedia::new("data/effects.json");
+    for (_, effect) in effects.en {
         println!("{}", effect);
     }
-    let filename = "data/items.json";
-    let items = read_encyclopedia::<Item>(filename);
     println!("\n>>> ITEMS <<<");
-    for (_, item) in items {
+    let items = ItemEncyclopedia::new("data/items.json");
+    for (_, item) in items.en {
         println!("{}", item);
     }
-    let filename = "data/stats.json";
-    let statblocks = read_encyclopedia::<StatBlock>(filename);
     println!("\n>>> STATBLOCKS <<<");
-    for (_, sb) in statblocks {
+    let statblocks = StatBlockEncyclopedia::new("data/stats.json");
+    for (_, sb) in statblocks.en {
         println!("{}", sb);
     }
+    println!("");
 }
 
 /*

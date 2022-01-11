@@ -12,7 +12,7 @@ use rpgrs::battle::Battle;
 use rpgrs::battlecli::BattleCLI;
 use rpgrs::character::Character;
 use rpgrs::common::*;
-use rpgrs::encyclopedia::{Encyclopedia, read_encyclopedia};
+use rpgrs::encyclopedia::CharacterEncyclopedia;
 use rpgrs::party::Party;
 
 struct Menu<R: Read, W: Write> {
@@ -23,7 +23,6 @@ struct Menu<R: Read, W: Write> {
     stdin: R,
     stdout: W,
 }
-
 impl<R: Read, W: Write> Menu<R, W> {
     pub fn show_and_get_answer(&mut self) -> String {
         let mut i = 0;
@@ -37,7 +36,8 @@ impl<R: Read, W: Write> Menu<R, W> {
     }
 }
 
-fn bcli_test<R: Read, W: Write>(stdin: R, stdout: W, ch_enc: &Encyclopedia<Character>) {
+
+fn bcli_test<R: Read, W: Write>(stdin: R, stdout: W, ch_enc: &CharacterEncyclopedia) {
     let mut allies = Party::new("Allies".to_string());
     allies.add_character(IndexedOrLiteral::Index(0)); // Mog
 
@@ -59,7 +59,7 @@ fn bcli_test<R: Read, W: Write>(stdin: R, stdout: W, ch_enc: &Encyclopedia<Chara
 }
 
 fn main() {
-    let phonebook = read_encyclopedia::<Character>("data/characters.json");
+    let phonebook = CharacterEncyclopedia::new("data/characters.json");
 
     let termsize = termion::terminal_size().ok();
     let termwidth = termsize.map(|(w,_)| w - 2).unwrap();

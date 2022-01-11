@@ -4,7 +4,7 @@ use std::fmt;
 use serde::{Serialize, Deserialize};
 
 use crate::common::{Id, Name, Formula};
-use crate::encyclopedia::read_encyclopedia;
+use crate::encyclopedia::StatBlockEncyclopedia;
 
 
 pub type Stat = i64;
@@ -33,7 +33,7 @@ impl fmt::Display for StatBlock {
 }
 // TODO: this is of course terrible
 pub fn generate_stats(id: &Id) -> (BaseStats, DerivedStats) {
-    let statblocks = read_encyclopedia::<StatBlock>("data/stats.json");
+    let statblocks = StatBlockEncyclopedia::new("data/stats.json");
     let sb = statblocks.get(&id).unwrap();
     let (bs, ds) = (sb.base_stats.clone(), sb.stats.clone());
     (bs, ds)

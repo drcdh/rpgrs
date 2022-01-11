@@ -92,6 +92,12 @@ impl Character {
             None => None,
         }
     }
+    pub fn get_pool_vals(&self, name: String) -> (i32, i32) {
+        match self.pools.get(&name) {
+            Some(pool) => (pool.current, pool.maximum),
+            None => (0, 0)
+        }
+    }
     /*
     pub fn equip_to_slot(&mut self, item: item::Item, slot: String) -> Option<item::Item> {
         let prev_equip = self.equips.remove(&slot).unwrap();
@@ -193,16 +199,22 @@ pub mod dummies {
             pools.insert(String::from("HP"), Pool { name: String::from("HP"), current: 100, maximum: 100 });
             AdvancedDummyTarget { name: String::from("Advanced Test Dummy"), conditions, pools }
         }
+        pub fn get_pool_vals(&self, name: String) -> (i32, i32) {
+            match self.pools.get(&name) {
+                Some(pool) => (pool.current, pool.maximum),
+                None => (0, 0)
+            }
+        }
     }
     impl Target for AdvancedDummyTarget {
         fn take_hit(&mut self, hit: &Hit) -> i32 {
-            let mut affected_pool = self.pools.get(&hit.pool).expect(format!("Target \"{}\" does not have pool \"{}\"", self.name, hit.pool).as_str());
+            let mut affected_pool = self.pools.get_mut(&hit.pool).expect(format!("Target \"{}\" does not have pool \"{}\"", self.name, hit.pool).as_str());
             if let HitAmt::Constant(v) = hit.amount {
-                let mut curr = affected_pool.current;
+                let curr = affected_pool.current;
                 if curr-v < 0 {
-                    curr = 0;
+                    affected_pool.current = 0;
                 } else {
-                    curr -= v;
+                    affected_pool.current = curr - v;
                 }
                 return v;
             }

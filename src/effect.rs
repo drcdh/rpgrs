@@ -35,11 +35,21 @@ impl Effect {
             msg: String::from(""),
         }
     }
-    fn default_msg() -> String {
+    pub fn default_msg() -> String {
         String::from("{:effect} was used on {:target}, and something happened maybe!")
     }
     pub fn whoami(&self) -> (Id, &str) {
         (self.id, &self.name[..])
+    }
+    pub fn apply<T: Target>(&self, target: &mut T) {
+        for hit in &self.hits {
+            let _v = target.take_hit(hit);
+        }
+        for cond in &self.conditions {
+            let _success = target.take_condition(cond);
+        }
+        for tr in &self.traits {
+        }
     }
 }
 
@@ -70,16 +80,19 @@ mod tests {
     #[test]
     fn new_test() {
         let (id, name) = (0, "Thingamajig");
-        let effect = Effect::new(id, String::from("Thingamajig"));
+        let effect = Effect::new(id, String::from(name));
         assert_eq!(effect.whoami(), (id, name));
     }
     #[test]
-    fn hit_target_test() {
-        let mut t = DummyTarget::new();
+    fn apply_test() {
+        let mut t = AdvancedDummyTarget::new();
+        let mut effect = Effect::new(0, "Test Effect".to_string());
+        let (init_hp, _) = t.get_pool_vals("HP".to_string());
         let v = 10;
-        let h = Hit { pool: String::from("HP"), amount: HitAmt::Constant(v) };
-        assert_eq!(t.take_hit(&h), v);
-        assert_eq!(t.take_hit(&h), v);
-        assert_eq!(t.take_hit(&h), v);
+        let h = Hit { pool: String::from("HP".to_string()), amount: HitAmt::Constant(v) };
+        effect.hits = vec![h];
+        effect.apply(&mut t);
+        let (hp, _) = t.get_pool_vals("HP".to_string());
+        assert_eq!(hp, init_hp-v);
     }
 }

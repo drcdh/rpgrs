@@ -75,6 +75,7 @@ impl fmt::Display for Effect {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::character::Character;
     use crate::character::dummies::{DummyTarget, AdvancedDummyTarget};
 
     #[test]
@@ -94,5 +95,20 @@ mod tests {
         effect.apply(&mut t);
         let (hp, _) = t.get_pool_vals("HP".to_string());
         assert_eq!(hp, init_hp-v);
+    }
+    #[test]
+    fn character_damage() {
+        let (init_hp, maxhp) = (15, 50);
+        let mut mog = Character::from_json(&format!("{{\"id\": 0, \"name\": \"Mog\", \"pools\": {{\"HP\": {{\"name\": \"HP\", \"current\": {}, \"maximum\": {} }} }} }}", init_hp, maxhp).to_string());
+        let v = 10;
+        let h = Hit { pool: String::from("HP".to_string()), amount: HitAmt::Constant(v) };
+        let mut effect = Effect::new(0, "Test Effect".to_string());
+        effect.hits = vec![h];
+        effect.apply(&mut mog);
+        let (hp, _) = mog.get_pool_vals("HP".to_string());
+        assert_eq!(hp, init_hp-v);
+        effect.apply(&mut mog);
+        let (hp, _) = mog.get_pool_vals("HP".to_string());
+        assert_eq!(hp, 0);
     }
 }

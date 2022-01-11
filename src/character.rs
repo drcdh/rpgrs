@@ -72,7 +72,7 @@ impl Character {
     pub fn matches(&self, id: Id) -> bool {
         self.id == id
     }
-    fn from_json(data: &str) -> Character {
+    pub fn from_json(data: &str) -> Character {
         let c: Character = serde_json::from_str(data).expect("Character JSON was not well-formatted");
         c
     }
@@ -113,6 +113,25 @@ impl Character {
 impl fmt::Display for Character {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{}.{}", self.id, self.name)
+    }
+}
+
+impl Target for Character {
+    fn take_hit(&mut self, hit: &Hit) -> i32 {
+        let mut affected_pool = self.pools.get_mut(&hit.pool).expect(format!("Character \"{}\" does not have pool \"{}\"", self.name, hit.pool).as_str());
+        if let HitAmt::Constant(v) = hit.amount {
+            let curr = affected_pool.current;
+            if curr-v < 0 {
+                affected_pool.current = 0;
+            } else {
+                affected_pool.current = curr - v;
+            }
+            return v;
+        }
+        panic!();
+    }
+    fn take_condition(&mut self, hit: &Hit) -> bool {
+        true // fixme
     }
 }
 

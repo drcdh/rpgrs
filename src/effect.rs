@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::fmt;
 
 use serde::{Serialize, Deserialize};
@@ -76,7 +75,7 @@ impl fmt::Display for Effect {
 mod tests {
     use super::*;
     use crate::character::Character;
-    use crate::character::dummies::{DummyTarget, AdvancedDummyTarget};
+    use crate::character::dummies::AdvancedDummyTarget;
 
     #[test]
     fn new_test() {

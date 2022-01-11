@@ -47,7 +47,7 @@ pub trait Target {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::character::dummies::{DummyTarget, AdvancedDummyTarget};
+    use crate::character::dummies::DummyTarget;
 
     #[test]
     fn hit_target_test() {

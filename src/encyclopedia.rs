@@ -1,4 +1,3 @@
-use std::collections::binary_heap::Iter;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fs::File;

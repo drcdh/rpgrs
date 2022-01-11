@@ -9,9 +9,9 @@
             "Speed": 36
         },
         "stats": 0,
-        "actions": {
-            "Attack": {"Index": 0},
-            "Dance": {"Selection": [
+        "actions": {"prompt": "ROOT", "options": [
+            {"Index": 0},
+            {"Menu": {"prompt": "Dance", "options": [
                 {"Index": 30},
                 {"Literal": {
                     "id": 31,
@@ -24,10 +24,10 @@
                     }}],
                     "scope": "Enemies"
                 }}
-            ]},
-            "Magic": {"Selection": [{"Index": 1}]},
-            "Item": "UseItem"
-        },
+            ]}},
+            {"Menu": {"prompt": "Magic", "options": [{"Index": 1}]}},
+            "UseItem"
+        ]},
         "items": [
             0,0,1
         ],
@@ -46,7 +46,7 @@
             "Speed": 40
         },
         "stats": 0,
-        "actions": {"Attack": {"Index": 0}},
+        "actions": {"prompt": "ROOT", "options": [{"Index": 0}]},
         "pools": {
             "HP": {"name": "HP", "current": 10, "maximum": 10}
         }
@@ -61,7 +61,7 @@
             "Speed": 35
         },
         "stats": 0,
-        "actions": {"Attack": {"Index": 0}},
+        "actions": {"prompt": "ROOT", "options": [{"Index": 0}]},
         "pools": {
             "HP": {"name": "HP", "current": 15, "maximum": 15}
         }

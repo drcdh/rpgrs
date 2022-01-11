@@ -37,14 +37,27 @@ pub struct Action {
 
 #[derive(Serialize, Deserialize, Debug)]
 #[derive(PartialEq)]
+pub struct ActionMenu {
+    prompt: Name,
+    options: Vec::<CharacterAction>,
+}
+impl ActionMenu {
+    pub fn new() -> ActionMenu {
+        let mut ca = Vec::<CharacterAction>::new();
+        ca.push(CharacterAction::Index(0));
+        ca.push(CharacterAction::UseItem);
+        ActionMenu { prompt: "ROOT".to_string(), options: ca }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[derive(PartialEq)]
 pub enum CharacterAction {
     Index(Id),
-    Selection(Vec::<CharacterAction>), // e.g. Magic, Techs, Dance, etc.
+    Menu(ActionMenu),
     Literal(Action),
     UseItem,
 }
-
-pub type CharacterActions = HashMap::<Name, CharacterAction>;
 
 impl Action {
     fn default_scope() -> Scope {

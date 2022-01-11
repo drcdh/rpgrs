@@ -4,7 +4,7 @@ use std::fmt;
 use serde::{Serialize, Deserialize};
 use serde_json;
 
-use crate::action::{CharacterAction, CharacterActions};
+use crate::action::{ActionMenu, CharacterAction};
 use crate::common::*;
 use crate::encyclopedia::StatBlockEncyclopedia;
 use crate::item::Item;
@@ -31,7 +31,7 @@ pub struct Character {
     #[serde(default = "Character::default_stats")]
     stats: CharacterStats,
     #[serde(default = "Character::default_actions")]
-    actions: CharacterActions,
+    actions: ActionMenu,
     #[serde(default)]
     items: Items,
     // equips: item::EquipmentSet,
@@ -40,11 +40,8 @@ pub struct Character {
 }
 
 impl Character {
-    fn default_actions() -> CharacterActions {
-        let mut ca = CharacterActions::new();
-        ca.insert(String::from("Attack"), CharacterAction::Index(0));
-        ca.insert(String::from("Item"), CharacterAction::UseItem);
-        ca
+    fn default_actions() -> ActionMenu {
+        ActionMenu::new()
     }
     fn default_base_stats() -> BaseStats {
         let mut bs = BaseStats::new();
@@ -63,7 +60,7 @@ impl Character {
             name,
             base_stats: BaseStats::new(),
             stats: 0, // DerivedStats::new(),
-            actions: CharacterActions::new(),
+            actions: Character::default_actions(),
             items: Items::new(),
             //equips: item::generate_equipment_set(),
             pools: Pools::new(),

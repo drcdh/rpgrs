@@ -4,20 +4,20 @@ use std::fmt;
 use serde::{Serialize, Deserialize};
 use serde_json;
 
-use crate::action::{ActionMenu, CharacterAction};
+use crate::action::{Action, ActionMenu, CharacterAction};
 use crate::common::*;
+use crate::encyclopedia::ActionEncyclopedia;
 use crate::encyclopedia::StatBlockEncyclopedia;
-use crate::item::Item;
-use crate::stats::{BaseStats, Stat, DerivedStat, DerivedStats, StatBlock};
+use crate::stats::{BaseStats, Stat, DerivedStat};
 
 type CharacterStats = Id; // todo, allow literals in JSON with enum
 type Items = Vec::<Id>; // todo, allow literals in JSON with CharacterItem
 
 #[derive(Serialize, Deserialize, Debug)]
-struct Pool {
-    name: Name,
-    current: i32,
-    maximum: i32,
+pub struct Pool {
+    pub name: Name,
+    pub current: i32,
+    pub maximum: i32,
 }
 
 type Pools = HashMap::<Name, Pool>;
@@ -30,7 +30,7 @@ pub struct Character {
     base_stats: BaseStats,
     #[serde(default = "Character::default_stats")]
     stats: CharacterStats,
-    #[serde(default = "Character::default_actions")]
+    #[serde(default = "ActionMenu::new")]
     actions: ActionMenu,
     #[serde(default)]
     items: Items,
@@ -40,9 +40,6 @@ pub struct Character {
 }
 
 impl Character {
-    fn default_actions() -> ActionMenu {
-        ActionMenu::new()
-    }
     fn default_base_stats() -> BaseStats {
         let mut bs = BaseStats::new();
         bs.insert(String::from("Strength"), 10);
@@ -60,7 +57,7 @@ impl Character {
             name,
             base_stats: BaseStats::new(),
             stats: 0, // DerivedStats::new(),
-            actions: Character::default_actions(),
+            actions: ActionMenu::new(),
             items: Items::new(),
             //equips: item::generate_equipment_set(),
             pools: Pools::new(),
@@ -81,7 +78,7 @@ impl Character {
     pub fn get_base_stat(&self, name: Name) -> Option<&Stat> {
         self.base_stats.get(&name)
     }
-    pub fn get_stat<'a>(&self, name: Name, statblocks: &'a StatBlockEncyclopedia) -> Option<&'a DerivedStat> {
+    pub fn get_stat<'s>(&self, name: Name, statblocks: &'s StatBlockEncyclopedia) -> Option<&'s DerivedStat> {
         match statblocks.get(&self.stats) {
             Some(statblock) => statblock.get_stat(name),
             None => None,
@@ -92,6 +89,9 @@ impl Character {
             Some(pool) => (pool.current, pool.maximum),
             None => (0, 0)
         }
+    }
+    pub fn get_pools(&self) -> &Pools {
+        &self.pools
     }
     /*
     pub fn equip_to_slot(&mut self, item: item::Item, slot: String) -> Option<item::Item> {
@@ -104,6 +104,34 @@ impl Character {
         self.equips.insert(slot, None);
         prev_equip
     }*/
+    pub fn get_action_options(&self, selections: &Vec::<usize>, act_en: &ActionEncyclopedia) -> Vec::<Vec::<Name>> {
+        // Start with the root CharacterActions (e.g. Attack, Magic, Item)
+        let menu: &ActionMenu = &self.actions; // ROOT ActionMenu
+        let mut result = Vec::<Vec::<Name>>::new();
+        result.push(menu.get_prompts(act_en));
+        for s in selections {
+            let ca: &CharacterAction = menu.get_option(*s).unwrap();
+            if let CharacterAction::Menu(menu) = ca {
+                result.push(menu.get_prompts(act_en));
+            } else {
+                panic!("A non-Menu CharacterAction was somehow selected. Should have called get_action_selection :-(");
+            }
+        }
+        result
+    }
+    pub fn get_action_selection<'a>(&'a self, selections: &Vec::<usize>, action_enc: &'a ActionEncyclopedia) -> Option<&'a Action> {
+        // Start with the root CharacterActions (e.g. Attack, Magic, Item)
+        let menu: &ActionMenu = &self.actions; // ROOT ActionMenu
+        for s in selections {
+            match menu.get_option(*s).unwrap() {
+                CharacterAction::Menu(menu) => (), // continue
+                CharacterAction::Index(id) => return action_enc.get(id),
+                CharacterAction::Literal(l) => return Some(l),
+                CharacterAction::UseItem => panic!("CharacterAction::UseItem not implemented yet."),
+            };
+        }
+        None // Haven't reached an actual... Action yet. Should call get_action_options soon.
+    }
 }
 
 
@@ -160,7 +188,7 @@ mod tests {
         let (id, name) = (0, "Mog");
         let mog_json = format!("{{\"id\": {}, \"name\": \"{}\"}}", id, String::from(name));
         let mog = Character::from_json(&mog_json);
-        assert_eq!(mog.actions, Character::default_actions());
+        assert_eq!(mog.actions, ActionMenu::new());
         assert_eq!(mog.base_stats, Character::default_base_stats());
         assert_eq!(mog.stats, Character::default_stats())
     }
@@ -178,6 +206,22 @@ mod tests {
         assert!(mog.get_stat(String::from("Strength"), &statblocks).is_some());
         assert!(mog.get_stat(String::from("Offense"), &statblocks).is_some());
         assert!(mog.get_stat(String::from("Moxie"), &statblocks).is_none());
+    }
+    #[test]
+    fn get_action_options_test() {
+        use crate::encyclopedia::ActionEncyclopedia;
+        use crate::encyclopedia::CharacterEncyclopedia;
+        let actions = ActionEncyclopedia::new("data/actions.json");
+        let characters = CharacterEncyclopedia::new("data/characters.json");
+        let mog = characters.get(&0).unwrap();
+        let mut selections = Vec::<usize>::new();
+        let mog_menus = mog.get_action_options(&selections, &actions);
+        let mut expected_menus = vec![vec!["Attack", "Dance", "Magic", "Item"]];
+        assert_eq!(&mog_menus, &expected_menus);
+        selections.push(1); // select "Dance"
+        expected_menus.push(vec!["Water Harmony", "Desert Lullaby"]);
+        let mog_menus = mog.get_action_options(&selections, &actions);
+        assert_eq!(mog_menus, expected_menus);        
     }
 }
 

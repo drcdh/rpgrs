@@ -106,13 +106,15 @@ impl Character {
     }*/
     pub fn get_action_options(&self, selections: &Vec::<usize>, act_en: &ActionEncyclopedia) -> Vec::<Vec::<Name>> {
         // Start with the root CharacterActions (e.g. Attack, Magic, Item)
-        let menu: &ActionMenu = &self.actions; // ROOT ActionMenu
+        // This needs to be a mutable reference for the loop below to work.
+        let mut menu: &ActionMenu = &self.actions; // ROOT ActionMenu
         let mut result = Vec::<Vec::<Name>>::new();
         result.push(menu.get_prompts(act_en));
         for s in selections {
             let ca: &CharacterAction = menu.get_option(*s).unwrap();
-            if let CharacterAction::Menu(menu) = ca {
-                result.push(menu.get_prompts(act_en));
+            if let CharacterAction::Menu(m) = ca {
+                result.push(m.get_prompts(act_en));
+                menu = m; // Here is why menu is a mutable reference
             } else {
                 panic!("A non-Menu CharacterAction was somehow selected. Should have called get_action_selection :-(");
             }
@@ -121,16 +123,22 @@ impl Character {
     }
     pub fn get_action_selection<'a>(&'a self, selections: &Vec::<usize>, action_enc: &'a ActionEncyclopedia) -> Option<&'a Action> {
         // Start with the root CharacterActions (e.g. Attack, Magic, Item)
-        let menu: &ActionMenu = &self.actions; // ROOT ActionMenu
+        let mut menu: &ActionMenu = &self.actions; // ROOT ActionMenu
         for s in selections {
-            match menu.get_option(*s).unwrap() {
-                CharacterAction::Menu(menu) => (), // continue
-                CharacterAction::Index(id) => return action_enc.get(id),
-                CharacterAction::Literal(l) => return Some(l),
-                CharacterAction::UseItem => panic!("CharacterAction::UseItem not implemented yet."),
-            };
+            let ca: &CharacterAction = menu.get_option(*s).unwrap();
+            if let CharacterAction::Index(id) = ca {
+                return action_enc.get(&id);
+            }
+            if let CharacterAction::Literal(a) = ca {
+                return Some(&a);
+            }
+            if let CharacterAction::Menu(m) = ca {
+                menu = m;
+                continue;
+            }
         }
-        None // Haven't reached an actual... Action yet. Should call get_action_options soon.
+        None
+//        panic!("Character::get_action_selection didn't end on a CharacterAction::Index or CharacterAction::Literal.");
     }
 }
 
@@ -222,6 +230,20 @@ mod tests {
         expected_menus.push(vec!["Water Harmony", "Desert Lullaby"]);
         let mog_menus = mog.get_action_options(&selections, &actions);
         assert_eq!(mog_menus, expected_menus);        
+    }
+    #[test]
+    fn get_action_selection_test() {
+        use crate::encyclopedia::ActionEncyclopedia;
+        use crate::encyclopedia::CharacterEncyclopedia;
+        let actions = ActionEncyclopedia::new("data/actions.json");
+        let characters = CharacterEncyclopedia::new("data/characters.json");
+        let mog = characters.get(&0).unwrap();
+        let selections: Vec::<usize> = vec![1, 1]; // "Dance" -> "Desert Lullaby"
+        let selected_action = mog.get_action_selection(&selections, &actions).unwrap();
+        assert_eq!(selected_action.copy_name(), "Desert Lullaby");
+        let selections: Vec::<usize> = vec![1, 0]; // "Dance" -> "Water Harmony"
+        let selected_action = mog.get_action_selection(&selections, &actions).unwrap();
+        assert_eq!(selected_action.copy_name(), "Water Harmony");
     }
 }
 

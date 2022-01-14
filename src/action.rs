@@ -59,6 +59,9 @@ impl ActionMenu {
         ca.push(CharacterAction::UseItem);
         ActionMenu { prompt: "ROOT".to_string(), options: ca }
     }
+    pub fn get_prompt(&self) -> &Name {
+        &self.prompt
+    }
     pub fn get_prompts(&self, act_en: &ActionEncyclopedia) -> Vec::<Name> {
         let mut pr = Vec::<Name>::new();
         for ca in &self.options {

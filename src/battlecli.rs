@@ -1,15 +1,11 @@
 use termion::clear::All as ClearAll;
 use termion::cursor::Goto;
 use termion::event::Key;
-use termion::input::TermRead;
-use termion::raw::IntoRawMode;
 use termion::style;
 use std::io::Write;
 
 use crate::battle::Battle;
-use crate::character::Character;
 use crate::encyclopedia::CharacterEncyclopedia;
-use crate::party::Party;
 
 const OUTER_ROW: &'static str = " ============================== ";
 const INNER_ROW: &'static str = " |                            | ";
@@ -35,7 +31,30 @@ BattleCLI<R, W> {
     fn clear(&mut self) {
         write!(self.stdout, "{}{}", ClearAll, Goto(1, 1)).unwrap();
     }
+    fn refresh(&mut self, ch_enc: &CharacterEncyclopedia) {
+        self.clear();
+        self.draw_boxes(self.battle.baddies.len(), self.battle.allies.len());
+        self.write_baddies_info(ch_enc);
+        self.write_allies_info(ch_enc);
+        self.write_text();
+        self.write_menu();
+    }
+    fn write_text(&mut self) -> bool {
+        if let Some(text) = self.battle.get_text() {
+            write!(self.stdout, "{} >>> {}", Goto(1, 30), text).unwrap();
+        }
+        false
+    }
+    pub fn write_menu(&mut self) {
+        if let Some(options) = self.battle.get_top_menu_options() {
+            for (i, opt) in options.iter().enumerate() {
+                write!(self.stdout, "{}{}. {}", Goto(1, (30 + i) as u16), i+1, opt).unwrap();
+            }
+            write!(self.stdout, "{} >>> {} ", Goto(1, (30 + options.len() + 2) as u16), "Pick your next action!").unwrap();
+        }
+    }
     fn _draw_boxes(&mut self, n: usize) {
+        // todo: for now this overwrites all character info
         for _ in 0..n {
             write!(self.stdout, "{}", OUTER_ROW).unwrap();
         }
@@ -52,7 +71,7 @@ BattleCLI<R, W> {
         write!(self.stdout, "\r\n").unwrap();
     }
     fn draw_boxes(&mut self, num_baddies: usize, num_allies: usize) {
-        self.clear();
+//        self.clear();
         self._draw_boxes(num_baddies);
         write!(self.stdout, "\n\n\n").unwrap();
         self._draw_boxes(num_allies);
@@ -64,7 +83,10 @@ BattleCLI<R, W> {
             let (_, name) = c.whoami();
             let i: u16 = i.try_into().unwrap();
             write!(self.stdout, "{} {}", Goto(i*BOX_WIDTH + 3, 2), name).unwrap();
-            write!(self.stdout, "{} HP: ", Goto(i*BOX_WIDTH + 3, 3)).unwrap(); // todo
+            for (j, (_, pool)) in c.get_pools().iter().enumerate() {
+                let j: u16 = j.try_into().unwrap();
+                write!(self.stdout, "{} {:>4}: {:4} / {:4}", Goto(i*BOX_WIDTH + 3, 4+j), pool.name, pool.current, pool.maximum).unwrap();
+            }
         }
     }
     fn write_allies_info(&mut self, ch_enc: &CharacterEncyclopedia) {
@@ -74,18 +96,29 @@ BattleCLI<R, W> {
             let (_, name) = c.whoami();
             let i: u16 = i.try_into().unwrap();
             write!(self.stdout, "{} {}", Goto(i*BOX_WIDTH + 3, BOX_HEIGHT+4+2), name).unwrap();
-            write!(self.stdout, "{} HP: ", Goto(i*BOX_WIDTH + 3, BOX_HEIGHT+4+3)).unwrap(); // todo
+            for (j, (_, pool)) in c.get_pools().iter().enumerate() {
+                let j: u16 = j.try_into().unwrap();
+                write!(self.stdout, "{} {:>4}: {:4} / {:4}", Goto(i*BOX_WIDTH + 3, BOX_HEIGHT+4+4+j), pool.name, pool.current, pool.maximum).unwrap();
+            }
         }
     }
-    pub fn get_key(&mut self) {
+    pub fn get_key(&mut self) -> Key {
         self.stdout.flush().unwrap();
-        self.stdin.next().unwrap().unwrap();
+        self.stdin.next().unwrap().unwrap()
     }
     pub fn run(&mut self, ch_enc: &CharacterEncyclopedia) {
-        self.clear();
-        self.draw_boxes(self.battle.baddies.len(), self.battle.allies.len());
-        self.write_baddies_info(ch_enc);
-        self.write_allies_info(ch_enc);
-        self.get_key(); // pause
+        self.refresh(ch_enc);
+        loop {
+            self.refresh(ch_enc);
+            let key = self.get_key();
+            if key == Key::Char('q') {
+                break;
+            }
+            if let Key::Char(_c) = key {
+                // Collect it as entropy
+//                self.rand.write_u8(c as u8);
+            }
+            self.battle.handle_input(key);
+        }
     }
 }

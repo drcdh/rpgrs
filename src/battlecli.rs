@@ -48,7 +48,11 @@ BattleCLI<R, W> {
     pub fn write_menu(&mut self) {
         if let Some(options) = self.battle.get_top_menu_options() {
             for (i, opt) in options.iter().enumerate() {
-                write!(self.stdout, "{}{}. {}", Goto(1, (30 + i) as u16), i+1, opt).unwrap();
+                let mut sel_str = "    ";
+                if i == *self.battle.selections.last().unwrap() {
+                    sel_str = " -> ";
+                }
+                write!(self.stdout, "{}{}{}. {}", Goto(1, (30 + i) as u16), sel_str, i+1, opt).unwrap();
             }
             write!(self.stdout, "{} >>> {} ", Goto(1, (30 + options.len() + 2) as u16), "Pick your next action!").unwrap();
         }

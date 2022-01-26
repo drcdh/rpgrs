@@ -104,7 +104,7 @@ impl Character {
         self.equips.insert(slot, None);
         prev_equip
     }*/
-    pub fn get_action_options(&self, selections: &Vec::<usize>, act_en: &ActionEncyclopedia) -> Vec::<Vec::<Name>> {
+    pub fn get_action_options(&self, selections: &[usize], act_en: &ActionEncyclopedia) -> Vec::<Vec::<Name>> {
         // Start with the root CharacterActions (e.g. Attack, Magic, Item)
         // This needs to be a mutable reference for the loop below to work.
         let mut menu: &ActionMenu = &self.actions; // ROOT ActionMenu
@@ -121,7 +121,7 @@ impl Character {
         }
         result
     }
-    pub fn get_action_selection<'a>(&'a self, selections: &Vec::<usize>, action_enc: &'a ActionEncyclopedia) -> Option<&'a Action> {
+    pub fn get_action_selection<'a>(&'a self, selections: &[usize], action_enc: &'a ActionEncyclopedia) -> Option<&'a Action> {
         // Start with the root CharacterActions (e.g. Attack, Magic, Item)
         let mut menu: &ActionMenu = &self.actions; // ROOT ActionMenu
         for s in selections {

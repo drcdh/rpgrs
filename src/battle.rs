@@ -16,7 +16,9 @@ enum BattleState {
 pub struct Battle {
     pub allies: Party,
     pub baddies: Party,
-    selections: Vec::<usize>, // selections made on parent menus
+    // selections made on parent menus and the highlighted option on
+    // the top menu.
+    pub selections: Vec::<usize>,
     text: Vec::<String>,
     current_pc: Option<usize>,
     action_enc: ActionEncyclopedia,
@@ -39,8 +41,10 @@ impl Battle {
         }
     }
     fn get_current_pc_actions(&self) -> Vec::<Vec::<Name>> {
+        let ns = self.selections.len()-1;
+        let parent_menu_selections = &self.selections[..ns];
         match self.current_pc {
-            Some(i) => self.ch_enc.resolve(self.allies.get_character(i)).unwrap().get_action_options(&self.selections, &self.action_enc),
+            Some(i) => self.ch_enc.resolve(self.allies.get_character(i)).unwrap().get_action_options(parent_menu_selections, &self.action_enc),
             None => Vec::<Vec::<Name>>::new(),
         }
     }
@@ -51,14 +55,12 @@ impl Battle {
         let l = self.text.len();
         if l > 0 {
             self.pop_text();
-        }
-        if l > 1 {
-            return;
-        }
-        if self.current_pc == None {
-            self.current_pc = Some(0);
-            let (_, next_pc) = self.ch_enc.resolve(self.allies.get_character(self.current_pc.unwrap())).unwrap().whoami();
-            self.text.push(format!("It's {}'s turn!", next_pc));
+            if self.current_pc == None {
+                self.current_pc = Some(0);
+                self.selections.push(0);
+                let (_, next_pc) = self.ch_enc.resolve(self.allies.get_character(self.current_pc.unwrap())).unwrap().whoami();
+                self.text.push(format!("It's {}'s turn!", next_pc));
+            }
             return;
         }
         self.make_selection(key);
@@ -78,23 +80,50 @@ impl Battle {
             return None; // todo
         }
         match self.current_pc {
-            Some(_) => self.get_current_pc_actions().get(self.selections.len()).cloned(),
+            Some(_) => self.get_current_pc_actions().get(self.selections.len()-1).cloned(),
             None => None,
         }
     }
-    fn make_selection(&mut self, key: Key) {
-        if let Key::Char(c) = key {
-            if let Some(i) = c.to_digit(10) {
-                self.selections.push((i as usize) - 1);
-//                return;
-            }
-        }
-        if let Some(a) = self.ch_enc.resolve(self.allies.get_character(self.current_pc.unwrap())).unwrap().get_action_selection(&self.selections, &self.action_enc) {
+    fn menu_enter(&mut self) {
+        let ns = self.selections.len()-1;
+        let parent_menu_selections = &self.selections[..ns];
+        if let Some(a) = self.ch_enc.resolve(self.allies.get_character(self.current_pc.unwrap())).unwrap().get_action_selection(parent_menu_selections, &self.action_enc) {
             // Clear the menu stack
             self.selections.clear();
             self.current_pc = None;
-            self.text.push(a.copy_name());
+            self.text.push(a.copy_name()); // todo, placeholder for applying the Action
             return;
+        }
+    }
+    fn make_selection(&mut self, key: Key) {
+        if let Some(options) = self.get_top_menu_options() {
+            if let Key::Char(c) = key {
+                if c == '\n' {
+                    self.selections.push(0);
+                    self.menu_enter();
+                } else if let Some(i) = c.to_digit(10) {
+                    let i = (i as usize) - 1;
+                    if i >= 0 && i < options.len() {
+                        self.selections.pop();
+                        self.selections.push(i);
+                        self.selections.push(0);
+                        self.menu_enter();
+                    }
+                }
+            } else if key == Key::Up || key == Key::Down {
+                let mut i = self.selections.pop().unwrap();
+                if key == Key::Up {
+                    if i == 0 {
+                        i = options.len()-1;
+                    } else {
+                        i -= 1;
+                    }
+                } else if key == Key::Down {
+                    i += 1;
+                    if i >= options.len() { i = 0; }
+                }
+                self.selections.push(i);
+            }
         }
     }/*
     fn progress(&mut self) {

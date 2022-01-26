@@ -1,4 +1,5 @@
 use termion::clear::All as ClearAll;
+use termion::color;
 use termion::cursor::Goto;
 use termion::event::Key;
 use termion::style;
@@ -57,28 +58,40 @@ BattleCLI<R, W> {
             write!(self.stdout, "{} >>> {} ", Goto(1, (30 + options.len() + 2) as u16), "Pick your next action!").unwrap();
         }
     }
-    fn _draw_boxes(&mut self, n: usize) {
+    fn _draw_boxes(&mut self, n: usize, baddies: bool) {
         // todo: for now this overwrites all character info
-        for _ in 0..n {
-            write!(self.stdout, "{}", OUTER_ROW).unwrap();
+        for i in 0..n {
+            if baddies && self.battle.targets.contains(&i) {
+                write!(self.stdout, "{}{}{}", color::Fg(color::Cyan), OUTER_ROW, color::Fg(color::Reset)).unwrap();
+            } else {
+                write!(self.stdout, "{}", OUTER_ROW).unwrap();
+            }
         }
         write!(self.stdout, "\r\n").unwrap();
         for _ in 2..=BOX_HEIGHT {
-            for _ in 0..n {
-                write!(self.stdout, "{}", INNER_ROW).unwrap();
+            for i in 0..n {
+                if baddies && self.battle.targets.contains(&i) {
+                    write!(self.stdout, "{}{}{}", color::Fg(color::Cyan), INNER_ROW, color::Fg(color::Reset)).unwrap();
+                } else {
+                    write!(self.stdout, "{}", INNER_ROW).unwrap();
+                }
             }
             write!(self.stdout, "\r\n").unwrap();
         }
-        for _ in 0..n {
-            write!(self.stdout, "{}", OUTER_ROW).unwrap();
+        for i in 0..n {
+            if baddies && self.battle.targets.contains(&i) {
+                write!(self.stdout, "{}{}{}", color::Fg(color::Cyan), OUTER_ROW, color::Fg(color::Reset)).unwrap();
+            } else {
+                write!(self.stdout, "{}", OUTER_ROW).unwrap();
+            }
         }
         write!(self.stdout, "\r\n").unwrap();
     }
     fn draw_boxes(&mut self, num_baddies: usize, num_allies: usize) {
 //        self.clear();
-        self._draw_boxes(num_baddies);
+        self._draw_boxes(num_baddies, true);
         write!(self.stdout, "\n\n\n").unwrap();
-        self._draw_boxes(num_allies);
+        self._draw_boxes(num_allies, false); // fixme
     }
     fn write_baddies_info(&mut self, ch_enc: &CharacterEncyclopedia) {
         let p = &self.battle.baddies;

@@ -138,7 +138,6 @@ impl Character {
             }
         }
         None
-//        panic!("Character::get_action_selection didn't end on a CharacterAction::Index or CharacterAction::Literal.");
     }
 }
 

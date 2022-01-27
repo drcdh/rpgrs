@@ -2,13 +2,15 @@
     "0": {
             "id": 0,
             "name": "Attack",
-            "effects": [{"Index": 2}]
+            "effects": [{"Index": 2}],
+            "message": "{:actor} attacks {:targets}!"
     },
     "1": {
             "id": 1,
             "name": "Candlelight",
             "costs": {"MP": 3},
-            "effects": [{"Index": 3}]
+            "effects": [{"Index": 3}],
+            "message": "{:actor} lights a candle under {:targets}'s ass!"
     },
     "30":{
             "id": 30,
@@ -19,6 +21,7 @@
                     "hits": [{"pool": "HP", "amount": {"Formula": "- * 3 ^Magic * 0.6 $Magic"}}],
                     "traits": ["Water", "Nature"]
             }}],
-            "scope": "Enemies"
+            "scope": "Enemies",
+            "message": "{:actor} does the dance of the Water Harmony."
     }
 }

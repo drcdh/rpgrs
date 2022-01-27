@@ -89,9 +89,15 @@ impl Battle {
         }
     }
     fn start_action(&mut self) {
-        let a_str = self.get_selected_action().unwrap().copy_name();
-        eprintln!("Starting Action \'{}\'", a_str);
-        self.text.push(a_str); // todo, placeholder for applying the Action
+        let a = self.get_selected_action().unwrap();
+        eprintln!("Starting Action \'{}\'", a.copy_name());
+        let (_, cname) = self.ch_enc.resolve(self.allies.get_character(self.current_pc.unwrap())).unwrap().whoami();
+        let mut target_names = Vec::<&str>::new();
+        for i in &self.targets {
+            let (_, ename) = self.ch_enc.resolve(self.baddies.get_character(*i)).unwrap().whoami();
+            target_names.push(ename);
+        }
+        self.text.push(a.get_message(cname, &target_names));
         // Clear the menu stack
         self.selections.clear();
         self.current_pc = None;

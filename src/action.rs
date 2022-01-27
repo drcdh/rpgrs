@@ -34,6 +34,9 @@ pub struct Action {
     effects: Vec::<IndexedOrLiteral<Effect>>,
     #[serde(default = "Action::default_scope")]
     scope: Scope,
+    // A format string that may use {:actor}, {:target}, or {:targets}.
+    #[serde(default)]
+    message: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -87,6 +90,18 @@ impl Action {
     }
     pub fn copy_name(&self) -> Name {
         self.name.clone()
+    }
+    pub fn get_message(&self, actor: &str, target_names: &Vec::<&str>) -> String {
+        let ntargets = target_names.len();
+        let mut targets = target_names[..ntargets-1].join(", ");
+        if ntargets == 1 {
+            targets = target_names.get(0).unwrap().to_string();
+        } else if ntargets == 2 {
+            targets = format!("{} and {}", targets, target_names.get(ntargets-1).unwrap());
+        } else if ntargets > 2 {
+            targets = format!("{}, and {}", targets, target_names.get(ntargets-1).unwrap());
+        }
+        String::from(&str::replace(&str::replace(&self.message, "{:actor}", actor), "{:targets}", &targets))
     }
 }
 

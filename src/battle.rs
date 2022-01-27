@@ -152,11 +152,13 @@ impl Battle {
                 if c == '\n' {
                     self.next_menu();
                 } else if let Some(i) = c.to_digit(10) {
-                    let i = (i as usize) - 1;
-                    if i >= 0 && i < options.len() {
-                        self.selections.pop();
-                        self.selections.push(i);
-                        self.next_menu();
+                    if i > 0 {
+                        let i = (i as usize) - 1;
+                        if i < options.len() {
+                            self.selections.pop();
+                            self.selections.push(i);
+                            self.next_menu();
+                        }
                     }
                 }
             } else if key == Key::Up || key == Key::Down {

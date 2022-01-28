@@ -7,7 +7,7 @@ use crate::common::{Id, Name, Formula};
 use crate::encyclopedia::StatBlockEncyclopedia;
 
 
-pub type Stat = i64;
+pub type Stat = i16;
 pub type BaseStats = HashMap<Name, Stat>;
 pub type DerivedStat = Formula;
 pub type DerivedStats = HashMap<Name, DerivedStat>;

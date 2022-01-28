@@ -84,6 +84,15 @@ impl Character {
             None => None,
         }
     }
+    pub fn get_stat_val<'s>(&self, name: Name, default: Stat, statblocks: &'s StatBlockEncyclopedia) -> Stat {
+        match self.get_stat(name, statblocks) {
+            Some(formula) => self.evaluate_formula(formula),
+            None => default,
+        }
+    }
+    fn evaluate_formula(&self, formula: &Formula) -> Stat {
+        40 // TODO
+    }
     pub fn get_pool_vals(&self, name: String) -> (i32, i32) {
         match self.pools.get(&name) {
             Some(pool) => (pool.current, pool.maximum),
@@ -138,6 +147,10 @@ impl Character {
             }
         }
         None
+    }
+    pub fn dclock(&self, dt: u16, statblocks: &StatBlockEncyclopedia) -> u16 {
+        // FIXME This is almost certainly error-prone
+        dt * u16::try_from(self.get_stat_val("Speed".to_string(), 0, statblocks)).ok().unwrap()
     }
 }
 

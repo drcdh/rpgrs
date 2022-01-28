@@ -5,7 +5,7 @@ use termion::event::Key;
 use termion::style;
 use std::io::Write;
 
-use crate::battle::Battle;
+use crate::battle::{Battle, PlayerIndex};
 use crate::encyclopedia::CharacterEncyclopedia;
 
 const OUTER_ROW: &'static str = " ============================== ";
@@ -61,8 +61,10 @@ BattleCLI<R, W> {
     fn _draw_boxes(&mut self, n: usize, baddies: bool) {
         // todo: for now this overwrites all character info
         for i in 0..n {
-            if baddies && self.battle.targets.contains(&i) {
-                write!(self.stdout, "{}{}{}", color::Fg(color::Cyan), OUTER_ROW, color::Fg(color::Reset)).unwrap();
+            if baddies && self.battle.targets.contains(&PlayerIndex::Baddy(i)) {
+                write!(self.stdout, "{}{}{}", color::Fg(color::Red), OUTER_ROW, color::Fg(color::Reset)).unwrap();
+            } else if !baddies && self.battle.targets.contains(&PlayerIndex::Ally(i)) {
+                write!(self.stdout, "{}{}{}", color::Fg(color::Green), OUTER_ROW, color::Fg(color::Reset)).unwrap();
             } else {
                 write!(self.stdout, "{}", OUTER_ROW).unwrap();
             }
@@ -70,8 +72,10 @@ BattleCLI<R, W> {
         write!(self.stdout, "\r\n").unwrap();
         for _ in 2..=BOX_HEIGHT {
             for i in 0..n {
-                if baddies && self.battle.targets.contains(&i) {
-                    write!(self.stdout, "{}{}{}", color::Fg(color::Cyan), INNER_ROW, color::Fg(color::Reset)).unwrap();
+                if baddies && self.battle.targets.contains(&PlayerIndex::Baddy(i)) {
+                    write!(self.stdout, "{}{}{}", color::Fg(color::Red), INNER_ROW, color::Fg(color::Reset)).unwrap();
+                } else if !baddies && self.battle.targets.contains(&PlayerIndex::Ally(i)) {
+                    write!(self.stdout, "{}{}{}", color::Fg(color::Green), INNER_ROW, color::Fg(color::Reset)).unwrap();
                 } else {
                     write!(self.stdout, "{}", INNER_ROW).unwrap();
                 }
@@ -79,8 +83,10 @@ BattleCLI<R, W> {
             write!(self.stdout, "\r\n").unwrap();
         }
         for i in 0..n {
-            if baddies && self.battle.targets.contains(&i) {
-                write!(self.stdout, "{}{}{}", color::Fg(color::Cyan), OUTER_ROW, color::Fg(color::Reset)).unwrap();
+            if baddies && self.battle.targets.contains(&PlayerIndex::Baddy(i)) {
+                write!(self.stdout, "{}{}{}", color::Fg(color::Red), OUTER_ROW, color::Fg(color::Reset)).unwrap();
+            } else if !baddies && self.battle.targets.contains(&PlayerIndex::Ally(i)) {
+                write!(self.stdout, "{}{}{}", color::Fg(color::Green), OUTER_ROW, color::Fg(color::Reset)).unwrap();
             } else {
                 write!(self.stdout, "{}", OUTER_ROW).unwrap();
             }
@@ -104,6 +110,7 @@ BattleCLI<R, W> {
                 let j: u16 = j.try_into().unwrap();
                 write!(self.stdout, "{} {:>4}: {:4} / {:4}", Goto(i*BOX_WIDTH + 3, 4+j), pool.name, pool.current, pool.maximum).unwrap();
             }
+            write!(self.stdout, "{} {}", Goto(i*BOX_WIDTH + 3, 7), self.battle.baddies.clocks.get(i as usize).unwrap()).unwrap();
         }
     }
     fn write_allies_info(&mut self, ch_enc: &CharacterEncyclopedia) {
@@ -117,6 +124,7 @@ BattleCLI<R, W> {
                 let j: u16 = j.try_into().unwrap();
                 write!(self.stdout, "{} {:>4}: {:4} / {:4}", Goto(i*BOX_WIDTH + 3, BOX_HEIGHT+4+4+j), pool.name, pool.current, pool.maximum).unwrap();
             }
+            write!(self.stdout, "{} {}", Goto(i*BOX_WIDTH + 3, BOX_HEIGHT+4+7), self.battle.allies.clocks.get(i as usize).unwrap()).unwrap();
         }
     }
     pub fn get_key(&mut self) -> Key {

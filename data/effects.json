@@ -14,7 +14,7 @@
     "2": {
             "id": 2,
             "name": "Attack",
-            "hits": [{"pool": "HP", "amount": {"Formula": "- ^Offense $Defense"}}]
+            "hits": [{"pool": "HP", "amount": {"Formula": "+ ^Offense * * 1.5 / + ^Offense * 2 ^Strength 256 * ^Level ^Level"}}]
     },
     "3": {
             "id": 3,

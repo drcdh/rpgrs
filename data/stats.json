@@ -3,13 +3,14 @@
         "id": 0,
         "name": "FFVI",
         "base_stats": {
+            "Offense": 10,
             "Strength": 10,
             "Stamina": 10,
             "Magic": 10,
             "Speed": 10
         },
         "stats": {
-            "Offense":  "+ .AddMod * .MultMod + Weapon.power + Strength.AddMod * Strength.MultMod Strength",
+            "Offense":  "+ .AddMod * .MultMod + Weapon.power .",
             "Defense":  "+ .AddMod * .MultMod + Armor.power + Stamina.AddMod * Stamina.MultMod Stamina",
             "Strength": "+ .AddMod * .MultMod .",
             "Stamina":  "+ .AddMod * .MultMod .",

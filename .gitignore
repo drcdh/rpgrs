@@ -12,3 +12,4 @@ Cargo.lock
 # et cetera
 *.err
 *.out
+tarpaulin-report.html

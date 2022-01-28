@@ -60,13 +60,13 @@ impl Battle {
             if let Some(i) = self.allies.get_ready_character() {
                 self.current_pc = Some(PlayerIndex::Ally(i));
                 self.selections.push(0);
-                let (_, next) = self.ch_enc.resolve(self.get_current_pc().unwrap()).unwrap().whoami();
+                let next = self.ch_enc.resolve(self.get_current_pc().unwrap()).unwrap().copy_name();
                 self.text.push(format!("It's {}'s turn!", next));
                 return;
             }
             if let Some(i) = self.baddies.get_ready_character() {
                 self.current_npc = Some(PlayerIndex::Baddy(i));
-                let (_, next) = self.ch_enc.resolve(self.get_current_npc().unwrap()).unwrap().whoami();
+                let next = self.ch_enc.resolve(self.get_current_npc().unwrap()).unwrap().copy_name();
                 self.text.push(format!("It's {}'s turn!", next));
                 // TODO
                 self.current_npc = None;
@@ -136,18 +136,19 @@ impl Battle {
     fn play_pc_action(&mut self) {
         let a = self.get_selected_action().unwrap();
         eprintln!("Starting Action \'{}\'", a.copy_name());
-        let (_, cname) = self.ch_enc.resolve(self.get_current_pc().unwrap()).unwrap().whoami();
-        let mut target_names = Vec::<&str>::new();
+        let pc_name = self.ch_enc.resolve(self.get_current_pc().unwrap()).unwrap().copy_name();
+        let mut target_names = Vec::<Name>::new();
         for i in &self.targets {
             if let PlayerIndex::Ally(i) = i {
-                let (_, ename) = self.ch_enc.resolve(self.allies.get_character(*i)).unwrap().whoami();
-                target_names.push(ename);
+                let t_name = self.ch_enc.resolve(self.allies.get_character(*i)).unwrap().copy_name();
+                target_names.push(t_name);
             } else if let PlayerIndex::Baddy(i) = i {
-                let (_, ename) = self.ch_enc.resolve(self.baddies.get_character(*i)).unwrap().whoami();
-                target_names.push(ename);
+                let t_name = self.ch_enc.resolve(self.baddies.get_character(*i)).unwrap().copy_name();
+                target_names.push(t_name);
             }
         }
-        self.text.push(a.get_message(cname, &target_names));
+        let msg = a.get_message(&pc_name, &target_names);
+        self.text.push(msg);
         // Clear the menu stack
         self.selections.clear();
         self.current_pc = None;

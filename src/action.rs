@@ -8,6 +8,7 @@ use crate::effect::Effect;
 use crate::encyclopedia::ActionEncyclopedia;
 
 pub type Costs = HashMap::<String, u32>;
+type Effects = Vec::<IndexedOrLiteral<Effect>>;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[derive(PartialEq)]
@@ -31,11 +32,11 @@ pub struct Action {
     name: Name,
     #[serde(default)]
     costs: Costs,
-    effects: Vec::<IndexedOrLiteral<Effect>>,
+    effects: Effects,
     #[serde(default = "Action::default_scope")]
     scope: Scope,
     // A format string that may use {:actor}, {:target}, or {:targets}.
-    #[serde(default)]
+    #[serde(default = "Action::default_message")]
     message: String,
 }
 
@@ -88,10 +89,13 @@ impl Action {
     fn default_scope() -> Scope {
         Scope::Enemy
     }
+    fn default_message() -> String {
+        String::from("{:actor} did something to {:target}.")
+    }
     pub fn copy_name(&self) -> Name {
         self.name.clone()
     }
-    pub fn get_message(&self, actor: &str, target_names: &Vec::<&str>) -> String {
+    pub fn get_message(&self, actor: &str, target_names: &Vec::<Name>) -> String {
         let ntargets = target_names.len();
         let mut targets = target_names[..ntargets-1].join(", ");
         if ntargets == 1 {
@@ -132,9 +136,29 @@ mod tests {
             prompt: "ROOT".to_string(),
             options,
         };
+        assert_eq!(am.get_prompt(), "ROOT");
         let prompts = am.get_prompts(&act_en);
         assert_eq!(prompts[0], "Attack");
         assert_eq!(prompts[1], "Magic");
         assert_eq!(prompts[2], "Item");
+    }
+
+    #[test]
+    fn get_message_test() {
+        let act = Action {
+            id: 0,
+            name: String::from("TestAction"),
+            costs: Costs::new(),
+            effects: Effects::new(),
+            scope: Scope::All,
+            message: String::from("TEST {:actor} {:targets} TEST"),
+        };
+        let actor = "A";
+        let mut targets: Vec::<Name> = vec![String::from("1")];
+        assert_eq!(act.get_message(actor, &targets), "TEST A 1 TEST");
+        targets.push(String::from("2"));
+        assert_eq!(act.get_message(actor, &targets), "TEST A 1 and 2 TEST");
+        targets.push(String::from("3"));
+        assert_eq!(act.get_message(actor, &targets), "TEST A 1, 2, and 3 TEST");
     }
 }

@@ -75,6 +75,9 @@ impl Character {
     pub fn whoami(&self) -> (Id, &str) {
         (self.id, &self.name[..])
     }
+    pub fn copy_name(&self) -> Name {
+        self.name.clone()
+    }
     pub fn get_base_stat(&self, name: Name) -> Option<&Stat> {
         self.base_stats.get(&name)
     }
@@ -150,7 +153,7 @@ impl Character {
     }
     pub fn dclock(&self, dt: u16, statblocks: &StatBlockEncyclopedia) -> u16 {
         // FIXME This is almost certainly error-prone
-        dt * u16::try_from(self.get_stat_val("Speed".to_string(), 0, statblocks)).ok().unwrap()
+        dt.saturating_mul(u16::try_from(self.get_stat_val("Speed".to_string(), 0, statblocks)).ok().unwrap())
     }
 }
 

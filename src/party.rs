@@ -54,7 +54,7 @@ impl Party {
         for (ch, cl) in self.group.iter().zip(self.clocks.iter_mut()) {
             let ch = ch_enc.resolve(ch).unwrap();
             let dc = ch.dclock(dt, statblocks);
-            *cl = if u16::MAX - *cl > dc { *cl + dc} else { u16::MAX };
+            *cl = cl.saturating_add(dc);
         }
     }
 }
@@ -68,6 +68,7 @@ mod tests {
         let party = Party::new(String::from("Test"));
         assert_eq!(party.id, 0);
         assert_eq!(party.name, String::from("Test"));
+        assert_eq!(party.len(), 0);
         assert_eq!(party.group.len(), 0);
         assert_eq!(party.formation.len(), 0);
         assert_eq!(party.clocks.len(), 0);
@@ -77,17 +78,28 @@ mod tests {
         let mut party = Party::new(String::from("Test"));
         let mog = Character::new(0, String::from("Mog"));
         party.add_character(IndexedOrLiteral::Literal(mog));
+        assert_eq!(party.len(), 1);
         assert_eq!(party.group.len(), 1);
         assert_eq!(party.formation.len(), 1);
         assert_eq!(party.clocks.len(), 1);
         assert_eq!(*party.formation.get(0).unwrap(), 0);
         if let IndexedOrLiteral::Literal(mog) = party.remove_character(0) {
             assert_eq!(mog.whoami(), (0, "Mog"));
+            assert_eq!(party.len(), 0);
             assert_eq!(party.group.len(), 0);
             assert_eq!(party.formation.len(), 0);
             assert_eq!(party.clocks.len(), 0);
         } else {
-            panic!();
+            panic!("Party::remove_character failed to return test Character");
         }
+    }
+    #[test]
+    fn clocks_test() {
+        let mut party = Party::new(String::from("Test"));
+        let mog = Character::new(0, String::from("Mog"));
+        party.add_character(IndexedOrLiteral::Literal(mog));
+        assert_eq!(party.get_ready_character(), None);
+        party.increment_clocks(u16::MAX, &CharacterEncyclopedia::new("data/characters.json"), &StatBlockEncyclopedia::new("data/stats.json"));
+        assert!(matches!(party.get_ready_character(), Some(_)));
     }
 }

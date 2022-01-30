@@ -83,15 +83,14 @@ mod tests {
         assert_eq!(party.formation.len(), 1);
         assert_eq!(party.clocks.len(), 1);
         assert_eq!(*party.formation.get(0).unwrap(), 0);
+        assert!(matches!(party.get_character(0), IndexedOrLiteral::Literal(_)));
         if let IndexedOrLiteral::Literal(mog) = party.remove_character(0) {
             assert_eq!(mog.whoami(), (0, "Mog"));
-            assert_eq!(party.len(), 0);
-            assert_eq!(party.group.len(), 0);
-            assert_eq!(party.formation.len(), 0);
-            assert_eq!(party.clocks.len(), 0);
-        } else {
-            panic!("Party::remove_character failed to return test Character");
         }
+        assert_eq!(party.len(), 0);
+        assert_eq!(party.group.len(), 0);
+        assert_eq!(party.formation.len(), 0);
+        assert_eq!(party.clocks.len(), 0);
     }
     #[test]
     fn clocks_test() {

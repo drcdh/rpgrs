@@ -5,6 +5,7 @@ pub mod character;
 pub mod common;
 pub mod effect;
 pub mod encyclopedia;
+pub mod formula;
 pub mod item;
 pub mod party;
 pub mod stats;

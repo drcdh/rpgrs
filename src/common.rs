@@ -17,7 +17,8 @@ pub enum IndexedOrLiteral<T> {
 #[derive(PartialEq)]
 pub enum HitAmt {
     Constant(i32),
-    Formula(String),
+    Formula(Formula),
+//todo    StandardFormula(StandardFormula),
 }
 #[derive(Serialize, Deserialize, Debug)]
 #[derive(PartialEq)]

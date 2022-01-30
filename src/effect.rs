@@ -14,7 +14,7 @@ pub struct Effect {
     #[serde(default)]
     name: Name,
     #[serde(default)]
-    hits: Hits,
+    pub hits: Hits,
     #[serde(default)]
     conditions: Hits,
     #[serde(default)]

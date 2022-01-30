@@ -32,7 +32,7 @@ pub struct Action {
     name: Name,
     #[serde(default)]
     costs: Costs,
-    effects: Effects,
+    pub effects: Effects,
     #[serde(default = "Action::default_scope")]
     scope: Scope,
     // A format string that may use {:actor}, {:target}, or {:targets}.

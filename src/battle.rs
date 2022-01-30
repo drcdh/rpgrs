@@ -1,45 +1,53 @@
+use std::collections::VecDeque;
+
 use termion::event::Key;
 
 use crate::action::Action;
 use crate::character::Character;
 use crate::common::*;
+use crate::effect::Effect;
 use crate::encyclopedia::ActionEncyclopedia;
 use crate::encyclopedia::CharacterEncyclopedia;
+use crate::encyclopedia::EffectEncyclopedia;
 use crate::encyclopedia::StatBlockEncyclopedia;
+use crate::formula::eval_hit;
 use crate::party::Party;
-/*
-enum BattleState {
-    MENU,
-    MESSAGE,
-    TURN,
-    QUIT,
-}*/
+
+
 #[derive(PartialEq, Eq)]
 pub enum PlayerIndex {
     Ally(usize),
     Baddy(usize),
 }
-
+/*
+struct BattleEffect {
+    actor: PlayerIndex,
+    target: PlayerIndex,
+    effect: IndexedOrLiteral<Effect>,
+}
+*/
 pub struct Battle {
     pub allies: Party,
     pub baddies: Party,
     // selections made on parent menus and the highlighted option on
     // the top menu.
     pub selections: Vec::<usize>,
-    text: Vec::<String>,
+    text: VecDeque::<String>,
     current_pc: Option<PlayerIndex>,
     current_npc: Option<PlayerIndex>,
     pub targets: Vec::<PlayerIndex>,
+    //effects: VecDeque::<BattleEffect>,
     action_enc: ActionEncyclopedia,
     ch_enc: CharacterEncyclopedia,
+    effect_enc: EffectEncyclopedia,
     statblocks: StatBlockEncyclopedia,
 }
 
 impl Battle {
     pub fn new(allies: Party, baddies: Party) -> Battle {
-        let mut text = Vec::<String>::new();
-        text.push("Go kick some ass!".to_string());
-        text.push("Battle start!".to_string());
+        let mut text = VecDeque::<String>::new();
+        text.push_back("Battle start!".to_string());
+        text.push_back("Go kick some ass!".to_string());
         Battle {
             allies,
             baddies,
@@ -48,9 +56,11 @@ impl Battle {
             current_pc: None,
             current_npc: None,
             targets: Vec::<PlayerIndex>::new(),
+            //effects: VecDeque::<BattleEffect>::new(),
             // FIXME: references should be supplied by the top-level Game object
             action_enc: ActionEncyclopedia::new("data/actions.json"),
             ch_enc: CharacterEncyclopedia::new("data/characters.json"),
+            effect_enc: EffectEncyclopedia::new("data/effects.json"),
             statblocks: StatBlockEncyclopedia::new("data/stats.json"),
         }
     }
@@ -61,13 +71,13 @@ impl Battle {
                 self.current_pc = Some(PlayerIndex::Ally(i));
                 self.selections.push(0);
                 let next = self.ch_enc.resolve(self.get_current_pc().unwrap()).unwrap().copy_name();
-                self.text.push(format!("It's {}'s turn!", next));
+                self.text.push_back(format!("It's {}'s turn!", next));
                 return;
             }
             if let Some(i) = self.baddies.get_ready_character() {
                 self.current_npc = Some(PlayerIndex::Baddy(i));
                 let next = self.ch_enc.resolve(self.get_current_npc().unwrap()).unwrap().copy_name();
-                self.text.push(format!("It's {}'s turn!", next));
+                self.text.push_back(format!("It's {}'s turn!", next));
                 // TODO
                 self.current_npc = None;
                 return;
@@ -77,10 +87,29 @@ impl Battle {
             self.baddies.increment_clocks(1, &self.ch_enc, &self.statblocks);
         }
     }
+    fn handle_hit(&mut self, hit: &Hit, actor: &Character, target: &Character) -> String {
+        let amount = match &hit.amount {
+            HitAmt::Constant(v) => *v,
+            HitAmt::Formula(f) => eval_hit(f, actor, target, &self.statblocks),
+        };
+        //target.take_hit(&Hit { pool: String::from(hit.pool.as_str()), amount: HitAmt::Constant(amount) });
+        format!("{} took {} {} damage! ", target.copy_name(), amount, hit.pool)
+    }
+/*    fn handle_effect(&mut self) {
+        if let Some(be) = self.effects.pop_front() {
+            let actor: &Character = self.ch_enc.resolve(self.get_character(&Some(be.actor)).unwrap()).unwrap();
+            let target: &Character = self.ch_enc.resolve(self.get_character(&Some(be.target)).unwrap()).unwrap();
+            let mut effect_msg = String::from("TEST EFFECT: ");
+            let effect = self.effect_enc.resolve(&be.effect).unwrap();
+            for hit in &effect.hits {
+                effect_msg.push_str(self.handle_hit(hit, actor, target).as_str());
+            }
+            self.text.push_back(effect_msg);
+        }
+    }*/
     fn get_current_pc_actions(&self) -> Vec::<Vec::<Name>> {
         let ns = self.selections.len()-1;
         let parent_menu_selections = &self.selections[..ns];
-//        eprintln!("{:?}", self.selections);
         match self.current_pc {
             Some(PlayerIndex::Ally(i)) => self.ch_enc.resolve(self.allies.get_character(i)).unwrap().get_action_options(parent_menu_selections, &self.action_enc),
             Some(PlayerIndex::Baddy(i)) => self.ch_enc.resolve(self.baddies.get_character(i)).unwrap().get_action_options(parent_menu_selections, &self.action_enc),
@@ -91,9 +120,9 @@ impl Battle {
         if key == Key::Char('q') {
             // Handled in BattleCLI
         }
-        let l = self.text.len();
-        if l > 0 {
+        if !self.text.is_empty() {
             self.pop_text();
+            //self.handle_effect();
             if self.current_pc.is_none() && self.current_npc.is_none() {
                 self.next_turn();
             }
@@ -102,14 +131,10 @@ impl Battle {
         self.make_selection(key);
     }
     pub fn get_text(&self) -> Option<&String> {
-        let l = self.text.len();
-        if l > 0 {
-            return self.text.get(l-1);
-        }
-        None
+        self.text.front()
     }
     fn pop_text(&mut self) {
-        self.text.pop();
+        self.text.pop_front();
     }
     pub fn get_top_menu_options(&self) -> Option<Vec::<String>> {
         if self.text.len() > 0 {
@@ -133,10 +158,7 @@ impl Battle {
     fn get_current_npc(&self) -> Option<&IndexedOrLiteral<Character>> {
         self.get_character(&self.current_npc)
     }
-    fn play_pc_action(&mut self) {
-        let a = self.get_selected_action().unwrap();
-        eprintln!("Starting Action \'{}\'", a.copy_name());
-        let pc_name = self.ch_enc.resolve(self.get_current_pc().unwrap()).unwrap().copy_name();
+    fn get_target_names(&self) -> Vec::<Name> {
         let mut target_names = Vec::<Name>::new();
         for i in &self.targets {
             if let PlayerIndex::Ally(i) = i {
@@ -147,8 +169,24 @@ impl Battle {
                 target_names.push(t_name);
             }
         }
-        let msg = a.get_message(&pc_name, &target_names);
-        self.text.push(msg);
+        target_names
+    }
+    fn play_pc_action(&mut self) {
+        let a = self.get_selected_action().unwrap();
+        eprintln!("Starting Action \'{}\'", a.copy_name());
+        // Queue up the Action Effects
+        for target in &self.targets {
+            for effect in &a.effects {
+                //self.effects.push_back(BattleEffect { actor: self.current_pc.unwrap(), target: *target, effect: *effect });
+                for hit in &self.effect_enc.resolve(effect).unwrap().hits {
+                    //self.handle_hit(hit, self.current_pc.unwrap(), target);
+                }
+            }
+        }
+        // Queue the Action message
+        let pc_name = self.ch_enc.resolve(self.get_current_pc().unwrap()).unwrap().copy_name();
+        let msg = a.get_message(&pc_name, &self.get_target_names());
+        self.text.push_back(msg);
         // Clear the menu stack
         self.selections.clear();
         self.current_pc = None;
@@ -295,8 +333,5 @@ impl Battle {
                 self.selections.push(i);
             }
         }
-    }/*
-    fn progress(&mut self) {
-        self.current_pc = Some(0);
-    }*/
+    }
 }

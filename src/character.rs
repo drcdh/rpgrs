@@ -8,6 +8,7 @@ use crate::action::{Action, ActionMenu, CharacterAction};
 use crate::common::*;
 use crate::encyclopedia::ActionEncyclopedia;
 use crate::encyclopedia::StatBlockEncyclopedia;
+use crate::formula::eval_stat;
 use crate::stats::{BaseStats, Stat, DerivedStat};
 
 type CharacterStats = Id; // todo, allow literals in JSON with enum
@@ -42,6 +43,7 @@ pub struct Character {
 impl Character {
     fn default_base_stats() -> BaseStats {
         let mut bs = BaseStats::new();
+        bs.insert(String::from("Offense"), 10);
         bs.insert(String::from("Strength"), 10);
         bs.insert(String::from("Stamina"), 10);
         bs.insert(String::from("Magic"), 10);
@@ -55,8 +57,8 @@ impl Character {
         Character {
             id,
             name,
-            base_stats: BaseStats::new(),
-            stats: 0, // DerivedStats::new(),
+            base_stats: Character::default_base_stats(),
+            stats: Character::default_stats(),
             actions: ActionMenu::new(),
             items: Items::new(),
             //equips: item::generate_equipment_set(),
@@ -88,13 +90,11 @@ impl Character {
         }
     }
     pub fn get_stat_val<'s>(&self, name: Name, default: Stat, statblocks: &'s StatBlockEncyclopedia) -> Stat {
+        let base_stat = Name::from(&name);
         match self.get_stat(name, statblocks) {
-            Some(formula) => self.evaluate_formula(formula),
+            Some(formula) => eval_stat(base_stat, formula, self),
             None => default,
         }
-    }
-    fn evaluate_formula(&self, formula: &Formula) -> Stat {
-        40 // TODO
     }
     pub fn get_pool_vals(&self, name: String) -> (i32, i32) {
         match self.pools.get(&name) {
@@ -116,6 +116,12 @@ impl Character {
         self.equips.insert(slot, None);
         prev_equip
     }*/
+    pub fn get_item_attr(&self, slot: Name, attr: Name) -> Option<Stat> {
+        match slot.as_str() {
+            "Weapon" => Some(10),
+            _ => None,
+        }
+    }
     pub fn get_action_options(&self, selections: &[usize], act_en: &ActionEncyclopedia) -> Vec::<Vec::<Name>> {
         // Start with the root CharacterActions (e.g. Attack, Magic, Item)
         // This needs to be a mutable reference for the loop below to work.
@@ -153,7 +159,13 @@ impl Character {
     }
     pub fn dclock(&self, dt: u16, statblocks: &StatBlockEncyclopedia) -> u16 {
         // FIXME This is almost certainly error-prone
-        dt.saturating_mul(u16::try_from(self.get_stat_val("Speed".to_string(), 0, statblocks)).ok().unwrap())
+        dt.saturating_mul(u16::try_from(self.get_stat_val(String::from("Speed"), 0, statblocks)).ok().unwrap())
+    }
+    pub fn sum_add_mods(&self, stat_name: Name) -> Stat {
+        0 // todo
+    }
+    pub fn sum_mult_mods(&self, stat_name: Name) -> Stat {
+        1 // todo
     }
 }
 

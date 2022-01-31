@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::collections::hash_map;
 use std::fmt;
 
 use serde::{Serialize, Deserialize};
@@ -7,7 +8,7 @@ use crate::common::*;
 use crate::effect::Effect;
 use crate::encyclopedia::ActionEncyclopedia;
 
-pub type Costs = HashMap::<String, u32>;
+pub type Costs = HashMap::<String, i32>;
 type Effects = Vec::<IndexedOrLiteral<Effect>>;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -98,6 +99,9 @@ impl Action {
     }
     pub fn copy_name(&self) -> Name {
         self.name.clone()
+    }
+    pub fn costs_iter(&self) -> hash_map::Iter<String, i32> {
+        self.costs.iter()
     }
     pub fn get_message(&self, actor: &str, target_names: &Vec::<Name>) -> String {
         let ntargets = target_names.len();

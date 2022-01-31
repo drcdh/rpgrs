@@ -1,3 +1,4 @@
+use rpgrs::common::IndexedOrLiteral;
 use rpgrs::encyclopedia::*;
 
 
@@ -29,6 +30,23 @@ fn read_encyclopedias() {
         println!("{}", sb);
     }
     println!("");
+}
+
+#[test]
+fn use_actions() {
+    let actions = ActionEncyclopedia::new("data/actions.json");
+    let characters = CharacterEncyclopedia::new("data/characters.json");
+    let effect_enc = EffectEncyclopedia::new("data/effects.json");
+    let statblocks = StatBlockEncyclopedia::new("data/stats.json");
+    let test_act_0 = actions.resolve(&IndexedOrLiteral::Index(735740)).unwrap();
+    let mut mog = characters.clone_entry(&IndexedOrLiteral::Index(0)).unwrap();
+    let mut rat = characters.clone_entry(&IndexedOrLiteral::Index(102)).unwrap();
+    let mog_mp = mog.get_pool_vals(String::from("MP")).unwrap().0;
+    let rat_hp = rat.get_pool_vals(String::from("HP")).unwrap().0;
+    mog.use_action_on(test_act_0, &mut rat, &effect_enc, &statblocks);
+    assert_eq!(mog.get_pool_vals(String::from("MP")).unwrap().0, mog_mp-1);
+    assert_eq!(rat.get_pool_vals(String::from("HP")).unwrap().0, rat_hp-2);
+    assert_eq!(rat.get_pool_vals(String::from("MP")), None);
 }
 
 /*

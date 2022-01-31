@@ -41,21 +41,6 @@ pub trait Target {
     // ANOTHER CORRECTION: actually it was correct, but because these
     // methods shouldn't be taking ownership of the Hit objects from
     // the Effect.
-    fn take_hit(&mut self, hit: &Hit) -> i32;
+    fn hit_pool(&mut self, pool: &Name, amount: i32) -> i32;
     fn take_condition(&mut self, hit: &Hit) -> bool;
-}
-
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::character::dummies::DummyTarget;
-
-    #[test]
-    fn hit_target_test() {
-        let mut t = DummyTarget::new();
-        let v = 10;
-        let h = Hit { pool: String::from("HP"), amount: HitAmt::Constant(v) };
-        assert_eq!(t.take_hit(&h), v);
-    }
 }

@@ -97,7 +97,7 @@ impl Battle {
     fn handle_hit(&self, hit: &Hit, actor: &Character, target: &Character) -> String {
         let amount = match &hit.amount {
             HitAmt::Constant(v) => *v,
-            HitAmt::Formula(f) => eval_hit(f, actor, target, &self.statblocks),
+            HitAmt::Formula(f) => eval_hit(f, Some(actor), target, &self.statblocks),
         };
         //target.take_hit(&Hit { pool: String::from(hit.pool.as_str()), amount: HitAmt::Constant(amount) });
         format!("{} took {} {} damage! ", target.copy_name(), amount, hit.pool)

@@ -7,6 +7,7 @@ use serde_json;
 use crate::action::{Action, ActionMenu, CharacterAction};
 use crate::common::*;
 use crate::encyclopedia::ActionEncyclopedia;
+use crate::encyclopedia::EffectEncyclopedia;
 use crate::encyclopedia::StatBlockEncyclopedia;
 use crate::formula::eval_stat;
 use crate::stats::{BaseStats, Stat, DerivedStat};
@@ -38,7 +39,7 @@ pub struct Character {
     #[serde(default)]
     items: Items,
     // equips: item::EquipmentSet,
-    #[serde(default)]
+    #[serde(default = "Character::default_pools")]
     pools: Pools,
     #[serde(default)]
     conditions: Vec::<Name>,
@@ -57,6 +58,12 @@ impl Character {
     fn default_stats() -> Id {
         0
     }
+    fn default_pools() -> Pools {
+        let mut pools = Pools::new();
+        pools.insert(String::from("HP"), Pool { name: String::from("HP"), current: 10, maximum: 10 });
+        pools.insert(String::from("MP"), Pool { name: String::from("MP"), current: 5, maximum: 5 });
+        pools
+    }
     pub fn new(id: Id, name: Name) -> Character {
         Character {
             id,
@@ -66,7 +73,7 @@ impl Character {
             actions: ActionMenu::new(),
             items: Items::new(),
             //equips: item::generate_equipment_set(),
-            pools: Pools::new(),
+            pools: Character::default_pools(),
             conditions: Vec::<Name>::new(),
         }
     }
@@ -101,10 +108,10 @@ impl Character {
             None => default,
         }
     }
-    pub fn get_pool_vals(&self, name: String) -> (i32, i32) {
+    pub fn get_pool_vals(&self, name: String) -> Option<(i32, i32)> {
         match self.pools.get(&name) {
-            Some(pool) => (pool.current, pool.maximum),
-            None => (0, 0)
+            Some(pool) => Some((pool.current, pool.maximum)),
+            None => None,
         }
     }
     pub fn get_pools(&self) -> &Pools {
@@ -175,6 +182,21 @@ impl Character {
         let _ = stat_name;
         1 // todo
     }
+    pub fn use_action_on(&mut self, action: &Action, target: &mut Character, effect_enc: &EffectEncyclopedia, statblocks: &StatBlockEncyclopedia) {
+        for (pool, cost) in action.costs_iter() {
+            let mut pool = self.pools.get_mut(pool).expect(format!("Character \"{}\" does not have pool \"{}\" for Action cost", self.name, pool).as_str());
+            pool.current -= *cost;
+        }
+        for effect in &action.effects {
+            effect_enc.resolve(effect).unwrap().actor_affect_target(self, target, statblocks);
+        }
+    }
+/*    pub fn use_effect_on(&mut self, effect: &Effect, target: &mut Character) {
+        effect.actor_affect_target(self, target)
+    }*/
+/*    pub fn take_effect(&mut self, effect: &Effect) {
+        effect.affect_target(self)
+    }*/
 }
 
 
@@ -185,10 +207,10 @@ impl fmt::Display for Character {
 }
 
 impl Target for Character {
-    fn take_hit(&mut self, hit: &Hit) -> i32 {
-        let mut affected_pool = self.pools.get_mut(&hit.pool).expect(format!("Character \"{}\" does not have pool \"{}\"", self.name, hit.pool).as_str());
-        if let HitAmt::Constant(v) = hit.amount {
+    fn hit_pool(&mut self, pool: &String, amount: i32) -> i32 {
+        if let Some(mut affected_pool) = self.pools.get_mut(pool) {
             let curr = affected_pool.current;
+            let v = amount;
             if curr-v < 0 {
                 affected_pool.current = 0;
             } else {
@@ -196,7 +218,7 @@ impl Target for Character {
             }
             return v;
         }
-        panic!();
+        0 // todo None (so a zero isn't displayed)
     }
     fn take_condition(&mut self, hit: &Hit) -> bool {
         self.conditions.push(hit.pool.clone());
@@ -281,59 +303,10 @@ mod tests {
         let selected_action = mog.get_action_selection(&selections, &actions).unwrap();
         assert_eq!(selected_action.copy_name(), "Water Harmony");
     }
+    #[test]
+    #[should_panic]
+    fn bad_pool_test() {
+        let c = Character::new(0, String::from("new character"));
+        c.get_pool_vals(String::from("ZZ")).unwrap();
+    }
 }
-
-
-pub mod dummies {
-    use super::*;
-
-    pub struct DummyTarget {
-    }
-    pub struct AdvancedDummyTarget {
-        name: Name,
-        pools: Pools,
-        conditions: Vec::<Name>,
-    }
-    impl DummyTarget {
-        pub fn new() -> DummyTarget {
-            DummyTarget{}
-        }
-    }
-    impl Target for DummyTarget {
-        fn take_hit(&mut self, hit: &Hit) -> i32 { match &hit.amount { HitAmt::Constant(v) => *v, HitAmt::Formula(_s) => 0 } }
-        fn take_condition(&mut self, _hit: &Hit) -> bool { true }
-    }
-    impl AdvancedDummyTarget {
-        pub fn new() -> AdvancedDummyTarget {
-            let conditions = Vec::<Name>::new();
-            let mut pools = Pools::new();
-            pools.insert(String::from("HP"), Pool { name: String::from("HP"), current: 100, maximum: 100 });
-            AdvancedDummyTarget { name: String::from("Advanced Test Dummy"), conditions, pools }
-        }
-        pub fn get_pool_vals(&self, name: String) -> (i32, i32) {
-            match self.pools.get(&name) {
-                Some(pool) => (pool.current, pool.maximum),
-                None => (0, 0)
-            }
-        }
-    }
-    impl Target for AdvancedDummyTarget {
-        fn take_hit(&mut self, hit: &Hit) -> i32 {
-            let mut affected_pool = self.pools.get_mut(&hit.pool).expect(format!("Target \"{}\" does not have pool \"{}\"", self.name, hit.pool).as_str());
-            if let HitAmt::Constant(v) = hit.amount {
-                let curr = affected_pool.current;
-                if curr-v < 0 {
-                    affected_pool.current = 0;
-                } else {
-                    affected_pool.current = curr - v;
-                }
-                return v;
-            }
-            panic!();
-        }
-        fn take_condition(&mut self, hit: &Hit) -> bool {
-            self.conditions.push(hit.pool.clone());
-            true // fixme
-        }
-    }
-} // mod dummies

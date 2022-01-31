@@ -2,8 +2,10 @@ use std::fmt;
 
 use serde::{Serialize, Deserialize};
 
+use crate::character::Character;
 use crate::common::*;
-
+use crate::encyclopedia::StatBlockEncyclopedia;
+use crate::formula;
 
 type Traits = Vec::<Name>;
 
@@ -41,15 +43,22 @@ impl Effect {
     pub fn whoami(&self) -> (Id, &str) {
         (self.id, &self.name[..])
     }
-    pub fn apply<T: Target>(&self, target: &mut T) {
+    pub fn affect_target(&self, target: &mut Character, statblocks: &StatBlockEncyclopedia) -> () {
         for hit in &self.hits {
-            let _v = target.take_hit(hit);
+            let amount: i32 = match &hit.amount {
+                HitAmt::Constant(v) => *v,
+                HitAmt::Formula(f) => formula::eval_hit(f, None, target, statblocks),
+            };
+            let _v = target.hit_pool(&hit.pool, amount);
         }
-        for cond in &self.conditions {
-            let _success = target.take_condition(cond);
-        }
-        for tr in &self.traits {
-            let _ = tr;
+    }
+    pub fn actor_affect_target(&self, actor: &mut Character, target: &mut Character, statblocks: &StatBlockEncyclopedia) -> () {
+        for hit in &self.hits {
+            let amount: i32 = match &hit.amount {
+                HitAmt::Constant(v) => *v,
+                HitAmt::Formula(f) => formula::eval_hit(f, Some(actor), target, statblocks),
+            };
+            let _v = target.hit_pool(&hit.pool, amount);
         }
     }
 }
@@ -77,7 +86,6 @@ impl fmt::Display for Effect {
 mod tests {
     use super::*;
     use crate::character::Character;
-    use crate::character::dummies::AdvancedDummyTarget;
 
     #[test]
     fn new_test() {
@@ -86,30 +94,30 @@ mod tests {
         assert_eq!(effect.whoami(), (id, name));
     }
     #[test]
-    fn apply_test() {
-        let mut t = AdvancedDummyTarget::new();
+    fn affect_test() {
+        let statblocks = StatBlockEncyclopedia::new("data/stats.json");
+        let mut t = Character::new(1, String::from("Test Target Character"));
         let mut effect = Effect::new(0, "Test Effect".to_string());
-        let (init_hp, _) = t.get_pool_vals("HP".to_string());
+        let init_hp = t.get_pool_vals("HP".to_string()).unwrap().0;
         let v = 10;
         let h = Hit { pool: String::from("HP".to_string()), amount: HitAmt::Constant(v) };
         effect.hits = vec![h];
-        effect.apply(&mut t);
-        let (hp, _) = t.get_pool_vals("HP".to_string());
+        effect.affect_target(&mut t, &statblocks);
+        let hp = t.get_pool_vals("HP".to_string()).unwrap().0;
         assert_eq!(hp, init_hp-v);
     }
     #[test]
-    fn character_damage() {
-        let (init_hp, maxhp) = (15, 50);
-        let mut mog = Character::from_json(&format!("{{\"id\": 0, \"name\": \"Mog\", \"pools\": {{\"HP\": {{\"name\": \"HP\", \"current\": {}, \"maximum\": {} }} }} }}", init_hp, maxhp).to_string());
+    fn actor_affect_test() {
+        let statblocks = StatBlockEncyclopedia::new("data/stats.json");
+        let mut c = Character::new(0, String::from("Test Character"));
+        let mut t = Character::new(1, String::from("Test Target Character"));
+        let mut effect = Effect::new(0, "Test Effect".to_string());
+        let init_hp = t.get_pool_vals("HP".to_string()).unwrap().0;
         let v = 10;
         let h = Hit { pool: String::from("HP".to_string()), amount: HitAmt::Constant(v) };
-        let mut effect = Effect::new(0, "Test Effect".to_string());
         effect.hits = vec![h];
-        effect.apply(&mut mog);
-        let (hp, _) = mog.get_pool_vals("HP".to_string());
+        effect.actor_affect_target(&mut c, &mut t, &statblocks);
+        let hp = t.get_pool_vals("HP".to_string()).unwrap().0;
         assert_eq!(hp, init_hp-v);
-        effect.apply(&mut mog);
-        let (hp, _) = mog.get_pool_vals("HP".to_string());
-        assert_eq!(hp, 0);
     }
 }

@@ -4,7 +4,6 @@ use std::fmt;
 use serde::{Serialize, Deserialize};
 
 use crate::common::{Id, Name, Formula};
-use crate::encyclopedia::StatBlockEncyclopedia;
 
 
 pub type Stat = i32;

@@ -41,12 +41,12 @@ fn _eval_stat_term(term: &str, c: &Character, stat_name: &Name) -> Stat {
     }
 }
 
-pub fn eval_hit(f: &Formula, actor: &Character, target: &Character, statblocks: &StatBlockEncyclopedia) -> Stat {
+pub fn eval_hit(f: &Formula, actor: Option<&Character>, target: &Character, statblocks: &StatBlockEncyclopedia) -> Stat {
     let mut tokens = f.split(' ').collect::<VecDeque<_>>();
     _eval_hit(&mut tokens, actor, target, statblocks)
 }
 
-fn _eval_hit(tokens: &mut VecDeque<&str>, actor: &Character, target: &Character, statblocks: &StatBlockEncyclopedia) -> Stat {
+fn _eval_hit(tokens: &mut VecDeque<&str>, actor: Option<&Character>, target: &Character, statblocks: &StatBlockEncyclopedia) -> Stat {
     match tokens.pop_front() {
         Some("+") => _eval_hit(tokens, actor, target, statblocks).saturating_add(_eval_hit(tokens, actor, target, statblocks)),
         Some("-") => _eval_hit(tokens, actor, target, statblocks).saturating_sub(_eval_hit(tokens, actor, target, statblocks)),
@@ -58,10 +58,11 @@ fn _eval_hit(tokens: &mut VecDeque<&str>, actor: &Character, target: &Character,
     }
 }
 
-fn _eval_term(term: &str, actor: &Character, target: &Character, statblocks: &StatBlockEncyclopedia) -> Stat {
+fn _eval_term(term: &str, actor: Option<&Character>, target: &Character, statblocks: &StatBlockEncyclopedia) -> Stat {
     if let Ok(v) = term.parse::<Stat>() {
         return v;
     }
+    let actor = actor.unwrap();
     // todo generalizations
     match term {
         "^Level" => actor.get_stat_val(String::from("Level"), 1, statblocks).into(),
@@ -83,7 +84,7 @@ mod tests {
         let statblocks = StatBlockEncyclopedia::new("data/stats.json");
         let offense: Stat = c.get_stat_val(String::from("Offense"), 0, &statblocks);
         let expected: Stat = 1 + offense - offense/2;
-        let evaluated = eval_hit(&f, &c, &c, &statblocks);
+        let evaluated = eval_hit(&f, Some(&c), &c, &statblocks);
         assert_eq!(evaluated, expected);
     }
     #[test]
@@ -102,7 +103,7 @@ mod tests {
         let f = Formula::from("+ 1");
         let c = Character::from_json(r#"{"id": 0, "name": "Test"}"#);
         let statblocks = StatBlockEncyclopedia::new("data/stats.json");
-        eval_hit(&f, &c, &c, &statblocks);
+        eval_hit(&f, Some(&c), &c, &statblocks);
     }
     #[test]
     #[should_panic]
@@ -110,7 +111,7 @@ mod tests {
         let f = Formula::from("+ 1 $Moxie");
         let c = Character::from_json(r#"{"id": 0, "name": "Test"}"#);
         let statblocks = StatBlockEncyclopedia::new("data/stats.json");
-        eval_hit(&f, &c, &c, &statblocks);
+        eval_hit(&f, Some(&c), &c, &statblocks);
     }
     #[test]
     #[should_panic]

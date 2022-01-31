@@ -64,7 +64,9 @@ fn _eval_term(term: &str, actor: &Character, target: &Character, statblocks: &St
     }
     // todo generalizations
     match term {
+        "^Level" => actor.get_stat_val(String::from("Level"), 1, statblocks).into(),
         "^Offense" => actor.get_stat_val(String::from("Offense"), 0, statblocks).into(),
+        "^Strength" => actor.get_stat_val(String::from("Strength"), 0, statblocks).into(),
         "$Offense" => target.get_stat_val(String::from("Offense"), 0, statblocks).into(),
         t => panic!("Could not understand token {}.", t),
     }

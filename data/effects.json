@@ -14,12 +14,12 @@
     "2": {
             "id": 2,
             "name": "Attack",
-            "hits": [{"pool": "HP", "amount": {"Formula": "+ ^Offense * * 1.5 / + ^Offense * 2 ^Strength 256 * ^Level ^Level"}}]
+            "hits": [{"pool": "HP", "amount": {"Formula": "+ ^Offense * * 3 / + ^Offense * 2 ^Strength 512 * ^Level ^Level"}}]
     },
     "3": {
             "id": 3,
             "name": "Candlelight",
-            "hits": [{"pool": "HP", "amount": {"Formula": "- ^Magic * 0.2 $Magic"}}],
+            "hits": [{"pool": "HP", "amount": {"Formula": "- ^Magic / * 2 $Magic 10"}}],
             "traits": ["Fire", "Hot", "Elemental"],
             "conditions": [{"pool": "Burn", "amount": {"Constant": 75}}]
     }

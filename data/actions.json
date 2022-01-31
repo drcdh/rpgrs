@@ -18,7 +18,7 @@
             "effects": [{ "Literal": {
                     "id": 404,
                     "name": "Water Harmony",
-                    "hits": [{"pool": "HP", "amount": {"Formula": "- * 3 ^Magic * 0.6 $Magic"}}],
+                    "hits": [{"pool": "HP", "amount": {"Formula": "- * 3 ^Magic / $Magic 2"}}],
                     "traits": ["Water", "Nature"]
             }}],
             "scope": "Enemies",

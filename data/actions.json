@@ -5,11 +5,11 @@
             "effects": [{"Index": 2}],
             "message": "{:actor} attacks {:targets}!"
     },
-    "1": {
-            "id": 1,
+    "10": {
+            "id": 10,
             "name": "Candlelight",
             "costs": {"MP": 3},
-            "effects": [{"Index": 3}],
+            "effects": [{"Index": 10}],
             "message": "{:actor} lights a candle under {:targets}'s ass!"
     },
     "30":{

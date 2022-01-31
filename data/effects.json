@@ -16,8 +16,8 @@
             "name": "Attack",
             "hits": [{"pool": "HP", "amount": {"Formula": "+ ^Offense * * 3 / + ^Offense * 2 ^Strength 512 * ^Level ^Level"}}]
     },
-    "3": {
-            "id": 3,
+    "10": {
+            "id": 10,
             "name": "Candlelight",
             "hits": [{"pool": "HP", "amount": {"Formula": "- ^Magic / * 2 $Magic 10"}}],
             "traits": ["Fire", "Hot", "Elemental"],

@@ -26,7 +26,7 @@
                     "scope": "Enemies"
                 }}
             ]}},
-            {"Menu": {"prompt": "Magic", "options": [{"Index": 1}]}},
+            {"Menu": {"prompt": "Magic", "options": [{"Index": 10}]}},
             "UseItem"
         ]},
         "items": [

@@ -15,6 +15,7 @@ type CharacterStats = Id; // todo, allow literals in JSON with enum
 type Items = Vec::<Id>; // todo, allow literals in JSON with CharacterItem
 
 #[derive(Serialize, Deserialize, Debug)]
+#[derive(Clone)]
 pub struct Pool {
     pub name: Name,
     pub current: i32,
@@ -24,6 +25,7 @@ pub struct Pool {
 type Pools = HashMap::<Name, Pool>;
 
 #[derive(Serialize, Deserialize, Debug)]
+#[derive(Clone)]
 pub struct Character {
     id: Id,
     name: Name,

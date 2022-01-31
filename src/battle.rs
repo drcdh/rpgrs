@@ -45,8 +45,8 @@ pub struct Battle {
 
     pub selections: Vec::<usize>,
     text: VecDeque::<String>,
-    current_pc: Option<PlayerIndex>,
-    current_npc: Option<PlayerIndex>,
+    current_pc_idx: Option<PlayerIndex>,
+    current_npc_idx: Option<PlayerIndex>,
     pub targets: Vec::<PlayerIndex>,
     effects: VecDeque::<TargetedEffect>,
 
@@ -66,8 +66,8 @@ impl Battle {
             baddies,
             selections: Vec::<usize>::new(),
             text,
-            current_pc: None,
-            current_npc: None,
+            current_pc_idx: None,
+            current_npc_idx: None,
             targets: Vec::<PlayerIndex>::new(),
             effects: VecDeque::<TargetedEffect>::new(),
             // FIXME: references should be supplied by the top-level Game object
@@ -80,24 +80,24 @@ impl Battle {
     fn next_turn(&mut self) {
         // Increment all characters' clocks while no one's turn is up
         loop {
-            if let Some(i) = self.allies.get_ready_character() {
-                self.current_pc = Some(PlayerIndex::Ally(i));
+            if let Some(i) = self.allies.get_ready_ch_pos() {
+                self.current_pc_idx = Some(PlayerIndex::Ally(i));
                 self.selections.push(0);
-                let next = self.ch_enc.resolve(self.get_current_pc().unwrap()).unwrap().copy_name();
+                let next = self.get_current_pc().unwrap().copy_name();
                 self.text.push_back(format!("It's {}'s turn!", next));
                 return;
             }
-            if let Some(i) = self.baddies.get_ready_character() {
-                self.current_npc = Some(PlayerIndex::Baddy(i));
-                let next = self.ch_enc.resolve(self.get_current_npc().unwrap()).unwrap().copy_name();
+            if let Some(i) = self.baddies.get_ready_ch_pos() {
+                self.current_npc_idx = Some(PlayerIndex::Baddy(i));
+                let next = self.get_current_npc().unwrap().copy_name();
                 self.text.push_back(format!("It's {}'s turn!", next));
                 // TODO
-                self.current_npc = None;
+                self.current_npc_idx = None;
                 return;
             }
             // Increment characters' clocks
-            self.allies.increment_clocks(1, &self.ch_enc, &self.statblocks);
-            self.baddies.increment_clocks(1, &self.ch_enc, &self.statblocks);
+            self.allies.increment_clocks(1, &self.statblocks);
+            self.baddies.increment_clocks(1, &self.statblocks);
         }
     }
     fn handle_hit(&self, hit: &Hit, actor: &Character, target: &Character) -> String {
@@ -110,8 +110,8 @@ impl Battle {
     }
     fn handle_effect(&mut self) {
         if let Some(be) = self.effects.pop_front() {
-            let actor: &Character = self.ch_enc.resolve(self.get_character(&Some(be.actor)).unwrap()).unwrap();
-            let target: &Character = self.ch_enc.resolve(self.get_character(&Some(be.target)).unwrap()).unwrap();
+            let actor: &Character = self.get_character(&Some(be.actor)).unwrap();
+            let target: &Character = self.get_character(&Some(be.target)).unwrap();
             let mut effect_msg = String::from("TEST EFFECT: ");
             for hit in &be.effect.hits {
                 effect_msg.push_str(self.handle_hit(hit, actor, target).as_str());
@@ -122,9 +122,9 @@ impl Battle {
     fn get_current_pc_actions(&self) -> Vec::<Vec::<Name>> {
         let ns = self.selections.len()-1;
         let parent_menu_selections = &self.selections[..ns];
-        match self.current_pc {
-            Some(PlayerIndex::Ally(i)) => self.ch_enc.resolve(self.allies.get_character(i)).unwrap().get_action_options(parent_menu_selections, &self.action_enc),
-            Some(PlayerIndex::Baddy(i)) => self.ch_enc.resolve(self.baddies.get_character(i)).unwrap().get_action_options(parent_menu_selections, &self.action_enc),
+        match self.current_pc_idx {
+            Some(PlayerIndex::Ally(i)) => self.allies.get_ch_by_pos(i).get_action_options(parent_menu_selections, &self.action_enc),
+            Some(PlayerIndex::Baddy(i)) => self.baddies.get_ch_by_pos(i).get_action_options(parent_menu_selections, &self.action_enc),
             None => Vec::<Vec::<Name>>::new(), // fixme??
         }
     }
@@ -135,7 +135,7 @@ impl Battle {
         if !self.text.is_empty() {
             self.pop_text();
             self.handle_effect();
-            if self.current_pc.is_none() && self.current_npc.is_none() {
+            if self.current_pc_idx.is_none() && self.current_npc_idx.is_none() {
                 self.next_turn();
             }
             return;
@@ -152,39 +152,46 @@ impl Battle {
         if self.text.len() > 0 {
             return None; // todo
         }
-        match self.current_pc {
+        match self.current_pc_idx {
             Some(_) => self.get_current_pc_actions().get(self.selections.len()-1).cloned(),
             None => None,
         }
     }
-    fn get_character(&self, p_idx: &Option<PlayerIndex>) -> Option<&IndexedOrLiteral<Character>> {
+    fn get_character(&self, p_idx: &Option<PlayerIndex>) -> Option<&Character> {
         match p_idx {
-            Some(PlayerIndex::Ally(i)) => Some(self.allies.get_character(*i)),
-            Some(PlayerIndex::Baddy(i)) => Some(self.baddies.get_character(*i)),
+            Some(PlayerIndex::Ally(i)) => Some(self.allies.get_ch_by_pos(*i)),
+            Some(PlayerIndex::Baddy(i)) => Some(self.baddies.get_ch_by_pos(*i)),
             None => None,
         }
     }
-    fn get_current_pc(&self) -> Option<&IndexedOrLiteral<Character>> {
-        self.get_character(&self.current_pc)
+    fn get_mut_character(&mut self, p_idx: &Option<PlayerIndex>) -> Option<&mut Character> {
+        match p_idx {
+            Some(PlayerIndex::Ally(i)) => Some(self.allies.get_mut_ch_by_pos(*i)),
+            Some(PlayerIndex::Baddy(i)) => Some(self.baddies.get_mut_ch_by_pos(*i)),
+            None => None,
+        }
     }
-    fn get_current_npc(&self) -> Option<&IndexedOrLiteral<Character>> {
-        self.get_character(&self.current_npc)
+    fn get_current_pc(&self) -> Option<&Character> {
+        self.get_character(&self.current_pc_idx)
+    }
+    fn get_current_npc(&self) -> Option<&Character> {
+        self.get_character(&self.current_npc_idx)
     }
     fn get_target_names(&self) -> Vec::<Name> {
         let mut target_names = Vec::<Name>::new();
         for i in &self.targets {
             if let PlayerIndex::Ally(i) = i {
-                let t_name = self.ch_enc.resolve(self.allies.get_character(*i)).unwrap().copy_name();
+                let t_name = self.allies.get_ch_by_pos(*i).copy_name();
                 target_names.push(t_name);
             } else if let PlayerIndex::Baddy(i) = i {
-                let t_name = self.ch_enc.resolve(self.baddies.get_character(*i)).unwrap().copy_name();
+                let t_name = self.baddies.get_ch_by_pos(*i).copy_name();
                 target_names.push(t_name);
             }
         }
         target_names
     }
     fn play_pc_action(&mut self) {
-        if let Some(actor) = self.current_pc.as_ref() {
+        if let Some(actor) = self.current_pc_idx.as_ref() {
             let mut teffects = VecDeque::<TargetedEffect>::new();
             if let Some(a) = self.get_selected_action() {
                 eprintln!("Starting Action \'{}\'", a.copy_name());
@@ -201,21 +208,21 @@ impl Battle {
                     }
                 }
                 // Queue the Action message
-                let pc_name = self.ch_enc.resolve(self.get_current_pc().unwrap()).unwrap().copy_name();
+                let pc_name = self.get_current_pc().unwrap().copy_name();
                 let msg = a.get_message(&pc_name, &self.get_target_names());
                 self.text.push_back(msg);
             }
             self.effects.append(&mut teffects);
             // Clear the menu stack
             self.selections.clear();
-            self.current_pc = None;
+            self.current_pc_idx = None;
             self.targets.clear();
         }
     }
     fn get_selected_action(&self) -> Option<&Action> {
-        let c = match self.current_pc.as_ref().unwrap() {
-            PlayerIndex::Ally(i) => self.ch_enc.resolve(self.allies.get_character(*i)).unwrap(),
-            PlayerIndex::Baddy(i) => self.ch_enc.resolve(self.baddies.get_character(*i)).unwrap(),
+        let c = match self.current_pc_idx.as_ref().unwrap() {
+            PlayerIndex::Ally(i) => self.allies.get_ch_by_pos(*i),
+            PlayerIndex::Baddy(i) => self.baddies.get_ch_by_pos(*i),
         };
         c.get_action_selection(&self.selections[..], &self.action_enc)
     }

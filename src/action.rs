@@ -12,6 +12,7 @@ type Effects = Vec::<IndexedOrLiteral<Effect>>;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[derive(PartialEq)]
+#[derive(Clone, Copy)]
 pub enum Scope {
     None,
     Me,
@@ -27,6 +28,7 @@ pub enum Scope {
 
 #[derive(Serialize, Deserialize, Debug)]
 #[derive(PartialEq)]
+#[derive(Clone)]
 pub struct Action {
     id: Id,
     name: Name,
@@ -42,6 +44,7 @@ pub struct Action {
 
 #[derive(Serialize, Deserialize, Debug)]
 #[derive(PartialEq)]
+#[derive(Clone)]
 pub enum CharacterAction {
     Index(Id),
     Menu(ActionMenu),
@@ -51,6 +54,7 @@ pub enum CharacterAction {
 
 #[derive(Serialize, Deserialize, Debug)]
 #[derive(PartialEq)]
+#[derive(Clone)]
 pub struct ActionMenu {
     prompt: Name,
     options: Vec::<CharacterAction>,

@@ -102,7 +102,7 @@ BattleCLI<R, W> {
     fn write_baddies_info(&mut self, ch_enc: &CharacterEncyclopedia) {
         let p = &self.battle.baddies;
         for i in 0..p.len() {
-            let c = ch_enc.resolve(p.get_character(i)).unwrap();
+            let c = p.get_ch_by_pos(i);
             let (_, name) = c.whoami();
             let i: u16 = i.try_into().unwrap();
             write!(self.stdout, "{} {}", Goto(i*BOX_WIDTH + 3, 2), name).unwrap();
@@ -110,13 +110,13 @@ BattleCLI<R, W> {
                 let j: u16 = j.try_into().unwrap();
                 write!(self.stdout, "{} {:>4}: {:4} / {:4}", Goto(i*BOX_WIDTH + 3, 4+j), pool.name, pool.current, pool.maximum).unwrap();
             }
-            write!(self.stdout, "{} {}", Goto(i*BOX_WIDTH + 3, 7), self.battle.baddies.clocks.get(i as usize).unwrap()).unwrap();
+            write!(self.stdout, "{} {}", Goto(i*BOX_WIDTH + 3, 7), p.clocks.get(i as usize).unwrap()).unwrap();
         }
     }
     fn write_allies_info(&mut self, ch_enc: &CharacterEncyclopedia) {
         let p = &self.battle.allies;
         for i in 0..p.len() {
-            let c = ch_enc.resolve(p.get_character(i)).unwrap();
+            let c = p.get_ch_by_pos(i);
             let (_, name) = c.whoami();
             let i: u16 = i.try_into().unwrap();
             write!(self.stdout, "{} {}", Goto(i*BOX_WIDTH + 3, BOX_HEIGHT+4+2), name).unwrap();
@@ -124,7 +124,7 @@ BattleCLI<R, W> {
                 let j: u16 = j.try_into().unwrap();
                 write!(self.stdout, "{} {:>4}: {:4} / {:4}", Goto(i*BOX_WIDTH + 3, BOX_HEIGHT+4+4+j), pool.name, pool.current, pool.maximum).unwrap();
             }
-            write!(self.stdout, "{} {}", Goto(i*BOX_WIDTH + 3, BOX_HEIGHT+4+7), self.battle.allies.clocks.get(i as usize).unwrap()).unwrap();
+            write!(self.stdout, "{} {}", Goto(i*BOX_WIDTH + 3, BOX_HEIGHT+4+7), p.clocks.get(i as usize).unwrap()).unwrap();
         }
     }
     pub fn get_key(&mut self) -> Key {

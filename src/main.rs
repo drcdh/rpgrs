@@ -16,12 +16,12 @@ use rpgrs::party::Party;
 
 fn bcli_test<R: Read, W: Write>(stdin: R, stdout: W, ch_enc: &CharacterEncyclopedia) {
     let mut allies = Party::new("Allies".to_string());
-    allies.add_character(IndexedOrLiteral::Index(0)); // Mog
+    allies.add_clone(&IndexedOrLiteral::Index(0), ch_enc); // Mog
 
     let mut baddies = Party::new("Baddies".to_string());
-    baddies.add_character(IndexedOrLiteral::Index(101));
-    baddies.add_character(IndexedOrLiteral::Index(102));
-    baddies.add_character(IndexedOrLiteral::Index(101));
+    baddies.add_clone(&IndexedOrLiteral::Index(101), ch_enc);
+    baddies.add_clone(&IndexedOrLiteral::Index(102), ch_enc);
+    baddies.add_clone(&IndexedOrLiteral::Index(101), ch_enc);
 
     let battle = Battle::new(allies, baddies);
     let mut cli = BattleCLI {

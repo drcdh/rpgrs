@@ -7,6 +7,7 @@ pub type Name = String;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[derive(PartialEq)]
+#[derive(Clone)]
 pub enum IndexedOrLiteral<T> {
     Index(Id),
     Literal(T),

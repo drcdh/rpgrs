@@ -31,17 +31,3 @@ impl fmt::Display for StatBlock {
         write!(f, "{}. {} ({})", self.id, self.name, self.stats.keys().map(|s| &**s).collect::<Vec<_>>().join(", "))
     }
 }
-// TODO: this is of course terrible
-pub fn generate_stats(id: &Id) -> (BaseStats, DerivedStats) {
-    let statblocks = StatBlockEncyclopedia::new("data/stats.json");
-    let sb = statblocks.get(&id).unwrap();
-    let (bs, ds) = (sb.base_stats.clone(), sb.stats.clone());
-    (bs, ds)
-}
-
-/*
-#[cfg(test)]
-mod tests {
-    use super::*;
-}
-*/

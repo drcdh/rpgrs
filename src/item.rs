@@ -82,5 +82,7 @@ mod tests {
         assert_eq!(equipment_mod(&empty, &String::from("Stamina")), 0);
         assert_eq!(equipment_mod(&item, &String::from("Strength")), -1);
         assert_eq!(equipment_mod(&empty, &String::from("Strength")), 0);
+        assert_eq!(equipment_mod(&item, &String::from("Moxie")), 0);
+        assert_eq!(equipment_mod(&empty, &String::from("Moxie")), 0);
     }
 }

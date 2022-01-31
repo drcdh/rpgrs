@@ -9,6 +9,7 @@ type Traits = Vec::<Name>;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[derive(PartialEq)]
+#[derive(Clone)]
 pub struct Effect {
     id: Id,
     #[serde(default)]

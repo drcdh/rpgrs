@@ -15,6 +15,7 @@ pub enum IndexedOrLiteral<T> {
 
 #[derive(Serialize, Deserialize, Debug)]
 #[derive(PartialEq)]
+#[derive(Clone)]
 pub enum HitAmt {
     Constant(i32),
     Formula(Formula),
@@ -22,6 +23,7 @@ pub enum HitAmt {
 }
 #[derive(Serialize, Deserialize, Debug)]
 #[derive(PartialEq)]
+#[derive(Clone)]
 pub struct Hit {
     pub pool: Name,
     pub amount: HitAmt,

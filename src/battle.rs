@@ -15,28 +15,41 @@ use crate::party::Party;
 
 
 #[derive(PartialEq, Eq)]
+#[derive(Clone)]
 pub enum PlayerIndex {
     Ally(usize),
     Baddy(usize),
 }
-/*
-struct BattleEffect {
+
+struct TargetedEffect {
     actor: PlayerIndex,
     target: PlayerIndex,
-    effect: IndexedOrLiteral<Effect>,
+    effect: Effect,
 }
-*/
+impl TargetedEffect {
+    fn new(actor: &PlayerIndex, target: &PlayerIndex, effect: &IndexedOrLiteral<Effect>, effect_enc: &EffectEncyclopedia) -> TargetedEffect {
+        //let actor = actor.copy();
+        //let target = target.copy();
+        let effect = effect_enc.clone_entry(effect).unwrap();
+        TargetedEffect {
+            actor: actor.clone(),
+            target: target.clone(),
+            effect,
+        }
+    }
+}
+
 pub struct Battle {
     pub allies: Party,
     pub baddies: Party,
-    // selections made on parent menus and the highlighted option on
-    // the top menu.
+
     pub selections: Vec::<usize>,
     text: VecDeque::<String>,
     current_pc: Option<PlayerIndex>,
     current_npc: Option<PlayerIndex>,
     pub targets: Vec::<PlayerIndex>,
-    //effects: VecDeque::<BattleEffect>,
+    effects: VecDeque::<TargetedEffect>,
+
     action_enc: ActionEncyclopedia,
     ch_enc: CharacterEncyclopedia,
     effect_enc: EffectEncyclopedia,
@@ -56,7 +69,7 @@ impl Battle {
             current_pc: None,
             current_npc: None,
             targets: Vec::<PlayerIndex>::new(),
-            //effects: VecDeque::<BattleEffect>::new(),
+            effects: VecDeque::<TargetedEffect>::new(),
             // FIXME: references should be supplied by the top-level Game object
             action_enc: ActionEncyclopedia::new("data/actions.json"),
             ch_enc: CharacterEncyclopedia::new("data/characters.json"),
@@ -87,7 +100,7 @@ impl Battle {
             self.baddies.increment_clocks(1, &self.ch_enc, &self.statblocks);
         }
     }
-    fn handle_hit(&mut self, hit: &Hit, actor: &Character, target: &Character) -> String {
+    fn handle_hit(&self, hit: &Hit, actor: &Character, target: &Character) -> String {
         let amount = match &hit.amount {
             HitAmt::Constant(v) => *v,
             HitAmt::Formula(f) => eval_hit(f, actor, target, &self.statblocks),
@@ -95,18 +108,17 @@ impl Battle {
         //target.take_hit(&Hit { pool: String::from(hit.pool.as_str()), amount: HitAmt::Constant(amount) });
         format!("{} took {} {} damage! ", target.copy_name(), amount, hit.pool)
     }
-/*    fn handle_effect(&mut self) {
+    fn handle_effect(&mut self) {
         if let Some(be) = self.effects.pop_front() {
             let actor: &Character = self.ch_enc.resolve(self.get_character(&Some(be.actor)).unwrap()).unwrap();
             let target: &Character = self.ch_enc.resolve(self.get_character(&Some(be.target)).unwrap()).unwrap();
             let mut effect_msg = String::from("TEST EFFECT: ");
-            let effect = self.effect_enc.resolve(&be.effect).unwrap();
-            for hit in &effect.hits {
+            for hit in &be.effect.hits {
                 effect_msg.push_str(self.handle_hit(hit, actor, target).as_str());
             }
             self.text.push_back(effect_msg);
         }
-    }*/
+    }
     fn get_current_pc_actions(&self) -> Vec::<Vec::<Name>> {
         let ns = self.selections.len()-1;
         let parent_menu_selections = &self.selections[..ns];
@@ -122,7 +134,7 @@ impl Battle {
         }
         if !self.text.is_empty() {
             self.pop_text();
-            //self.handle_effect();
+            self.handle_effect();
             if self.current_pc.is_none() && self.current_npc.is_none() {
                 self.next_turn();
             }
@@ -172,25 +184,33 @@ impl Battle {
         target_names
     }
     fn play_pc_action(&mut self) {
-        let a = self.get_selected_action().unwrap();
-        eprintln!("Starting Action \'{}\'", a.copy_name());
-        // Queue up the Action Effects
-        for target in &self.targets {
-            for effect in &a.effects {
-                //self.effects.push_back(BattleEffect { actor: self.current_pc.unwrap(), target: *target, effect: *effect });
-                for hit in &self.effect_enc.resolve(effect).unwrap().hits {
-                    //self.handle_hit(hit, self.current_pc.unwrap(), target);
+        if let Some(actor) = self.current_pc.as_ref() {
+            let mut teffects = VecDeque::<TargetedEffect>::new();
+            if let Some(a) = self.get_selected_action() {
+                eprintln!("Starting Action \'{}\'", a.copy_name());
+                // Queue up the Action Effects
+                for target in &self.targets {
+                    for effect in &a.effects {
+                        let te = TargetedEffect::new(
+                                actor,
+                                target,
+                                effect,
+                                &self.effect_enc,
+                            );
+                        teffects.push_back(te);
+                    }
                 }
+                // Queue the Action message
+                let pc_name = self.ch_enc.resolve(self.get_current_pc().unwrap()).unwrap().copy_name();
+                let msg = a.get_message(&pc_name, &self.get_target_names());
+                self.text.push_back(msg);
             }
+            self.effects.append(&mut teffects);
+            // Clear the menu stack
+            self.selections.clear();
+            self.current_pc = None;
+            self.targets.clear();
         }
-        // Queue the Action message
-        let pc_name = self.ch_enc.resolve(self.get_current_pc().unwrap()).unwrap().copy_name();
-        let msg = a.get_message(&pc_name, &self.get_target_names());
-        self.text.push_back(msg);
-        // Clear the menu stack
-        self.selections.clear();
-        self.current_pc = None;
-        self.targets.clear();
     }
     fn get_selected_action(&self) -> Option<&Action> {
         let c = match self.current_pc.as_ref().unwrap() {

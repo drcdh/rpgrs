@@ -5,7 +5,7 @@ use termion::clear::All as ClearAll;
 use termion::cursor::Goto;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
-use termion::style;
+//use termion::style;
 
 use rpgrs::battle::Battle;
 use rpgrs::battlecli::BattleCLI;
@@ -29,7 +29,7 @@ fn bcli_test<R: Read, W: Write>(stdin: R, stdout: W, ch_enc: &CharacterEncyclope
         stdout: stdout,
         battle,
     };
-    cli.run(ch_enc);
+    cli.run();
 }
 
 fn main() {

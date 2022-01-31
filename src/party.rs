@@ -1,3 +1,5 @@
+use core::slice::Iter;
+
 use crate::common::*;
 use crate::character::Character;
 use crate::encyclopedia::CharacterEncyclopedia;
@@ -21,6 +23,9 @@ pub struct Party {
 impl Party {
     pub fn new(name: Name) -> Party {
         Party { id: 0, name, group: Group::new(), formation: Ordering::new(), items: ItemPool::new(), clocks: Clocks::new() }
+    }
+    pub fn whoami(&self) -> (Id, &str) {
+        (self.id, &self.name[..])
     }
     pub fn add_character(&mut self, ch: Character) {
         self.group.push(ch);
@@ -64,6 +69,9 @@ impl Party {
             *clk = clk.saturating_add(dclk);
         }
     }
+    pub fn items_iter(&self) -> Iter<Item> {
+        self.items.iter()
+    }
 }
 
 #[cfg(test)]
@@ -73,12 +81,14 @@ mod tests {
     #[test]
     fn new_test() {
         let party = Party::new(String::from("Test"));
+        assert_eq!(party.whoami(), (0, "Test"));
         assert_eq!(party.id, 0);
         assert_eq!(party.name, String::from("Test"));
         assert_eq!(party.len(), 0);
         assert_eq!(party.group.len(), 0);
         assert_eq!(party.formation.len(), 0);
         assert_eq!(party.clocks.len(), 0);
+        assert!(party.items_iter().collect::<Vec<_>>().is_empty());
     }
     #[test]
     fn add_remove_character_test() {

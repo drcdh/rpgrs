@@ -40,6 +40,8 @@ pub struct Character {
     // equips: item::EquipmentSet,
     #[serde(default)]
     pools: Pools,
+    #[serde(default)]
+    conditions: Vec::<Name>,
 }
 
 impl Character {
@@ -65,6 +67,7 @@ impl Character {
             items: Items::new(),
             //equips: item::generate_equipment_set(),
             pools: Pools::new(),
+            conditions: Vec::<Name>::new(),
         }
     }
     pub fn matches(&self, id: Id) -> bool {
@@ -119,6 +122,7 @@ impl Character {
         prev_equip
     }*/
     pub fn get_item_attr(&self, slot: Name, attr: Name) -> Option<Stat> {
+        let _ = attr;
         match slot.as_str() {
             "Weapon" => Some(10),
             _ => None,
@@ -164,9 +168,11 @@ impl Character {
         dt.saturating_mul(u16::try_from(self.get_stat_val(String::from("Speed"), 0, statblocks)).ok().unwrap())
     }
     pub fn sum_add_mods(&self, stat_name: Name) -> Stat {
+        let _ = stat_name;
         0 // todo
     }
     pub fn sum_mult_mods(&self, stat_name: Name) -> Stat {
+        let _ = stat_name;
         1 // todo
     }
 }
@@ -193,6 +199,7 @@ impl Target for Character {
         panic!();
     }
     fn take_condition(&mut self, hit: &Hit) -> bool {
+        self.conditions.push(hit.pool.clone());
         true // fixme
     }
 }
@@ -281,19 +288,20 @@ pub mod dummies {
     use super::*;
 
     pub struct DummyTarget {
-        name: Name,
     }
     pub struct AdvancedDummyTarget {
         name: Name,
+        pools: Pools,
         conditions: Vec::<Name>,
-        pools: HashMap::<Name, Pool>,
     }
     impl DummyTarget {
-        pub fn new() -> DummyTarget { DummyTarget { name: String::from("Test Dummy") } }
+        pub fn new() -> DummyTarget {
+            DummyTarget{}
+        }
     }
     impl Target for DummyTarget {
-        fn take_hit(&mut self, hit: &Hit) -> i32 { match &hit.amount { HitAmt::Constant(v) => *v, HitAmt::Formula(s) => 0 } }
-        fn take_condition(&mut self, hit: &Hit) -> bool { true }
+        fn take_hit(&mut self, hit: &Hit) -> i32 { match &hit.amount { HitAmt::Constant(v) => *v, HitAmt::Formula(_s) => 0 } }
+        fn take_condition(&mut self, _hit: &Hit) -> bool { true }
     }
     impl AdvancedDummyTarget {
         pub fn new() -> AdvancedDummyTarget {
@@ -324,6 +332,7 @@ pub mod dummies {
             panic!();
         }
         fn take_condition(&mut self, hit: &Hit) -> bool {
+            self.conditions.push(hit.pool.clone());
             true // fixme
         }
     }

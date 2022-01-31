@@ -6,7 +6,6 @@ use termion::style;
 use std::io::Write;
 
 use crate::battle::{Battle, PlayerIndex};
-use crate::encyclopedia::CharacterEncyclopedia;
 
 const OUTER_ROW: &'static str = " ============================== ";
 const INNER_ROW: &'static str = " |                            | ";
@@ -32,11 +31,11 @@ BattleCLI<R, W> {
     fn clear(&mut self) {
         write!(self.stdout, "{}{}", ClearAll, Goto(1, 1)).unwrap();
     }
-    fn refresh(&mut self, ch_enc: &CharacterEncyclopedia) {
+    fn refresh(&mut self) {
         self.clear();
         self.draw_boxes(self.battle.baddies.len(), self.battle.allies.len());
-        self.write_baddies_info(ch_enc);
-        self.write_allies_info(ch_enc);
+        self.write_baddies_info();
+        self.write_allies_info();
         self.write_text();
         self.write_menu();
     }
@@ -99,7 +98,7 @@ BattleCLI<R, W> {
         write!(self.stdout, "\n\n\n").unwrap();
         self._draw_boxes(num_allies, false); // fixme
     }
-    fn write_baddies_info(&mut self, ch_enc: &CharacterEncyclopedia) {
+    fn write_baddies_info(&mut self) {
         let p = &self.battle.baddies;
         for i in 0..p.len() {
             let c = p.get_ch_by_pos(i);
@@ -113,7 +112,7 @@ BattleCLI<R, W> {
             write!(self.stdout, "{} {}", Goto(i*BOX_WIDTH + 3, 7), p.clocks.get(i as usize).unwrap()).unwrap();
         }
     }
-    fn write_allies_info(&mut self, ch_enc: &CharacterEncyclopedia) {
+    fn write_allies_info(&mut self) {
         let p = &self.battle.allies;
         for i in 0..p.len() {
             let c = p.get_ch_by_pos(i);
@@ -131,10 +130,9 @@ BattleCLI<R, W> {
         self.stdout.flush().unwrap();
         self.stdin.next().unwrap().unwrap()
     }
-    pub fn run(&mut self, ch_enc: &CharacterEncyclopedia) {
-        self.refresh(ch_enc);
+    pub fn run(&mut self) {
         loop {
-            self.refresh(ch_enc);
+            self.refresh();
             let key = self.get_key();
             if key == Key::Char('q') {
                 break;

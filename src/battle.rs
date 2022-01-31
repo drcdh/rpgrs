@@ -7,7 +7,6 @@ use crate::character::Character;
 use crate::common::*;
 use crate::effect::Effect;
 use crate::encyclopedia::ActionEncyclopedia;
-use crate::encyclopedia::CharacterEncyclopedia;
 use crate::encyclopedia::EffectEncyclopedia;
 use crate::encyclopedia::StatBlockEncyclopedia;
 use crate::formula::eval_hit;
@@ -28,13 +27,10 @@ struct TargetedEffect {
 }
 impl TargetedEffect {
     fn new(actor: &PlayerIndex, target: &PlayerIndex, effect: &IndexedOrLiteral<Effect>, effect_enc: &EffectEncyclopedia) -> TargetedEffect {
-        //let actor = actor.copy();
-        //let target = target.copy();
-        let effect = effect_enc.clone_entry(effect).unwrap();
         TargetedEffect {
             actor: actor.clone(),
             target: target.clone(),
-            effect,
+            effect: effect_enc.clone_entry(effect).unwrap(),
         }
     }
 }
@@ -51,7 +47,6 @@ pub struct Battle {
     effects: VecDeque::<TargetedEffect>,
 
     action_enc: ActionEncyclopedia,
-    ch_enc: CharacterEncyclopedia,
     effect_enc: EffectEncyclopedia,
     statblocks: StatBlockEncyclopedia,
 }
@@ -72,7 +67,6 @@ impl Battle {
             effects: VecDeque::<TargetedEffect>::new(),
             // FIXME: references should be supplied by the top-level Game object
             action_enc: ActionEncyclopedia::new("data/actions.json"),
-            ch_enc: CharacterEncyclopedia::new("data/characters.json"),
             effect_enc: EffectEncyclopedia::new("data/effects.json"),
             statblocks: StatBlockEncyclopedia::new("data/stats.json"),
         }
@@ -231,6 +225,7 @@ impl Battle {
             eprintln!("Targeting mode");
             // Enable targeting mode
             // todo: check Action scope
+            let _ = a;
             self.targets.push(PlayerIndex::Baddy(0));
         } else {
             eprintln!("Next menu");

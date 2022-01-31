@@ -49,6 +49,7 @@ impl Effect {
             let _success = target.take_condition(cond);
         }
         for tr in &self.traits {
+            let _ = tr;
         }
     }
 }

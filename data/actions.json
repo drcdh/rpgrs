@@ -23,5 +23,12 @@
             }}],
             "scope": "Enemies",
             "message": "{:actor} does the dance of the Water Harmony."
+    },
+    "735740": {
+            "id": 735740,
+            "name": "test action 0",
+            "costs": {"MP": 1},
+            "effects": [{"Index": 735730}, {"Index": 735731}],
+            "message": "{:actor} used a test action on {:targets}"
     }
 }

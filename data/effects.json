@@ -22,5 +22,19 @@
             "hits": [{"pool": "HP", "amount": {"Formula": "- ^Magic / * 2 $Magic 10"}}],
             "traits": ["Fire", "Hot", "Elemental"],
             "conditions": [{"pool": "Burn", "amount": {"Constant": 75}}]
+    },
+    "735730": {
+            "id": 735730,
+            "name": "test effect 0",
+            "hits": [{"pool": "HP", "amount": {"Constant": 1}},
+                     {"pool": "MP", "amount": {"Constant": 1}},
+                     {"pool": "PP", "amount": {"Constant": 1}}]
+    },
+    "735731": {
+            "id": 735731,
+            "name": "test effect 1",
+            "hits": [{"pool": "HP", "amount": {"Formula": "1"}},
+                     {"pool": "MP", "amount": {"Formula": "1"}},
+                     {"pool": "PP", "amount": {"Formula": "1"}}]
     }
 }

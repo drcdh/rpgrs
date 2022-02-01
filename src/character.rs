@@ -233,7 +233,7 @@ mod tests {
 
     #[test]
     fn new_test() {
-        let (id, name) = (0, "Mog");
+        let (id, name) = (10, "Mog");
         let mog = Character::new(
             id,
             String::from(name),
@@ -243,7 +243,7 @@ mod tests {
     }
     #[test]
     fn from_json_test() {
-        let (id, name) = (0, "Mog");
+        let (id, name) = (10, "Mog");
         let mog_json = format!("{{\"id\": {}, \"name\": \"{}\"}}", id, String::from(name));
         let mog = Character::from_json(&mog_json);
         assert!(mog.matches(id));
@@ -251,7 +251,7 @@ mod tests {
     }
     #[test]
     fn serde_defaults_test() {
-        let (id, name) = (0, "Mog");
+        let (id, name) = (10, "Mog");
         let mog_json = format!("{{\"id\": {}, \"name\": \"{}\"}}", id, String::from(name));
         let mog = Character::from_json(&mog_json);
         assert_eq!(mog.actions, ActionMenu::new());
@@ -260,7 +260,7 @@ mod tests {
     }
     #[test]
     fn get_base_stat_test() {
-        let mog = Character::from_json(r#"{"id": 0, "name": "Mog"}"#);
+        let mog = Character::from_json(r#"{"id": 10, "name": "Mog"}"#);
         assert!(mog.get_base_stat(String::from("Strength")).is_some());
         assert!(mog.get_base_stat(String::from("Moxie")).is_none());
     }
@@ -268,7 +268,7 @@ mod tests {
     fn get_stat_test() {
         use crate::encyclopedia::StatBlockEncyclopedia;
         let statblocks = StatBlockEncyclopedia::new("data/stats.json");
-        let mog = Character::from_json(r#"{"id": 0, "name": "Mog"}"#);
+        let mog = Character::from_json(r#"{"id": 10, "name": "Mog"}"#);
         assert!(mog.get_stat(String::from("Strength"), &statblocks).is_some());
         assert!(mog.get_stat(String::from("Offense"), &statblocks).is_some());
         assert!(mog.get_stat(String::from("Moxie"), &statblocks).is_none());
@@ -279,7 +279,7 @@ mod tests {
         use crate::encyclopedia::CharacterEncyclopedia;
         let actions = ActionEncyclopedia::new("data/actions.json");
         let characters = CharacterEncyclopedia::new("data/characters.json");
-        let mog = characters.get(&0).unwrap();
+        let mog = characters.get(&10).unwrap();
         let mut selections = Vec::<usize>::new();
         let mog_menus = mog.get_action_options(&selections, &actions);
         let mut expected_menus = vec![vec!["Attack", "Dance", "Magic", "Item"]];
@@ -295,7 +295,7 @@ mod tests {
         use crate::encyclopedia::CharacterEncyclopedia;
         let actions = ActionEncyclopedia::new("data/actions.json");
         let characters = CharacterEncyclopedia::new("data/characters.json");
-        let mog = characters.get(&0).unwrap();
+        let mog = characters.get(&10).unwrap();
         let selections: Vec::<usize> = vec![1, 1]; // "Dance" -> "Desert Lullaby"
         let selected_action = mog.get_action_selection(&selections, &actions).unwrap();
         assert_eq!(selected_action.copy_name(), "Desert Lullaby");

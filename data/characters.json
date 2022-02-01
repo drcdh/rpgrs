@@ -1,6 +1,21 @@
 {
     "0": {
         "id": 0,
+        "name": "Test Dummy T1",
+        "base_stats": {
+            "Offense": 10,
+            "Strength": 20,
+            "Stamina": 20,
+            "Magic": 20,
+            "Speed": 30
+        },
+        "actions": {"prompt": "ROOT", "options": [
+            {"Index": 0},
+            {"Menu": {"prompt": "Magic", "options": [{"Index": 735740}]}}
+        ]}
+    },
+    "10": {
+        "id": 10,
         "name": "Mog",
         "base_stats": {
             "Offense": 16,

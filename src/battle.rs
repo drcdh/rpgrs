@@ -55,7 +55,6 @@ impl Battle {
     pub fn new(allies: Party, baddies: Party) -> Battle {
         let mut text = VecDeque::<String>::new();
         text.push_back("Battle start!".to_string());
-        text.push_back("Go kick some ass!".to_string());
         Battle {
             allies,
             baddies,
@@ -139,8 +138,8 @@ impl Battle {
     pub fn get_text(&self) -> Option<&String> {
         self.text.front()
     }
-    fn pop_text(&mut self) {
-        self.text.pop_front();
+    fn pop_text(&mut self) -> Option<String> {
+        self.text.pop_front()
     }
     pub fn get_top_menu_options(&self) -> Option<Vec::<String>> {
         if self.text.len() > 0 {
@@ -214,11 +213,14 @@ impl Battle {
         }
     }
     fn get_selected_action(&self) -> Option<&Action> {
-        let c = match self.current_pc_idx.as_ref().unwrap() {
-            PlayerIndex::Ally(i) => self.allies.get_ch_by_pos(*i),
-            PlayerIndex::Baddy(i) => self.baddies.get_ch_by_pos(*i),
-        };
-        c.get_action_selection(&self.selections[..], &self.action_enc)
+        if let Some(pc_idx) = self.current_pc_idx.as_ref() {
+            let c = match pc_idx {
+                PlayerIndex::Ally(i) => self.allies.get_ch_by_pos(*i),
+                PlayerIndex::Baddy(i) => self.baddies.get_ch_by_pos(*i),
+            };
+            return c.get_action_selection(&self.selections[..], &self.action_enc);
+        }
+        None
     }
     fn next_menu(&mut self) {
         if let Some(a) = self.get_selected_action() {
@@ -357,3 +359,6 @@ impl Battle {
         }
     }
 }
+
+#[cfg(test)]
+pub mod tests;

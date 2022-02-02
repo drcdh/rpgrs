@@ -66,14 +66,14 @@ impl Effect {
 impl fmt::Display for Effect {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let mut traits: String = self.traits.join(", ");
-        if traits.len() > 0 {
+        if !traits.is_empty() {
             traits += ". ";
         }
         let mut conditions: String = "".to_string();
         for con in &self.conditions {
             conditions += &con.pool;
         }
-        if conditions.len() > 0 {
+        if !conditions.is_empty() {
             conditions = "Causes ".to_owned() + &conditions;
             conditions += ". ";
         }

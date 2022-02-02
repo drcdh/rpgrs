@@ -26,7 +26,7 @@ fn bcli_test<R: Read, W: Write>(stdin: R, stdout: W, ch_enc: &CharacterEncyclope
     let battle = Battle::new(allies, baddies);
     let mut cli = BattleCLI {
         stdin: stdin.keys(),
-        stdout: stdout,
+        stdout,
         battle,
     };
     cli.run();

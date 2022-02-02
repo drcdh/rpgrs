@@ -50,7 +50,7 @@ pub fn equipment_power(equipment: &EquipmentSlot) -> i32 {
 pub fn equipment_mod(equipment: &EquipmentSlot, name: &Name) -> i32 {
     match equipment {
         None => 0,
-        Some(i) => i.get_modifier(&name),
+        Some(i) => i.get_modifier(name),
     }
 }
 

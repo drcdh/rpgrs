@@ -45,6 +45,9 @@ impl Party {
             Some(removed)
         } else { None }
     }
+    pub fn is_empty(&self) -> bool {
+        self.group.is_empty()
+    }
     pub fn len(&self) -> usize {
         self.group.len()
     }

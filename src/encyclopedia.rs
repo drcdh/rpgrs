@@ -23,18 +23,19 @@ fn _read_encyclopedia<T: Serialize + DeserializeOwned>(filename: &str) -> Result
 
 impl<T: Serialize + DeserializeOwned> Encyclopedia<T> {
     pub fn new(filename: &str) -> Encyclopedia<T> {
-        Encyclopedia { en: _read_encyclopedia::<T>(filename).expect(format!("Failed to read encyclopedia from {}", filename).as_str()) }
+        Encyclopedia { en: _read_encyclopedia::<T>(filename).expect("Failed to read encyclopedia") }
     }
 }
 
 impl<T> Encyclopedia<T> {
+    pub fn is_empty(&self) -> bool { self.en.is_empty() }
     pub fn len(&self) -> usize { self.en.len() }
     pub fn get(&self, id: &Id) -> Option<&T> { self.en.get(id) }
     //pub fn iter(&self) -> Iter<'_, Id, T> { self.en.iter() }
     pub fn resolve<'a>(&'a self, iol: &'a IndexedOrLiteral::<T>) -> Option<&'a T> {
         match iol {
-            IndexedOrLiteral::<T>::Index(i) => self.en.get(&i),
-            IndexedOrLiteral::<T>::Literal(c) => Some(&c),
+            IndexedOrLiteral::<T>::Index(i) => self.en.get(i),
+            IndexedOrLiteral::<T>::Literal(c) => Some(c),
         }
     }
 /*    pub fn resolve_mut<'a>(&'a mut self, iol: &'a IndexedOrLiteral::<T>) -> Option<&'a mut T> {

@@ -101,7 +101,7 @@ impl Character {
             None => None,
         }
     }
-    pub fn get_stat_val<'s>(&self, name: Name, default: Stat, statblocks: &'s StatBlockEncyclopedia) -> Stat {
+    pub fn get_stat_val(&self, name: Name, default: Stat, statblocks: &StatBlockEncyclopedia) -> Stat {
         let base_stat = Name::from(&name);
         match self.get_stat(name, statblocks) {
             Some(formula) => eval_stat(base_stat, formula, self),
@@ -139,8 +139,7 @@ impl Character {
         // Start with the root CharacterActions (e.g. Attack, Magic, Item)
         // This needs to be a mutable reference for the loop below to work.
         let mut menu: &ActionMenu = &self.actions; // ROOT ActionMenu
-        let mut result = Vec::<Vec::<Name>>::new();
-        result.push(menu.get_prompts(act_en));
+        let mut result = vec![menu.get_prompts(act_en)];
         for s in selections {
             let ca: &CharacterAction = menu.get_option(*s).unwrap();
             if let CharacterAction::Menu(m) = ca {
@@ -158,10 +157,10 @@ impl Character {
         for s in selections {
             let ca: &CharacterAction = menu.get_option(*s).unwrap();
             if let CharacterAction::Index(id) = ca {
-                return action_enc.get(&id);
+                return action_enc.get(id);
             }
             if let CharacterAction::Literal(a) = ca {
-                return Some(&a);
+                return Some(a);
             }
             if let CharacterAction::Menu(m) = ca {
                 menu = m;
@@ -184,7 +183,7 @@ impl Character {
     }
     pub fn use_action_on(&mut self, action: &Action, target: &mut Character, effect_enc: &EffectEncyclopedia, statblocks: &StatBlockEncyclopedia) {
         for (pool, cost) in action.costs_iter() {
-            let mut pool = self.pools.get_mut(pool).expect(format!("Character \"{}\" does not have pool \"{}\" for Action cost", self.name, pool).as_str());
+            let mut pool = self.pools.get_mut(pool).expect("Character does not have Pool for Action cost");
             pool.current -= *cost;
         }
         for effect in &action.effects {

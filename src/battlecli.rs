@@ -7,8 +7,8 @@ use std::io::Write;
 
 use crate::battle::{Battle, PlayerIndex};
 
-const OUTER_ROW: &'static str = " ============================== ";
-const INNER_ROW: &'static str = " |                            | ";
+const OUTER_ROW: &str = " ============================== ";
+const INNER_ROW: &str = " |                            | ";
 const BOX_HEIGHT: u16 = 8;
 const BOX_WIDTH: u16 = 32;
 
@@ -54,7 +54,7 @@ BattleCLI<R, W> {
                 }
                 write!(self.stdout, "{}{}{}. {}", Goto(1, (30 + i) as u16), sel_str, i+1, opt).unwrap();
             }
-            write!(self.stdout, "{} >>> {} ", Goto(1, (30 + options.len() + 2) as u16), "Pick your next action!").unwrap();
+            write!(self.stdout, "{} >>> Pick your next action! ", Goto(1, (30 + options.len() + 2) as u16)).unwrap();
         }
     }
     fn _draw_boxes(&mut self, n: usize, baddies: bool) {

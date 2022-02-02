@@ -142,7 +142,7 @@ impl Battle {
         self.text.pop_front()
     }
     pub fn get_top_menu_options(&self) -> Option<Vec::<String>> {
-        if self.text.len() > 0 {
+        if !self.text.is_empty() {
             return None; // todo
         }
         match self.current_pc_idx {
@@ -247,7 +247,7 @@ impl Battle {
         }
     }
     fn make_selection(&mut self, key: Key) {
-        if self.targets.len() > 0 {
+        if !self.targets.is_empty() {
             if let Key::Char(c) = key {
                 if c == '\n' {
                     self.play_pc_action();

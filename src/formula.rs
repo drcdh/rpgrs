@@ -37,7 +37,7 @@ fn _eval_stat_term(term: &str, c: &Character, stat_name: &Name) -> Stat {
     match tokens[1] {
         "AddMod" => c.sum_add_mods(stat_name),
         "MultMod" => c.sum_mult_mods(stat_name),
-        m @ _ => panic!("Could not understand statistic attribute {}.", m),
+        m => panic!("Could not understand statistic attribute {}.", m),
     }
 }
 
@@ -65,10 +65,10 @@ fn _eval_term(term: &str, actor: Option<&Character>, target: &Character, statblo
     let actor = actor.unwrap();
     // todo generalizations
     match term {
-        "^Level" => actor.get_stat_val(String::from("Level"), 1, statblocks).into(),
-        "^Offense" => actor.get_stat_val(String::from("Offense"), 0, statblocks).into(),
-        "^Strength" => actor.get_stat_val(String::from("Strength"), 0, statblocks).into(),
-        "$Offense" => target.get_stat_val(String::from("Offense"), 0, statblocks).into(),
+        "^Level" => actor.get_stat_val(String::from("Level"), 1, statblocks),
+        "^Offense" => actor.get_stat_val(String::from("Offense"), 0, statblocks),
+        "^Strength" => actor.get_stat_val(String::from("Strength"), 0, statblocks),
+        "$Offense" => target.get_stat_val(String::from("Offense"), 0, statblocks),
         t => panic!("Could not understand token {}.", t),
     }
 }

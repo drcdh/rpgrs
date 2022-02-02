@@ -63,9 +63,10 @@ pub struct ActionMenu {
 impl ActionMenu {
     // Used for serde(default) in Character
     pub fn new() -> ActionMenu {
-        let mut ca = Vec::<CharacterAction>::new();
-        ca.push(CharacterAction::Index(0));
-        ca.push(CharacterAction::UseItem);
+        let ca = vec![
+            CharacterAction::Index(0),
+            CharacterAction::UseItem,
+        ];
         ActionMenu { prompt: "ROOT".to_string(), options: ca }
     }
     pub fn get_prompt(&self) -> &Name {
@@ -76,7 +77,7 @@ impl ActionMenu {
         for ca in &self.options {
             pr.push(
                 match ca {
-                    CharacterAction::Index(id) => act_en.get(&id).unwrap().copy_name(),
+                    CharacterAction::Index(id) => act_en.get(id).unwrap().copy_name(),
                     CharacterAction::Menu(m) => m.prompt.clone(),
                     CharacterAction::Literal(a) => a.name.clone(),
                     CharacterAction::UseItem => "Item".to_string(),
@@ -87,6 +88,11 @@ impl ActionMenu {
     }
     pub fn get_option(&self, opt: usize) -> Option::<&CharacterAction> {
         self.options.get(opt)
+    }
+}
+impl Default for ActionMenu {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -103,7 +109,7 @@ impl Action {
     pub fn costs_iter(&self) -> hash_map::Iter<String, i32> {
         self.costs.iter()
     }
-    pub fn get_message(&self, actor: &str, target_names: &Vec::<Name>) -> String {
+    pub fn get_message(&self, actor: &str, target_names: &[Name]) -> String {
         let ntargets = target_names.len();
         let mut targets = target_names[..ntargets-1].join(", ");
         if ntargets == 1 {

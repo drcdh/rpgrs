@@ -78,6 +78,12 @@ mod tests {
     use super::*;
 
     #[test]
+    fn eval_stat_term_test() {
+        let term = "1";
+        let c = Character::from_json(r#"{"id": 0, "name": "Test"}"#);
+        assert_eq!(_eval_stat_term(term, &c, &String::new()), 1);
+    }
+    #[test]
     fn eval_hit_test() {
         let f = Formula::from("+ 1 - ^Offense / $Offense 2");
         let c = Character::from_json(r#"{"id": 0, "name": "Test"}"#);

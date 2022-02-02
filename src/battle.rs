@@ -116,8 +116,8 @@ impl Battle {
         let ns = self.selections.len()-1;
         let parent_menu_selections = &self.selections[..ns];
         match self.current_pc_idx {
-            Some(PlayerIndex::Ally(i)) => self.allies.get_ch_by_pos(i).get_action_options(parent_menu_selections, &self.action_enc),
-            Some(PlayerIndex::Baddy(i)) => self.baddies.get_ch_by_pos(i).get_action_options(parent_menu_selections, &self.action_enc),
+            Some(PlayerIndex::Ally(i)) => self.allies.get_ch_by_pos(i).unwrap().get_action_options(parent_menu_selections, &self.action_enc),
+            Some(PlayerIndex::Baddy(i)) => self.baddies.get_ch_by_pos(i).unwrap().get_action_options(parent_menu_selections, &self.action_enc),
             None => Vec::<Vec::<Name>>::new(), // fixme??
         }
     }
@@ -152,15 +152,15 @@ impl Battle {
     }
     fn get_character(&self, p_idx: &Option<PlayerIndex>) -> Option<&Character> {
         match p_idx {
-            Some(PlayerIndex::Ally(i)) => Some(self.allies.get_ch_by_pos(*i)),
-            Some(PlayerIndex::Baddy(i)) => Some(self.baddies.get_ch_by_pos(*i)),
+            Some(PlayerIndex::Ally(i)) => self.allies.get_ch_by_pos(*i),
+            Some(PlayerIndex::Baddy(i)) => self.baddies.get_ch_by_pos(*i),
             None => None,
         }
     }
     fn get_mut_character(&mut self, p_idx: &Option<PlayerIndex>) -> Option<&mut Character> {
         match p_idx {
-            Some(PlayerIndex::Ally(i)) => Some(self.allies.get_mut_ch_by_pos(*i)),
-            Some(PlayerIndex::Baddy(i)) => Some(self.baddies.get_mut_ch_by_pos(*i)),
+            Some(PlayerIndex::Ally(i)) => self.allies.get_mut_ch_by_pos(*i),
+            Some(PlayerIndex::Baddy(i)) => self.baddies.get_mut_ch_by_pos(*i),
             None => None,
         }
     }
@@ -174,10 +174,10 @@ impl Battle {
         let mut target_names = Vec::<Name>::new();
         for i in &self.targets {
             if let PlayerIndex::Ally(i) = i {
-                let t_name = self.allies.get_ch_by_pos(*i).copy_name();
+                let t_name = self.allies.get_ch_by_pos(*i).unwrap().copy_name();
                 target_names.push(t_name);
             } else if let PlayerIndex::Baddy(i) = i {
-                let t_name = self.baddies.get_ch_by_pos(*i).copy_name();
+                let t_name = self.baddies.get_ch_by_pos(*i).unwrap().copy_name();
                 target_names.push(t_name);
             }
         }
@@ -213,14 +213,10 @@ impl Battle {
         }
     }
     fn get_selected_action(&self) -> Option<&Action> {
-        if let Some(pc_idx) = self.current_pc_idx.as_ref() {
-            let c = match pc_idx {
-                PlayerIndex::Ally(i) => self.allies.get_ch_by_pos(*i),
-                PlayerIndex::Baddy(i) => self.baddies.get_ch_by_pos(*i),
-            };
-            return c.get_action_selection(&self.selections[..], &self.action_enc);
+        match self.get_current_pc() {
+            Some(c) => c.get_action_selection(&self.selections[..], &self.action_enc),
+            None => None,
         }
-        None
     }
     fn next_menu(&mut self) {
         if let Some(a) = self.get_selected_action() {
@@ -356,6 +352,18 @@ impl Battle {
                 }
                 self.selections.push(i);
             }
+        }
+    }
+}
+
+#[cfg(test)]
+impl Battle {
+    fn force_turn(&mut self, pi: PlayerIndex) {
+        match pi {
+            PlayerIndex::Ally(i) =>
+                self.current_pc_idx = Some(PlayerIndex::Ally(i)),
+            PlayerIndex::Baddy(i) =>
+                self.current_npc_idx = Some(PlayerIndex::Baddy(i)),
         }
     }
 }

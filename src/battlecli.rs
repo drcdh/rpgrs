@@ -101,8 +101,8 @@ BattleCLI<R, W> {
     fn write_baddies_info(&mut self) {
         let p = &self.battle.baddies;
         for i in 0..p.len() {
-            let c = p.get_ch_by_pos(i);
-            let (_, name) = c.whoami();
+            let c = p.get_ch_by_pos(i).unwrap();
+            let name = c.whoami().1;
             let i: u16 = i.try_into().unwrap();
             write!(self.stdout, "{} {}", Goto(i*BOX_WIDTH + 3, 2), name).unwrap();
             for (j, (_, pool)) in c.get_pools().iter().enumerate() {
@@ -114,9 +114,9 @@ BattleCLI<R, W> {
     }
     fn write_allies_info(&mut self) {
         let p = &self.battle.allies;
-        for i in 0..p.len() {
-            let c = p.get_ch_by_pos(i);
-            let (_, name) = c.whoami();
+        for i in 0..p.len() { // todo: ch_iter
+            let c = p.get_ch_by_pos(i).unwrap();
+            let name = c.whoami().1;
             let i: u16 = i.try_into().unwrap();
             write!(self.stdout, "{} {}", Goto(i*BOX_WIDTH + 3, BOX_HEIGHT+4+2), name).unwrap();
             for (j, (_, pool)) in c.get_pools().iter().enumerate() {

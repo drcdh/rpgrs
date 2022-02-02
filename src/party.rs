@@ -51,11 +51,17 @@ impl Party {
     pub fn len(&self) -> usize {
         self.group.len()
     }
-    pub fn get_ch_by_pos(&self, i: usize) -> &Character {
-        &self.group[self.formation[i]]
+    pub fn get_ch_by_pos(&self, i: usize) -> Option<&Character> {
+        match self.formation.get(i) {
+            Some(i) => self.group.get(*i),
+            None => None,
+        }
     }
-    pub fn get_mut_ch_by_pos(&mut self, i: usize) -> &mut Character {
-        &mut self.group[self.formation[i]]
+    pub fn get_mut_ch_by_pos(&mut self, i: usize) -> Option<&mut Character> {
+        match self.formation.get(i) {
+            Some(i) => self.group.get_mut(*i),
+            None => None,
+        }
     }
     pub fn get_ready_ch_pos(&mut self) -> Option<usize> {
         for (i, c) in self.clocks.iter_mut().enumerate() {
@@ -87,10 +93,10 @@ mod tests {
         assert_eq!(party.whoami(), (0, "Test"));
         assert_eq!(party.id, 0);
         assert_eq!(party.name, String::from("Test"));
-        assert_eq!(party.len(), 0);
-        assert_eq!(party.group.len(), 0);
-        assert_eq!(party.formation.len(), 0);
-        assert_eq!(party.clocks.len(), 0);
+        assert!(party.is_empty());
+        assert!(party.group.is_empty());
+        assert!(party.formation.is_empty());
+        assert!(party.clocks.is_empty());
         assert!(party.items_iter().collect::<Vec<_>>().is_empty());
     }
     #[test]
@@ -98,18 +104,19 @@ mod tests {
         let mut party = Party::new(String::from("Test"));
         let mog = Character::new(0, String::from("Mog"));
         party.add_character(mog);
+        assert!(party.get_ch_by_pos(0).is_some());
         assert_eq!(party.len(), 1);
         assert_eq!(party.group.len(), 1);
         assert_eq!(party.formation.len(), 1);
         assert_eq!(party.clocks.len(), 1);
         assert_eq!(*party.formation.get(0).unwrap(), 0);
-        if let Some(mog) = party.remove_character(0) {
-            assert_eq!(mog.whoami(), (0, "Mog"));
-        }
-        assert_eq!(party.len(), 0);
-        assert_eq!(party.group.len(), 0);
-        assert_eq!(party.formation.len(), 0);
-        assert_eq!(party.clocks.len(), 0);
+        let mog = party.remove_character(0).unwrap();
+        assert_eq!(mog.whoami(), (0, "Mog"));
+        assert!(party.get_ch_by_pos(0).is_none());
+        assert!(party.is_empty());
+        assert!(party.group.is_empty());
+        assert!(party.formation.is_empty());
+        assert!(party.clocks.is_empty());
     }
     #[test]
     fn clocks_test() {

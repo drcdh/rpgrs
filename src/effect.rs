@@ -99,12 +99,14 @@ mod tests {
         let mut t = Character::new(1, String::from("Test Target Character"));
         let mut effect = Effect::new(0, "Test Effect".to_string());
         let init_hp = t.get_pool_vals("HP".to_string()).unwrap().0;
-        let v = 10;
-        let h = Hit { pool: String::from("HP".to_string()), amount: HitAmt::Constant(v) };
-        effect.hits = vec![h];
+        let v = 1;
+        effect.hits = vec![
+            Hit { pool: String::from("HP"), amount: HitAmt::Constant(v) },
+            Hit { pool: String::from("HP"), amount: HitAmt::Formula(String::from("1")) },
+        ];
         effect.affect_target(&mut t, &statblocks);
         let hp = t.get_pool_vals("HP".to_string()).unwrap().0;
-        assert_eq!(hp, init_hp-v);
+        assert_eq!(hp, init_hp - 2);
     }
     #[test]
     fn actor_affect_test() {
@@ -113,11 +115,13 @@ mod tests {
         let mut t = Character::new(1, String::from("Test Target Character"));
         let mut effect = Effect::new(0, "Test Effect".to_string());
         let init_hp = t.get_pool_vals("HP".to_string()).unwrap().0;
-        let v = 10;
-        let h = Hit { pool: String::from("HP".to_string()), amount: HitAmt::Constant(v) };
-        effect.hits = vec![h];
+        let v = 1;
+        effect.hits = vec![
+            Hit { pool: String::from("HP"), amount: HitAmt::Constant(v) },
+            Hit { pool: String::from("HP"), amount: HitAmt::Formula(String::from("1")) },
+        ];
         effect.actor_affect_target(&mut c, &mut t, &statblocks);
         let hp = t.get_pool_vals("HP".to_string()).unwrap().0;
-        assert_eq!(hp, init_hp-v);
+        assert_eq!(hp, init_hp - 2);
     }
 }

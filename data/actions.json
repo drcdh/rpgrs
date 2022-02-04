@@ -30,6 +30,13 @@
             "scope": "Enemies",
             "message": "{:actor} does the dance of the Water Harmony."
     },
+    "61": {
+        "id": 61,
+        "name": "Bolt 2",
+        "costs": {"MP": 22},
+        "effects": [{"Index": 25506061}],
+        "message": "ZAP! {:actor} casts a big ol' lightning bolt on {:targets}!"
+    },
     "88": {
         "id": 88,
         "name": "Bad Breath",

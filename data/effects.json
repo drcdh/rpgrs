@@ -58,6 +58,11 @@
         "name": "ffvi-magic-20",
         "hits": [{"pool": "HP", "amount": {"Formula": "+ 1 / * - 255 $Magic-Defense + * 4 20 / * * ^Magic 10 ^Level 32 256"}}]
     },
+    "25506061": {
+        "id": 25506061,
+        "name": "ffvi-magic-61",
+        "hits": [{"pool": "HP", "amount": {"Formula": "+ 1 / * - 255 $Magic-Defense + * 4 61 / * * ^Magic 10 ^Level 32 256"}}]
+    },
     "735730": {
             "id": 735730,
             "name": "test effect 0",

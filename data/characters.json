@@ -106,9 +106,10 @@
             "Speed":          35
         },
         "stats": 1,
-        "actions": {"prompt": "ROOT", "options": [{"Index": 1}]},
+        "actions": {"prompt": "ROOT", "options": [{"Index": 1}, {"Index": 1}, {"Index": 61}]},
         "pools": {
-            "HP": {"name": "HP", "current": 232, "maximum": 232}
+            "HP": {"name": "HP", "current": 232, "maximum": 232},
+            "MP": {"name": "MP", "current": 30, "maximum": 30}
         }
     },
     "515": {

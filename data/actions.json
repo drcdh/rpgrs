@@ -2,7 +2,13 @@
     "0": {
             "id": 0,
             "name": "Attack",
-            "effects": [{"Index": 2}],
+            "effects": [{"Index": 0}],
+            "message": "{:actor} attacks {:targets}!"
+    },
+    "1": {
+            "id": 1,
+            "name": "Attack",
+            "effects": [{"Index": 1}],
             "message": "{:actor} attacks {:targets}!"
     },
     "10": {
@@ -44,7 +50,7 @@
         "id": 8483,
         "name": "Babe Boost",
         "costs": {"MP": 1},
-        "effects": [{"Index": 0}],
+        "effects": [{"Index": 173000}],
         "scope": "You",
         "message": "{:actor} says something babe-licious that tickles {:targets}'s fancy!"
     },

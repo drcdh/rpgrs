@@ -31,6 +31,7 @@
             "Offense":        10,
             "Defense":       100,
             "Magic Defense": 100,
+            "Strength":       60,
             "Magic":          10,
             "Speed":          10
         },

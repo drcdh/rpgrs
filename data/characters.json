@@ -65,11 +65,12 @@
             "Offense":        13,
             "Defense":       100,
             "Magic Defense": 140,
+            "Strength":       59,
             "Magic":          10,
             "Speed":          30
         },
         "stats": 1,
-        "actions": {"prompt": "ROOT", "options": [{"Index": 0}]},
+        "actions": {"prompt": "ROOT", "options": [{"Index": 1}]},
         "pools": {
             "HP": {"name": "HP", "current": 24, "maximum": 24}
         }
@@ -82,11 +83,12 @@
             "Offense":        13,
             "Defense":        60,
             "Magic Defense": 130,
+            "Strength":       60,
             "Magic":          10,
             "Speed":          30
         },
         "stats": 1,
-        "actions": {"prompt": "ROOT", "options": [{"Index": 0}]},
+        "actions": {"prompt": "ROOT", "options": [{"Index": 1}]},
         "pools": {
             "HP": {"name": "HP", "current": 33, "maximum": 33}
         }

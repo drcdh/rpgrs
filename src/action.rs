@@ -79,9 +79,9 @@ impl ActionMenu {
         for ca in &self.options {
             pr.push(
                 match ca {
-                    CharacterAction::Index(id) => act_en.get(id).unwrap().copy_name(),
+                    CharacterAction::Index(id) => act_en.get(id).unwrap().prompt(),
                     CharacterAction::Menu(m) => m.prompt.clone(),
-                    CharacterAction::Literal(a) => a.name.clone(),
+                    CharacterAction::Literal(a) => a.prompt(),
                     CharacterAction::UseItem => "Item".to_string(),
                 }
             );
@@ -107,6 +107,13 @@ impl Action {
     }
     pub fn copy_name(&self) -> Name {
         self.name.clone()
+    }
+    pub fn prompt(&self) -> String {
+        let mut prompt = self.name.clone();
+        for (n, c) in self.costs_iter() {
+            prompt = format!("{}  {}: {}", prompt, n, c);
+        }
+        prompt
     }
     pub fn costs_iter(&self) -> hash_map::Iter<String, i32> {
         self.costs.iter()

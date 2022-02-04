@@ -37,7 +37,7 @@ pub struct Action {
     costs: Costs,
     pub effects: Effects,
     #[serde(default = "Action::default_scope")]
-    scope: Scope,
+    pub scope: Scope,
     // A format string that may use {:actor}, {:target}, or {:targets}.
     #[serde(default = "Action::default_message")]
     message: String,
@@ -69,6 +69,8 @@ impl ActionMenu {
         ];
         ActionMenu { prompt: "ROOT".to_string(), options: ca }
     }
+    pub fn is_empty(&self) -> bool { self.options.is_empty() }
+    pub fn len(&self) -> usize { self.options.len() }
     pub fn get_prompt(&self) -> &Name {
         &self.prompt
     }

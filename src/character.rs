@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fmt;
+use rand::Rng;
 
 use serde::{Serialize, Deserialize};
 use serde_json;
@@ -157,6 +158,26 @@ impl Character {
         let mut menu: &ActionMenu = &self.actions; // ROOT ActionMenu
         for s in selections {
             let ca: &CharacterAction = menu.get_option(*s).unwrap();
+            if let CharacterAction::Index(id) = ca {
+                return action_enc.get(id);
+            }
+            if let CharacterAction::Literal(a) = ca {
+                return Some(a);
+            }
+            if let CharacterAction::Menu(m) = ca {
+                menu = m;
+                continue;
+            }
+        }
+        None
+    }
+    pub fn get_random_action<'a>(&'a self, action_enc: &'a ActionEncyclopedia) -> Option<&'a Action> {
+        // TODO: Check for unusable actions and reroll in case
+        let mut menu: &ActionMenu = &self.actions; // ROOT ActionMenu
+        let mut rng = rand::thread_rng();
+        loop {
+            let s = rng.gen_range(0..menu.len());
+            let ca: &CharacterAction = menu.get_option(s).unwrap();
             if let CharacterAction::Index(id) = ca {
                 return action_enc.get(id);
             }

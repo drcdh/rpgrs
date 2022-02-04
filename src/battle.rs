@@ -1,8 +1,9 @@
 use std::collections::VecDeque;
+use rand::Rng;
 
 use termion::event::Key;
 
-use crate::action::Action;
+use crate::action::{Action, Scope};
 use crate::character::Character;
 use crate::common::*;
 use crate::effect::Effect;
@@ -92,7 +93,7 @@ impl Battle {
                 self.current_npc_idx = Some(PlayerIndex::Baddy(i));
                 let next = self.get_current_npc().unwrap().copy_name();
                 self.text.push_back(format!("It's {}'s turn!", next));
-                // TODO
+                self.play_npc_action();
                 self.current_npc_idx = None;
                 return;
             }
@@ -193,9 +194,9 @@ impl Battle {
     fn get_current_npc(&self) -> Option<&Character> {
         self.get_character(&self.current_npc_idx)
     }
-    fn get_target_names(&self) -> Vec::<Name> {
+    fn _get_target_names(&self, targets: &[PlayerIndex]) -> Vec::<Name> {
         let mut target_names = Vec::<Name>::new();
-        for i in &self.targets {
+        for i in targets {
             if let PlayerIndex::Ally(i) = i {
                 let t_name = self.allies.get_ch_by_pos(*i).unwrap().copy_name();
                 target_names.push(t_name);
@@ -205,6 +206,9 @@ impl Battle {
             }
         }
         target_names
+    }
+    fn get_target_names(&self) -> Vec::<Name> {
+        self._get_target_names(&self.targets)
     }
     fn play_pc_action(&mut self) {
         if let Some(actor) = self.current_pc_idx.as_ref() {
@@ -375,6 +379,43 @@ impl Battle {
                 }
                 self.selections.push(i);
             }
+        }
+    }
+    fn play_npc_action(&mut self) {
+        if let Some(actor_pi) = self.current_npc_idx.as_ref() {
+            let mut teffects = VecDeque::<TargetedEffect>::new();
+            let actor = self.get_current_npc().unwrap();
+            if let Some(a) = actor.get_random_action(&self.action_enc) {
+                let targets = self.get_random_targets(actor_pi, &a.scope);
+                let target_names = self._get_target_names(&targets);
+                for target_pi in targets {
+                    for effect in &a.effects {
+                        let te = TargetedEffect::new(
+                                actor_pi,
+                                &target_pi,
+                                effect,
+                                &self.effect_enc,
+                            );
+                        teffects.push_back(te);
+                    }
+                }
+                // Queue the Action message
+                let msg = a.get_message(&actor.copy_name(), &target_names);
+                self.text.push_back(msg);
+            }
+            self.effects.append(&mut teffects);
+            self.current_npc_idx = None;
+        }
+    }
+    fn get_random_targets(&self, actor_pi: &PlayerIndex, scope: &Scope) -> Vec::<PlayerIndex> {
+        // todo Assuming actor_pi is PlayerIndex::Baddy
+        let na = self.allies.len();
+        let nb = self.baddies.len();
+        let mut rng = rand::thread_rng();
+        match scope {
+            Scope::Enemy => vec![PlayerIndex::Ally(rng.gen_range(0..na) as usize)],
+            Scope::Ally => vec![PlayerIndex::Baddy(rng.gen_range(0..nb) as usize)],
+            _ => panic!("NPC Action scopes other than Enemy and Ally not implemented yet."),
         }
     }
     pub fn is_player_down(&self, pi: &PlayerIndex) -> bool {

@@ -1,4 +1,4 @@
-use rpgrs::common::IndexedOrLiteral;
+use rpgrs::common::*;
 use rpgrs::encyclopedia::*;
 
 
@@ -43,7 +43,24 @@ fn use_actions() {
     let mut rat = characters.clone_entry(&IndexedOrLiteral::Index(102)).unwrap();
     let mog_mp = mog.get_pool_vals(String::from("MP")).unwrap().0;
     let rat_hp = rat.get_pool_vals(String::from("HP")).unwrap().0;
-    mog.use_action_on(test_act_0, &mut rat, &effect_enc, &statblocks);
+    let hits = mog.use_action_on(test_act_0, &rat, &effect_enc, &statblocks);
+    for hit in &hits {
+        if let HitAmt::Constant(amt) = hit.amount {
+            rat.hit_pool(&hit.pool, amt);
+        }
+    }
+    assert_eq!(hits[0].pool, String::from("HP"));
+    assert_eq!(hits[0].amount, HitAmt::Constant(1));
+    assert_eq!(hits[1].pool, String::from("MP"));
+    assert_eq!(hits[1].amount, HitAmt::Constant(1));
+    assert_eq!(hits[2].pool, String::from("PP"));
+    assert_eq!(hits[2].amount, HitAmt::Constant(1));
+    assert_eq!(hits[3].pool, String::from("HP"));
+    assert_eq!(hits[3].amount, HitAmt::Constant(1));
+    assert_eq!(hits[4].pool, String::from("MP"));
+    assert_eq!(hits[4].amount, HitAmt::Constant(1));
+    assert_eq!(hits[5].pool, String::from("PP"));
+    assert_eq!(hits[5].amount, HitAmt::Constant(1));
     assert_eq!(mog.get_pool_vals(String::from("MP")).unwrap().0, mog_mp-1);
     assert_eq!(rat.get_pool_vals(String::from("HP")).unwrap().0, rat_hp-2);
     assert_eq!(rat.get_pool_vals(String::from("MP")), None);

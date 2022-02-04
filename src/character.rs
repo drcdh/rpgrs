@@ -181,14 +181,16 @@ impl Character {
         let _ = stat_name;
         1 // todo
     }
-    pub fn use_action_on(&mut self, action: &Action, target: &mut Character, effect_enc: &EffectEncyclopedia, statblocks: &StatBlockEncyclopedia) {
+    pub fn use_action_on(&mut self, action: &Action, target: &Character, effect_enc: &EffectEncyclopedia, statblocks: &StatBlockEncyclopedia) -> Hits {
         for (pool, cost) in action.costs_iter() {
             let mut pool = self.pools.get_mut(pool).expect("Character does not have Pool for Action cost");
             pool.current -= *cost;
         }
+        let mut hits = Hits::new();
         for effect in &action.effects {
-            effect_enc.resolve(effect).unwrap().actor_affect_target(self, target, statblocks);
+            hits.append(&mut effect_enc.resolve(effect).unwrap().actor_affect_target(self, target, statblocks));
         }
+        hits
     }
 /*    pub fn use_effect_on(&mut self, effect: &Effect, target: &mut Character) {
         effect.actor_affect_target(self, target)

@@ -9,7 +9,6 @@ use crate::effect::Effect;
 use crate::encyclopedia::ActionEncyclopedia;
 use crate::encyclopedia::EffectEncyclopedia;
 use crate::encyclopedia::StatBlockEncyclopedia;
-use crate::formula::eval_hit;
 use crate::party::Party;
 
 
@@ -21,18 +20,23 @@ pub enum PlayerIndex {
 }
 
 struct TargetedEffect {
-    actor: PlayerIndex,
-    target: PlayerIndex,
+    actor_pi: PlayerIndex,
+    target_pi: PlayerIndex,
     effect: Effect,
 }
 impl TargetedEffect {
-    fn new(actor: &PlayerIndex, target: &PlayerIndex, effect: &IndexedOrLiteral<Effect>, effect_enc: &EffectEncyclopedia) -> TargetedEffect {
+    fn new(actor_pi: &PlayerIndex, target_pi: &PlayerIndex, effect_iol: &IndexedOrLiteral<Effect>, effect_enc: &EffectEncyclopedia) -> TargetedEffect {
         TargetedEffect {
-            actor: actor.clone(),
-            target: target.clone(),
-            effect: effect_enc.clone_entry(effect).unwrap(),
+            actor_pi: actor_pi.clone(),
+            target_pi: target_pi.clone(),
+            effect: effect_enc.clone_entry(effect_iol).unwrap(),
         }
     }
+}
+struct TargetedHit {
+    target_pi: PlayerIndex,
+    pool: Name,
+    amount: i32,
 }
 
 pub struct Battle {
@@ -45,6 +49,7 @@ pub struct Battle {
     current_npc_idx: Option<PlayerIndex>,
     pub targets: Vec::<PlayerIndex>,
     effects: VecDeque::<TargetedEffect>,
+    hits: VecDeque::<TargetedHit>,
 
     action_enc: ActionEncyclopedia,
     effect_enc: EffectEncyclopedia,
@@ -64,6 +69,7 @@ impl Battle {
             current_npc_idx: None,
             targets: Vec::<PlayerIndex>::new(),
             effects: VecDeque::<TargetedEffect>::new(),
+            hits: VecDeque::<TargetedHit>::new(),
             // FIXME: references should be supplied by the top-level Game object
             action_enc: ActionEncyclopedia::new("data/actions.json"),
             effect_enc: EffectEncyclopedia::new("data/effects.json"),
@@ -93,23 +99,24 @@ impl Battle {
             self.baddies.increment_clocks(1, &self.statblocks);
         }
     }
-    fn handle_hit(&self, hit: &Hit, actor: &Character, target: &Character) -> String {
-        let amount = match &hit.amount {
-            HitAmt::Constant(v) => *v,
-            HitAmt::Formula(f) => eval_hit(f, Some(actor), target, &self.statblocks),
-        };
-        //target.take_hit(&Hit { pool: String::from(hit.pool.as_str()), amount: HitAmt::Constant(amount) });
-        format!("{} took {} {} damage! ", target.copy_name(), amount, hit.pool)
+    fn handle_hit(&mut self) {
+        if let Some(th) = self.hits.pop_front() {
+            let v = self.get_mut_character(&Some(th.target_pi)).unwrap().hit_pool(&th.pool, th.amount);
+            self.text.push_back(format!("Took {} damage!", v));
+        }
     }
     fn handle_effect(&mut self) {
-        if let Some(be) = self.effects.pop_front() {
-            let actor: &Character = self.get_character(&Some(be.actor)).unwrap();
-            let target: &Character = self.get_character(&Some(be.target)).unwrap();
-            let mut effect_msg = String::from("TEST EFFECT: ");
-            for hit in &be.effect.hits {
-                effect_msg.push_str(self.handle_hit(hit, actor, target).as_str());
+        if let Some(te) = self.effects.pop_front() {
+            let actor = self.get_ch_by_pi(&te.actor_pi);
+            let target = self.get_ch_by_pi(&te.target_pi);
+            let hits = te.effect.actor_affect_target(actor, target, &self.statblocks);
+            for hit in hits {
+                let target_pi = te.target_pi.clone();
+                let pool = hit.pool;
+                if let HitAmt::Constant(amount) = hit.amount {
+                    self.hits.push_back(TargetedHit { target_pi, pool, amount });
+                } else { panic!(); }
             }
-            self.text.push_back(effect_msg);
         }
     }
     fn get_current_pc_actions(&self) -> Vec::<Vec::<Name>> {
@@ -128,7 +135,8 @@ impl Battle {
         if !self.text.is_empty() {
             self.pop_text();
             self.handle_effect();
-            if self.current_pc_idx.is_none() && self.current_npc_idx.is_none() {
+            self.handle_hit();
+            if self.text.is_empty() && self.current_pc_idx.is_none() && self.current_npc_idx.is_none() {
                 self.next_turn();
             }
             return;
@@ -148,6 +156,12 @@ impl Battle {
         match self.current_pc_idx {
             Some(_) => self.get_current_pc_actions().get(self.selections.len()-1).cloned(),
             None => None,
+        }
+    }
+    fn get_ch_by_pi(&self, p_idx: &PlayerIndex) -> &Character {
+        match p_idx {
+            PlayerIndex::Ally(i) => self.allies.get_ch_by_pos(*i).unwrap(),
+            PlayerIndex::Baddy(i) => self.baddies.get_ch_by_pos(*i).unwrap(),
         }
     }
     fn get_character(&self, p_idx: &Option<PlayerIndex>) -> Option<&Character> {

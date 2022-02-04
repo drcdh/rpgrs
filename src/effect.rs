@@ -52,14 +52,17 @@ impl Effect {
             let _v = target.hit_pool(&hit.pool, amount);
         }
     }
-    pub fn actor_affect_target(&self, actor: &mut Character, target: &mut Character, statblocks: &StatBlockEncyclopedia) -> () {
+    pub fn actor_affect_target(&self, actor: &Character, target: &Character, statblocks: &StatBlockEncyclopedia) -> Hits {
+        let mut hits = Hits::new();
         for hit in &self.hits {
             let amount: i32 = match &hit.amount {
                 HitAmt::Constant(v) => *v,
                 HitAmt::Formula(f) => formula::eval_hit(f, Some(actor), target, statblocks),
             };
-            let _v = target.hit_pool(&hit.pool, amount);
+//            let v: i32 = target.hit_pool(&hit.pool, amount);
+            hits.push(Hit { pool: hit.pool.clone(), amount: HitAmt::Constant(amount) });
         }
+        hits
     }
 }
 
@@ -111,17 +114,22 @@ mod tests {
     #[test]
     fn actor_affect_test() {
         let statblocks = StatBlockEncyclopedia::new("data/stats.json");
-        let mut c = Character::new(0, String::from("Test Character"));
-        let mut t = Character::new(1, String::from("Test Target Character"));
+        let c = Character::new(0, String::from("Test Character"));
+        let t = Character::new(1, String::from("Test Target Character"));
         let mut effect = Effect::new(0, "Test Effect".to_string());
-        let init_hp = t.get_pool_vals("HP".to_string()).unwrap().0;
+//        let init_hp = t.get_pool_vals("HP".to_string()).unwrap().0;
         let v = 1;
+        let f = format!("{}", v);
         effect.hits = vec![
             Hit { pool: String::from("HP"), amount: HitAmt::Constant(v) },
-            Hit { pool: String::from("HP"), amount: HitAmt::Formula(String::from("1")) },
+            Hit { pool: String::from("HP"), amount: HitAmt::Formula(f) },
         ];
-        effect.actor_affect_target(&mut c, &mut t, &statblocks);
-        let hp = t.get_pool_vals("HP".to_string()).unwrap().0;
-        assert_eq!(hp, init_hp - 2);
+        let hits = effect.actor_affect_target(&c, &t, &statblocks);
+        assert_eq!(effect.hits[0].pool, hits[0].pool);
+        assert_eq!(effect.hits[1].pool, hits[1].pool);
+        assert_eq!(hits[0].amount, HitAmt::Constant(v));
+        assert_eq!(hits[1].amount, HitAmt::Constant(v));
+//        let hp = t.get_pool_vals("HP".to_string()).unwrap().0;
+//        assert_eq!(hp, init_hp - 2);
     }
 }

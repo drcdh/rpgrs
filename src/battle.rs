@@ -259,6 +259,11 @@ impl Battle {
                     self.targets = vec![PlayerIndex::Baddy(self.baddies.get_nth_up_pos(0))];
                 } else if a.scope == Scope::Ally {
                     self.targets = vec![PlayerIndex::Ally(self.baddies.get_nth_up_pos(0))];
+                /*} else if a.scope == Scope::You {
+                    if let PlayerIndex::Ally(mut i) = self.current_pc_idx {
+                        Battle::change_member_selection(Key::Right, &mut i, self.allies.len());
+                        self.targets = vec![PlayerIndex::Ally(i)];
+                    }*/
                 } else if a.scope == Scope::Enemies {
                     self.targets = (0..self.baddies.len()).map(|i| PlayerIndex::Baddy(i)).collect::<Vec<_>>();
                 } else if a.scope == Scope::Allies {
@@ -466,16 +471,18 @@ impl Battle {
     }
     pub fn check_end_game(&mut self) -> bool {
         if self.ended { return true; }
-        if self.allies.all_down() {
-            self.reset();
-            self.text.push_back(String::from("LOooOoSER!"));
-            self.ended = true;
-        } else if self.baddies.all_down() {
-            self.reset();
-            self.text.push_back(String::from("A winner is you!"));
-            self.text.push_back(String::from("You'd probably earn some experience points now."));
-            self.text.push_back(String::from("You'd probably find some phat loot now."));
-            self.ended = true;
+        if self.effects.is_empty() && self.hits.is_empty() {
+            if self.allies.all_down() {
+                self.reset();
+                self.text.push_back(String::from("LOooOoSER!"));
+                self.ended = true;
+            } else if self.baddies.all_down() {
+                self.reset();
+                self.text.push_back(String::from("A winner is you!"));
+                self.text.push_back(String::from("You'd probably earn some experience points now."));
+                self.text.push_back(String::from("You'd probably find some phat loot now."));
+                self.ended = true;
+            }
         }
         self.ended
     }

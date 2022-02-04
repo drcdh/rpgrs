@@ -46,12 +46,20 @@
         "scope": "Enemies",
         "message": "{:actor} makes some obscure reference that only they think is funny or interesting."
     },
+    "8455": {
+        "id": 8455,
+        "name": "Babe Bash",
+        "costs": {"MP": 2},
+        "effects": [{"Index": 90}],
+        "scope": "Enemy",
+        "message": "{:actor} whips out something fierce on {:targets}!"
+    },
     "8483": {
         "id": 8483,
         "name": "Babe Boost",
         "costs": {"MP": 1},
         "effects": [{"Index": 173000}],
-        "scope": "You",
+        "scope": "Ally",
         "message": "{:actor} says something babe-licious that tickles {:targets}'s fancy!"
     },
     "9194": {

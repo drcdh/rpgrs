@@ -140,7 +140,9 @@ BattleCLI<R, W> {
                 // Collect it as entropy
 //                self.rand.write_u8(c as u8);
             }
-            self.battle.handle_input(key);
+            if self.battle.handle_input(key) {
+                break;
+            }
         }
     }
 }

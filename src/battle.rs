@@ -43,6 +43,7 @@ pub struct Battle {
     pub allies: Party,
     pub baddies: Party,
 
+    ended: bool,
     pub selections: Vec::<usize>,
     text: VecDeque::<String>,
     current_pc_idx: Option<PlayerIndex>,
@@ -63,6 +64,7 @@ impl Battle {
         Battle {
             allies,
             baddies,
+            ended: false,
             selections: Vec::<usize>::new(),
             text,
             current_pc_idx: None,
@@ -128,7 +130,7 @@ impl Battle {
             None => Vec::<Vec::<Name>>::new(), // fixme??
         }
     }
-    pub fn handle_input(&mut self, key: Key) {
+    pub fn handle_input(&mut self, key: Key) -> bool {
         if key == Key::Char('q') {
             // Handled in BattleCLI
         }
@@ -136,12 +138,13 @@ impl Battle {
             self.pop_text();
             self.handle_effect();
             self.handle_hit();
-            if self.text.is_empty() && self.current_pc_idx.is_none() && self.current_npc_idx.is_none() {
+            if !self.check_end_game() && self.text.is_empty() && self.current_pc_idx.is_none() && self.current_npc_idx.is_none() {
                 self.next_turn();
             }
-            return;
+            return false;
         }
         self.make_selection(key);
+        self.ended
     }
     pub fn get_text(&self) -> Option<&String> {
         self.text.front()
@@ -373,6 +376,29 @@ impl Battle {
             PlayerIndex::Ally(i) => self.allies.get_ch_by_pos(*i).unwrap().is_down(),
             PlayerIndex::Baddy(i) => self.baddies.get_ch_by_pos(*i).unwrap().is_down(),
         }
+    }
+    fn reset(&mut self) {
+        //self.text.clear();
+        self.current_npc_idx = None;
+        self.current_pc_idx = None;
+        self.selections.clear();
+        self.effects.clear();
+        self.hits.clear();
+    }
+    pub fn check_end_game(&mut self) -> bool {
+        if self.ended { return true; }
+        if self.allies.all_down() {
+            self.reset();
+            self.text.push_back(String::from("LOooOoSER!"));
+            self.ended = true;
+        } else if self.baddies.all_down() {
+            self.reset();
+            self.text.push_back(String::from("A winner is you!"));
+            self.text.push_back(String::from("You'd probably earn some experience points now."));
+            self.text.push_back(String::from("You'd probably find some phat loot now."));
+            self.ended = true;
+        }
+        self.ended
     }
 }
 

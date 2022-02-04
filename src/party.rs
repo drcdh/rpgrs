@@ -81,6 +81,12 @@ impl Party {
     pub fn items_iter(&self) -> Iter<Item> {
         self.items.iter()
     }
+    pub fn all_down(&self) -> bool {
+        for ch in self.group.iter() {
+            if !ch.is_down() { return false; }
+        }
+        true
+    }
 }
 
 #[cfg(test)]

@@ -171,7 +171,11 @@ impl Character {
     }
     pub fn dclock(&self, dt: u16, statblocks: &StatBlockEncyclopedia) -> u16 {
         // FIXME This is almost certainly error-prone
-        dt.saturating_mul(u16::try_from(self.get_stat_val(String::from("Speed"), 0, statblocks)).ok().unwrap())
+        if self.is_down() {
+            0
+        } else {
+            dt.saturating_mul(u16::try_from(self.get_stat_val(String::from("Speed"), 0, statblocks)).ok().unwrap())
+        }
     }
     pub fn sum_add_mods(&self, stat_name: Name) -> Stat {
         let _ = stat_name;

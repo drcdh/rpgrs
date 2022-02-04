@@ -3,11 +3,14 @@
         "id": 0,
         "name": "Test Dummy T1",
         "base_stats": {
-            "Offense": 10,
-            "Strength": 20,
-            "Stamina": 20,
-            "Magic": 20,
-            "Speed": 30
+            "Level":           1,
+            "Offense":        10,
+            "Defense":       100,
+            "Magic Defense": 100,
+            "Strength":       20,
+            "Stamina":        20,
+            "Magic":          20,
+            "Speed":          30
         },
         "actions": {"prompt": "ROOT", "options": [
             {"Index": 0},
@@ -18,11 +21,13 @@
         "id": 10,
         "name": "Mog",
         "base_stats": {
-            "Offense": 16,
-            "Strength": 29,
-            "Stamina": 26,
-            "Magic": 35,
-            "Speed": 36
+            "Offense":       16,
+            "Defense":       52,
+            "Magic Defense": 36,
+            "Strength":      29,
+            "Stamina":       26,
+            "Magic":         35,
+            "Speed":         36
         },
         "stats": 0,
         "actions": {"prompt": "ROOT", "options": [
@@ -56,30 +61,111 @@
         "id": 101,
         "name": "Mouse-Sized Rat",
         "base_stats": {
-            "Strength": 9,
-            "Stamina": 6,
-            "Magic": 2,
-            "Speed": 40
+            "Level":           4,
+            "Offense":        13,
+            "Defense":       100,
+            "Magic Defense": 140,
+            "Magic":          10,
+            "Speed":          30
         },
-        "stats": 0,
+        "stats": 1,
         "actions": {"prompt": "ROOT", "options": [{"Index": 0}]},
         "pools": {
-            "HP": {"name": "HP", "current": 10, "maximum": 10}
+            "HP": {"name": "HP", "current": 24, "maximum": 24}
         }
     },
     "102": {
         "id": 102,
         "name": "Rat-Sized Mouse",
         "base_stats": {
-            "Strength": 6,
-            "Stamina": 8,
-            "Magic": 2,
-            "Speed": 35
+            "Level":           5,
+            "Offense":        13,
+            "Defense":        60,
+            "Magic Defense": 130,
+            "Magic":          10,
+            "Speed":          30
         },
-        "stats": 0,
+        "stats": 1,
         "actions": {"prompt": "ROOT", "options": [{"Index": 0}]},
         "pools": {
-            "HP": {"name": "HP", "current": 15, "maximum": 15}
+            "HP": {"name": "HP", "current": 33, "maximum": 33}
+        }
+    },
+    "515": {
+        "id": 515,
+        "name": "Stubert",
+        "base_stats": {
+            "Level":          1,
+            "Offense":       21,
+            "Defense":       46,
+            "Magic Defense": 33,
+            "Strength":      34,
+            "Stamina":       36,
+            "Magic":         31,
+            "Speed":         32
+        },
+        "actions": {"prompt": "ROOT", "options": [
+            {"Index": 0},
+            {"Menu": {"prompt": "Babe Tech.", "options": [
+                {"Index": 8483},
+                {"Index": 9194}
+            ]}},
+            "UseItem"
+        ]},
+        "pools": {
+            "HP": {"name": "HP", "current": 50, "maximum": 50},
+            "TP": {"name": "MP", "current": 8, "maximum": 8}
+        }
+    },
+    "521": {
+        "id": 521,
+        "name": "Daniel",
+        "base_stats": {
+            "Level":          1,
+            "Offense":       23,
+            "Defense":       52,
+            "Magic Defense": 30,
+            "Strength":      33,
+            "Stamina":       30,
+            "Magic":         35,
+            "Speed":         34
+        },
+        "actions": {"prompt": "ROOT", "options": [
+            {"Index": 0},
+            {"Menu": {"prompt": "Dandom Tech.", "options": [
+                {"Index": 1959}
+            ]}},
+            "UseItem"
+        ]},
+        "pools": {
+            "HP": {"name": "HP", "current": 55, "maximum": 55},
+            "MP": {"name": "MP", "current": 12, "maximum": 12}
+        }
+    },
+    "619": {
+        "id": 619,
+        "name": "Dwight",
+        "base_stats": {
+            "Level":          1,
+            "Offense":       19,
+            "Defense":       53,
+            "Magic Defense": 37,
+            "Strength":      31,
+            "Stamina":       32,
+            "Magic":         33,
+            "Speed":         30
+        },
+        "actions": {"prompt": "ROOT", "options": [
+            {"Index": 0},
+            {"Menu": {"prompt": "Babe Tech.", "options": [
+                {"Index": 8483},
+                {"Index": 88}
+            ]}},
+            "UseItem"
+        ]},
+        "pools": {
+            "HP": {"name": "HP", "current": 48, "maximum": 48},
+            "TP": {"name": "MP", "current": 9, "maximum": 9}
         }
     }
 }

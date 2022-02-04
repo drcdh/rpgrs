@@ -22,7 +22,7 @@ fn _eval_stat(tokens: &mut VecDeque<&str>, c: &Character, stat_name: &Name) -> S
     }
 }
 
-fn _eval_stat_term(term: &str, c: &Character, stat_name: &Name) -> Stat {
+fn _eval_stat_term(term: &str, c: &Character, base_stat_name: &Name) -> Stat {
     if let Ok(v) = term.parse::<Stat>() {
         return v;
     }
@@ -30,13 +30,15 @@ fn _eval_stat_term(term: &str, c: &Character, stat_name: &Name) -> Stat {
     if let Some(item_attr) = c.get_item_attr(Name::from(tokens[0]), Name::from(tokens[1])) {
         return item_attr;
     }
-    let stat_name: Name = if tokens[0].is_empty() { Name::from(stat_name) } else { Name::from(tokens[0]) };
+    let slot_or_stat_name: Name = if tokens[0].is_empty() { Name::from(base_stat_name) } else { Name::from(tokens[0]) };
+    let slot_or_stat_name = slot_or_stat_name.replace("-", " ");
     if tokens[1].is_empty() {
-        return *c.get_base_stat(stat_name).unwrap();
+        return *c.get_base_stat(slot_or_stat_name).unwrap();
     }
     match tokens[1] {
-        "AddMod" => c.sum_add_mods(stat_name),
-        "MultMod" => c.sum_mult_mods(stat_name),
+        "AddMod" => c.sum_add_mods(slot_or_stat_name),
+        "MultMod" => c.sum_mult_mods(slot_or_stat_name),
+        "Power" => c.get_item_attr(slot_or_stat_name, String::from("Power")).unwrap(),
         m => panic!("Could not understand statistic attribute {}.", m),
     }
 }
@@ -68,7 +70,10 @@ fn _eval_term(term: &str, actor: Option<&Character>, target: &Character, statblo
         "^Level" => actor.get_stat_val(String::from("Level"), 1, statblocks),
         "^Offense" => actor.get_stat_val(String::from("Offense"), 0, statblocks),
         "^Strength" => actor.get_stat_val(String::from("Strength"), 0, statblocks),
+        "^Magic" => actor.get_stat_val(String::from("Magic"), 0, statblocks),
         "$Offense" => target.get_stat_val(String::from("Offense"), 0, statblocks),
+        "$Defense" => target.get_stat_val(String::from("Defense"), 0, statblocks),
+        "$Magic-Defense" => target.get_stat_val(String::from("Magic Defense"), 0, statblocks),
         t => panic!("Could not understand token {}.", t),
     }
 }

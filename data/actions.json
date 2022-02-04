@@ -24,6 +24,38 @@
             "scope": "Enemies",
             "message": "{:actor} does the dance of the Water Harmony."
     },
+    "88": {
+        "id": 88,
+        "name": "Bad Breath",
+        "costs": {"MP": 6},
+        "effects": [{"Index": 25506020}, {"Index": 50}],
+        "scope": "Enemies",
+        "message": "{:actor} belches out some nasty breath!"
+    },
+    "1959": {
+        "id": 1959,
+        "name": "Obscure Reference",
+        "costs": {"MP": 3},
+        "effects": [{"Index": 25506020}],
+        "scope": "Enemies",
+        "message": "{:actor} makes some obscure reference that only they think is funny or interesting."
+    },
+    "8483": {
+        "id": 8483,
+        "name": "Babe Boost",
+        "costs": {"MP": 1},
+        "effects": [{"Index": 0}],
+        "scope": "You",
+        "message": "{:actor} says something babe-licious that tickles {:targets}'s fancy!"
+    },
+    "9194": {
+        "id": 9194,
+        "name": "Dilly-Dally",
+        "costs": {"MP": 2},
+        "effects": [{"Index": 9194}],
+        "scope": "Enemy",
+        "message": "{:actor} distracts {:targets}"
+    },
     "735740": {
             "id": 735740,
             "name": "test action 0",

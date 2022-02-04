@@ -1,25 +1,50 @@
 {
     "0": {
         "id": 0,
-        "name": "FFVI",
+        "name": "FFVI PC",
         "base_stats": {
-            "Offense": 10,
-            "Strength": 10,
-            "Stamina": 10,
-            "Magic": 10,
-            "Speed": 10
+            "Level":          1,
+            "Offense":       10,
+            "Defense":       10,
+            "Magic Defense": 10,
+            "Strength":      10,
+            "Stamina":       10,
+            "Magic":         10,
+            "Speed":         10
         },
         "stats": {
-            "Offense":  "+ .AddMod * .MultMod + Weapon.power .",
-            "Defense":  "+ .AddMod * .MultMod + Armor.power + Stamina.AddMod * Stamina.MultMod Stamina",
-            "Strength": "+ .AddMod * .MultMod .",
-            "Stamina":  "+ .AddMod * .MultMod .",
-            "Magic":    "+ .AddMod * .MultMod .",
-            "Speed":    "+ .AddMod * .MultMod ."
+            "Level":         "+ .AddMod * .MultMod .",
+            "Offense":       "+ .AddMod * .MultMod + Weapon.Power .",
+            "Defense":       "+ .AddMod * .MultMod + Armor.Power .",
+            "Magic Defense": "+ .AddMod * .MultMod .",
+            "Strength":      "+ .AddMod * .MultMod .",
+            "Stamina":       "+ .AddMod * .MultMod .",
+            "Magic":         "+ .AddMod * .MultMod .",
+            "Speed":         "+ .AddMod * .MultMod ."
         }
     },
     "1": {
         "id": 1,
+        "name": "FFVI Monster",
+        "base_stats": {
+            "Level":           1,
+            "Offense":        10,
+            "Defense":       100,
+            "Magic Defense": 100,
+            "Magic":          10,
+            "Speed":          10
+        },
+        "stats": {
+            "Level":          "+ .AddMod * .MultMod .",
+            "Offense":        "+ .AddMod * .MultMod .",
+            "Defense":        "+ .AddMod * .MultMod .",
+            "Magic Defense":  "+ .AddMod * .MultMod .",
+            "Magic":          "+ .AddMod * .MultMod .",
+            "Speed":          "+ .AddMod * .MultMod ."
+        }
+    },
+    "99": {
+        "id": 99,
         "name": "D&D",
         "base_stats": {
             "Strength": 10,
@@ -30,8 +55,8 @@
             "Charisma": 10
         },
         "stats": {
-            "Offense":      "+ .AddMod * .MultMod + Weapon.power + Strength.AddMod * Strength.MultMod Strength",
-            "Defense":      "+ .AddMod * .MultMod + Armor.power + Stamina.AddMod * Stamina.MultMod Stamina",
+            "Offense":      "+ .AddMod * .MultMod + Weapon.Power + Strength.AddMod * Strength.MultMod Strength",
+            "Defense":      "+ .AddMod * .MultMod + Armor.Power + Stamina.AddMod * Stamina.MultMod Stamina",
             "Strength":     "+ .AddMod * .MultMod .",
             "Dexterity":    "+ .AddMod * .MultMod .",
             "Constitution": "+ .AddMod * .MultMod .",

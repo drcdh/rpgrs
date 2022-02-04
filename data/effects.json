@@ -14,7 +14,7 @@
     "2": {
             "id": 2,
             "name": "Attack",
-            "hits": [{"pool": "HP", "amount": {"Formula": "+ ^Offense * * 3 / + ^Offense * 2 ^Strength 512 * ^Level ^Level"}}]
+            "hits": [{"pool": "HP", "amount": {"Formula": "+ 1 / * - 255 $Defense + ^Offense / * * * ^Level ^Level 3 + ^Offense * 2 ^Strength 512 256"}}]
     },
     "10": {
             "id": 10,
@@ -22,6 +22,21 @@
             "hits": [{"pool": "HP", "amount": {"Formula": "- ^Magic / * 2 $Magic 10"}}],
             "traits": ["Fire", "Hot", "Elemental"],
             "conditions": [{"pool": "Burn", "amount": {"Constant": 75}}]
+    },
+    "50": {
+        "id": 50,
+        "name": "poison100",
+        "conditions": [{"pool": "Poison", "amount": {"Constant": 100}}]
+    },
+    "9194": {
+        "id": 9194,
+        "name": "attack-mp",
+        "hits": [{"pool": "MP", "amount": {"Formula": "+ 1 / * - 255 $Defense + ^Offense / * * * ^Level ^Level 3 + ^Offense * 2 ^Strength 512 256"}}]
+    },
+    "25506020": {
+        "id": 25506020,
+        "name": "ffvi-magic-20",
+        "hits": [{"pool": "HP", "amount": {"Formula": "+ 1 / * - 255 $Magic-Defense + * 4 20 / * * ^Magic 10 ^Level 32 256"}}]
     },
     "735730": {
             "id": 735730,

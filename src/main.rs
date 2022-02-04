@@ -16,7 +16,9 @@ use rpgrs::party::Party;
 
 fn bcli_test<R: Read, W: Write>(stdin: R, stdout: W, ch_enc: &CharacterEncyclopedia) {
     let mut allies = Party::new("Allies".to_string());
-    allies.add_clone(&IndexedOrLiteral::Index(0), ch_enc); // Mog
+    allies.add_clone(&IndexedOrLiteral::Index(515), ch_enc);
+    allies.add_clone(&IndexedOrLiteral::Index(521), ch_enc);
+    allies.add_clone(&IndexedOrLiteral::Index(619), ch_enc);
 
     let mut baddies = Party::new("Baddies".to_string());
     baddies.add_clone(&IndexedOrLiteral::Index(101), ch_enc);

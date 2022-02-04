@@ -207,6 +207,13 @@ impl Character {
         let _ = stat_name;
         1 // todo
     }
+    pub fn can_afford_action_costs(&self, action: &Action) -> bool {
+        for (pool, cost) in action.costs_iter() {
+            let pool = self.pools.get(pool).expect("Character does not have Pool for Action cost");
+            if pool.current < *cost { return false; }
+        }
+        true
+    }
     pub fn spend_costs(&mut self, costs: Costs) {
         for (pool, cost) in costs.iter() {
             let mut pool = self.pools.get_mut(pool).expect("Character does not have Pool for Action cost");

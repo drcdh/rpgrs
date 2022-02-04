@@ -253,8 +253,12 @@ impl Battle {
             eprintln!("Targeting mode");
             // Enable targeting mode
             // todo: check Action scope
-            let _ = a;
-            self.targets.push(PlayerIndex::Baddy(0));
+            let actor = self.get_current_pc().unwrap();
+            if actor.can_afford_action_costs(&a) {
+               self.targets.push(PlayerIndex::Baddy(0));
+           } else {
+               self.text.push_back(format!("Can't afford that action :-/"));
+           }
         } else {
             eprintln!("Next menu");
             self.selections.push(0);

@@ -255,7 +255,20 @@ impl Battle {
             // todo: check Action scope
             let actor = self.get_current_pc().unwrap();
             if actor.can_afford_action_costs(&a) {
-               self.targets.push(PlayerIndex::Baddy(0));
+                if a.scope == Scope::Enemy {
+                    self.targets = vec![PlayerIndex::Baddy(self.baddies.get_nth_up_pos(0))];
+                } else if a.scope == Scope::Ally {
+                    self.targets = vec![PlayerIndex::Ally(self.baddies.get_nth_up_pos(0))];
+                } else if a.scope == Scope::Enemies {
+                    self.targets = (0..self.baddies.len()).map(|i| PlayerIndex::Baddy(i)).collect::<Vec<_>>();
+                } else if a.scope == Scope::Allies {
+                    self.targets = (0..self.allies.len()).map(|i| PlayerIndex::Ally(i)).collect::<Vec<_>>();
+                } else if a.scope == Scope::All {
+                    self.targets.append(&mut (0..self.baddies.len()).map(|i| PlayerIndex::Baddy(i)).collect::<Vec<_>>());
+                    self.targets.append(&mut (0..self.allies.len()).map(|i| PlayerIndex::Ally(i)).collect::<Vec<_>>());
+                } else {
+                    panic!("PC Action scopes other than Enemy, Ally, Enemies, Allies, and All not implemented yet.");
+                }
            } else {
                self.text.push_back(format!("Can't afford that action :-/"));
            }
@@ -302,6 +315,7 @@ impl Battle {
                         // Do nothing
                         eprintln!("All baddies already selected");
                     } else {
+                        /* todo check for something like Scope::OneOrAllEnemies
                         eprintln!("Selecting all baddies");
                         // Select all enemies
                         for i in 0..self.baddies.len() {
@@ -309,9 +323,10 @@ impl Battle {
                             if !self.targets.contains(&b) {
                                 self.targets.push(b);
                             }
-                        }
+                        }*/
                     }
                 } else if let PlayerIndex::Ally(mut i) = self.targets.first().unwrap() {
+                    /* todo check for something like Scope::OnePlayer etc.
                     if self.targets.len() > 1 {
                         eprintln!("Deselecting whole party");
                         // Remove all but first element, the previous single-selected ally
@@ -324,10 +339,11 @@ impl Battle {
                         self.targets.pop(); // Remove the singular ally target
                         if i >= self.baddies.len() { i = self.baddies.len()-1; }
                         self.targets.push(PlayerIndex::Baddy(i));
-                    }
+                    }*/
                 }
             } else if key == Key::Down {
                 if let PlayerIndex::Baddy(mut i) = self.targets.first().unwrap() {
+                    /* ditto
                     if self.targets.len() > 1 {
                         eprintln!("Deselecting whole enemy party");
                         // Remove all but first element, the previous single-selected baddy
@@ -340,11 +356,12 @@ impl Battle {
                         self.targets.pop(); // Remove the singlular enemy target
                         if i >= self.allies.len() { i = self.allies.len()-1; }
                         self.targets.push(PlayerIndex::Ally(i));
-                    }
+                    }*/
                 } else if matches!(self.targets.first(), Some(PlayerIndex::Ally(_))) {
                     if self.targets.len() > 1 {
                         // Do nothing
                     } else {
+                        /*
                         // Select all allies
                         eprintln!("Selecting all allies");
                         for i in 0..self.allies.len() {
@@ -352,7 +369,7 @@ impl Battle {
                             if !self.targets.contains(&a) {
                                 self.targets.push(a);
                             }
-                        }
+                        }*/
                     }
                 }
             } else if key == Key::Esc {

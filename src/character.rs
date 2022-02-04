@@ -132,6 +132,7 @@ impl Character {
         let _ = attr;
         match slot.as_str() {
             "Weapon" => Some(10),
+            "Armor" => Some(10),
             _ => None,
         }
     }
@@ -218,6 +219,9 @@ impl Target for Character {
                 affected_pool.current = 0;
             } else {
                 affected_pool.current = curr - v;
+            }
+            if affected_pool.current > affected_pool.maximum {
+                affected_pool.current = affected_pool.maximum;
             }
             return v;
         }

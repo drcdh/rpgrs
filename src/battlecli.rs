@@ -7,8 +7,10 @@ use std::io::Write;
 
 use crate::battle::{Battle, PlayerIndex};
 
-const OUTER_ROW: &str = " ============================== ";
-const INNER_ROW: &str = " |                            | ";
+const OUTER_ROW: &str = r" ============================== ";
+const INNER_ROW: &str = r" |                            | ";
+const TARGET_OUTER_ROW: &str = r" |\/\/\/\/\/\/\/\/\/\/\/\/\/\/| ";
+const TARGET_INNER_ROW: &str = r" >                            < ";
 const BOX_HEIGHT: u16 = 8;
 const BOX_WIDTH: u16 = 32;
 
@@ -60,35 +62,32 @@ BattleCLI<R, W> {
     fn _draw_boxes(&mut self, n: usize, baddies: bool) {
         // todo: for now this overwrites all character info
         for i in 0..n {
-            if baddies && self.battle.targets.contains(&PlayerIndex::Baddy(i)) {
-                write!(self.stdout, "{}{}{}", color::Fg(color::Red), OUTER_ROW, color::Fg(color::Reset)).unwrap();
-            } else if !baddies && self.battle.targets.contains(&PlayerIndex::Ally(i)) {
-                write!(self.stdout, "{}{}{}", color::Fg(color::Green), OUTER_ROW, color::Fg(color::Reset)).unwrap();
-            } else {
-                write!(self.stdout, "{}", OUTER_ROW).unwrap();
+            let pi = if baddies { PlayerIndex::Baddy(i) } else { PlayerIndex::Ally(i) };
+            let mut row = if self.battle.targets.contains(&pi) { String::from(TARGET_OUTER_ROW) } else { String::from(OUTER_ROW) };
+            if self.battle.is_player_down(&pi) {
+                row = format!("{}{}{}", color::Fg(color::Red), row, color::Fg(color::Reset));
             }
+            write!(self.stdout, "{}", row).unwrap();
         }
         write!(self.stdout, "\r\n").unwrap();
         for _ in 2..=BOX_HEIGHT {
             for i in 0..n {
-                if baddies && self.battle.targets.contains(&PlayerIndex::Baddy(i)) {
-                    write!(self.stdout, "{}{}{}", color::Fg(color::Red), INNER_ROW, color::Fg(color::Reset)).unwrap();
-                } else if !baddies && self.battle.targets.contains(&PlayerIndex::Ally(i)) {
-                    write!(self.stdout, "{}{}{}", color::Fg(color::Green), INNER_ROW, color::Fg(color::Reset)).unwrap();
-                } else {
-                    write!(self.stdout, "{}", INNER_ROW).unwrap();
+                let pi = if baddies { PlayerIndex::Baddy(i) } else { PlayerIndex::Ally(i) };
+                let mut row = if self.battle.targets.contains(&pi) { String::from(TARGET_INNER_ROW) } else { String::from(INNER_ROW) };
+                if self.battle.is_player_down(&pi) {
+                    row = format!("{}{}{}", color::Fg(color::Red), row, color::Fg(color::Reset));
                 }
+                write!(self.stdout, "{}", row).unwrap();
             }
             write!(self.stdout, "\r\n").unwrap();
         }
         for i in 0..n {
-            if baddies && self.battle.targets.contains(&PlayerIndex::Baddy(i)) {
-                write!(self.stdout, "{}{}{}", color::Fg(color::Red), OUTER_ROW, color::Fg(color::Reset)).unwrap();
-            } else if !baddies && self.battle.targets.contains(&PlayerIndex::Ally(i)) {
-                write!(self.stdout, "{}{}{}", color::Fg(color::Green), OUTER_ROW, color::Fg(color::Reset)).unwrap();
-            } else {
-                write!(self.stdout, "{}", OUTER_ROW).unwrap();
+            let pi = if baddies { PlayerIndex::Baddy(i) } else { PlayerIndex::Ally(i) };
+            let mut row = if self.battle.targets.contains(&pi) { String::from(TARGET_OUTER_ROW) } else { String::from(OUTER_ROW) };
+            if self.battle.is_player_down(&pi) {
+                row = format!("{}{}{}", color::Fg(color::Red), row, color::Fg(color::Reset));
             }
+            write!(self.stdout, "{}", row).unwrap();
         }
         write!(self.stdout, "\r\n").unwrap();
     }
@@ -109,7 +108,7 @@ BattleCLI<R, W> {
                 let j: u16 = j.try_into().unwrap();
                 write!(self.stdout, "{} {:>4}: {:4} / {:4}", Goto(i*BOX_WIDTH + 3, 4+j), pool.name, pool.current, pool.maximum).unwrap();
             }
-            write!(self.stdout, "{} {}", Goto(i*BOX_WIDTH + 3, 7), p.clocks.get(i as usize).unwrap()).unwrap();
+            //write!(self.stdout, "{} {}", Goto(i*BOX_WIDTH + 3, 7), p.clocks.get(i as usize).unwrap()).unwrap();
         }
     }
     fn write_allies_info(&mut self) {
@@ -123,7 +122,7 @@ BattleCLI<R, W> {
                 let j: u16 = j.try_into().unwrap();
                 write!(self.stdout, "{} {:>4}: {:4} / {:4}", Goto(i*BOX_WIDTH + 3, BOX_HEIGHT+4+4+j), pool.name, pool.current, pool.maximum).unwrap();
             }
-            write!(self.stdout, "{} {}", Goto(i*BOX_WIDTH + 3, BOX_HEIGHT+4+7), p.clocks.get(i as usize).unwrap()).unwrap();
+            //write!(self.stdout, "{} {}", Goto(i*BOX_WIDTH + 3, BOX_HEIGHT+4+7), p.clocks.get(i as usize).unwrap()).unwrap();
         }
     }
     pub fn get_key(&mut self) -> Key {

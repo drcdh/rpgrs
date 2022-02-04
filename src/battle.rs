@@ -368,6 +368,12 @@ impl Battle {
             }
         }
     }
+    pub fn is_player_down(&self, pi: &PlayerIndex) -> bool {
+        match pi {
+            PlayerIndex::Ally(i) => self.allies.get_ch_by_pos(*i).unwrap().is_down(),
+            PlayerIndex::Baddy(i) => self.baddies.get_ch_by_pos(*i).unwrap().is_down(),
+        }
+    }
 }
 
 #[cfg(test)]

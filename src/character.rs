@@ -192,12 +192,10 @@ impl Character {
         }
         hits
     }
-/*    pub fn use_effect_on(&mut self, effect: &Effect, target: &mut Character) {
-        effect.actor_affect_target(self, target)
-    }*/
-/*    pub fn take_effect(&mut self, effect: &Effect) {
-        effect.affect_target(self)
-    }*/
+    pub fn is_down(&self) -> bool {
+        //todo critical_pools attribute
+        self.get_pool_vals(String::from("HP")).unwrap().0 <= 0
+    }
 }
 
 

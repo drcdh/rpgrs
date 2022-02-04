@@ -41,24 +41,29 @@ BattleCLI<R, W> {
         self.write_baddies_info();
         self.write_allies_info();
         self.write_text();
-        self.write_menu();
+        self.write_menus();
     }
     fn write_text(&mut self) -> bool {
         if let Some(text) = self.battle.get_text() {
-            write!(self.stdout, "{} >>> {}", Goto(1, 30), text).unwrap();
+            write!(self.stdout, "{} >>> {}", Goto(1, 35), text).unwrap();
         }
         false
     }
-    pub fn write_menu(&mut self) {
-        if let Some(options) = self.battle.get_top_menu_options() {
-            for (i, opt) in options.iter().enumerate() {
-                let mut sel_str = "    ";
-                if i == *self.battle.selections.last().unwrap() {
-                    sel_str = " -> ";
+    pub fn write_menus(&mut self) {
+        if let Some(_) = self.battle.get_top_menu_options() { // fixme
+            let (menus, selections) = self.battle.get_menu_selections();
+            let depth = selections.len();
+            if depth == 0 { return; }
+            for (im, (m, s)) in menus.iter().zip(selections.iter()).enumerate() {
+                write!(self.stdout, "{}{}##################################", Goto((1 + im*8) as u16, 25), color::Fg(color::AnsiValue::grayscale((24 - 4*(depth - im)) as u8))).unwrap();
+                for (i, opt) in m.iter().enumerate() {
+                    let opt_str = if i == *s { " -> " } else { "    " };
+                    let opt_str = format!("# {}{}. {}", opt_str, i+1, opt);
+                    write!(self.stdout, "{}{}", Goto((1 + im*8) as u16, (26 + i) as u16), opt_str).unwrap();
                 }
-                write!(self.stdout, "{}{}{}. {}", Goto(1, (30 + i) as u16), sel_str, i+1, opt).unwrap();
+                write!(self.stdout, "{}##################################", Goto((1 + im*8) as u16, (26 + m.len()) as u16)).unwrap();
             }
-            write!(self.stdout, "{} >>> Pick your next action! ", Goto(1, (30 + options.len() + 2) as u16)).unwrap();
+            write!(self.stdout, "{} >>> Pick your next action! ", Goto(1, 35)).unwrap();
         }
     }
     fn _draw_boxes(&mut self, n: usize, baddies: bool) {

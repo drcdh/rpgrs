@@ -130,6 +130,9 @@ impl Battle {
         }
     }
     fn get_current_pc_actions(&self) -> Vec::<Vec::<Name>> {
+        if self.selections.is_empty() {
+            return Vec::<Vec::<Name>>::new();
+        }
         let ns = self.selections.len()-1;
         let parent_menu_selections = &self.selections[..ns];
         match self.current_pc_idx {
@@ -168,6 +171,9 @@ impl Battle {
             Some(_) => self.get_current_pc_actions().get(self.selections.len()-1).cloned(),
             None => None,
         }
+    }
+    pub fn get_menu_selections(&self) -> (Vec<Vec<String>>, Vec<usize>) {
+        (self.get_current_pc_actions().clone(), self.selections.clone())
     }
     fn get_ch_by_pi(&self, p_idx: &PlayerIndex) -> &Character {
         match p_idx {

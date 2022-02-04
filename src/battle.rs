@@ -409,12 +409,14 @@ impl Battle {
     }
     fn get_random_targets(&self, actor_pi: &PlayerIndex, scope: &Scope) -> Vec::<PlayerIndex> {
         // todo Assuming actor_pi is PlayerIndex::Baddy
-        let na = self.allies.len();
-        let nb = self.baddies.len();
+        let na = self.allies.get_num_up();
+        let nb = self.baddies.get_num_up();
         let mut rng = rand::thread_rng();
         match scope {
-            Scope::Enemy => vec![PlayerIndex::Ally(rng.gen_range(0..na) as usize)],
-            Scope::Ally => vec![PlayerIndex::Baddy(rng.gen_range(0..nb) as usize)],
+            Scope::Enemy => vec![PlayerIndex::Ally(self.allies.get_nth_up_pos(rng.gen_range(0..na)))],
+            Scope::Ally => vec![PlayerIndex::Baddy(self.baddies.get_nth_up_pos(rng.gen_range(0..nb)))],
+            Scope::Enemies => (0..na).map(|i| PlayerIndex::Ally(self.allies.get_nth_up_pos(i))).collect::<Vec<_>>(),
+            Scope::Allies => (0..nb).map(|i| PlayerIndex::Baddy(self.baddies.get_nth_up_pos(i))).collect::<Vec<_>>(),
             _ => panic!("NPC Action scopes other than Enemy and Ally not implemented yet."),
         }
     }

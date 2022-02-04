@@ -51,6 +51,24 @@ impl Party {
     pub fn len(&self) -> usize {
         self.group.len()
     }
+    pub fn get_num_up(&self) -> usize {
+        let mut n: usize = 0;
+        for ch in self.group.iter() {
+            if !ch.is_down() { n += 1; }
+        }
+        n
+    }
+    pub fn get_nth_up_pos(&self, i: usize) -> usize {
+        let mut i_up = i;
+        for (i, ch) in self.group.iter().enumerate() {
+            if i_up == 0 {
+                return i;
+            }
+            if ch.is_down() { continue; }
+            i_up -= 1;
+        }
+        panic!();
+    }
     pub fn get_ch_by_pos(&self, i: usize) -> Option<&Character> {
         match self.formation.get(i) {
             Some(i) => self.group.get(*i),

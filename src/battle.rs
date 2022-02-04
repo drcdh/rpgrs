@@ -3,7 +3,7 @@ use rand::Rng;
 
 use termion::event::Key;
 
-use crate::action::{Action, Scope};
+use crate::action::{Action, Costs, Scope};
 use crate::character::Character;
 use crate::common::*;
 use crate::effect::Effect;
@@ -212,6 +212,7 @@ impl Battle {
     }
     fn play_pc_action(&mut self) {
         if let Some(actor) = self.current_pc_idx.as_ref() {
+            let mut costs = Costs::new();
             let mut teffects = VecDeque::<TargetedEffect>::new();
             if let Some(a) = self.get_selected_action() {
                 eprintln!("Starting Action \'{}\'", a.copy_name());
@@ -227,11 +228,13 @@ impl Battle {
                         teffects.push_back(te);
                     }
                 }
+                costs = a.costs.clone();
                 // Queue the Action message
-                let pc_name = self.get_current_pc().unwrap().copy_name();
-                let msg = a.get_message(&pc_name, &self.get_target_names());
+                let msg = a.get_message(&self.get_current_pc().unwrap().copy_name(), &self.get_target_names());
                 self.text.push_back(msg);
             }
+            let pi = self.current_pc_idx.clone();
+            self.get_mut_character(&pi).unwrap().spend_costs(costs);
             self.effects.append(&mut teffects);
             // Clear the menu stack
             self.selections.clear();

@@ -34,7 +34,7 @@ pub struct Action {
     id: Id,
     name: Name,
     #[serde(default)]
-    costs: Costs,
+    pub costs: Costs,
     pub effects: Effects,
     #[serde(default = "Action::default_scope")]
     pub scope: Scope,

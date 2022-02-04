@@ -5,7 +5,7 @@ use rand::Rng;
 use serde::{Serialize, Deserialize};
 use serde_json;
 
-use crate::action::{Action, ActionMenu, CharacterAction};
+use crate::action::{Action, ActionMenu, CharacterAction, Costs};
 use crate::common::*;
 use crate::encyclopedia::ActionEncyclopedia;
 use crate::encyclopedia::EffectEncyclopedia;
@@ -207,11 +207,20 @@ impl Character {
         let _ = stat_name;
         1 // todo
     }
-    pub fn use_action_on(&mut self, action: &Action, target: &Character, effect_enc: &EffectEncyclopedia, statblocks: &StatBlockEncyclopedia) -> Hits {
+    pub fn spend_costs(&mut self, costs: Costs) {
+        for (pool, cost) in costs.iter() {
+            let mut pool = self.pools.get_mut(pool).expect("Character does not have Pool for Action cost");
+            pool.current -= *cost;
+        }
+    }
+    pub fn spend_action_costs(&mut self, action: &Action) {
         for (pool, cost) in action.costs_iter() {
             let mut pool = self.pools.get_mut(pool).expect("Character does not have Pool for Action cost");
             pool.current -= *cost;
         }
+    }
+    pub fn use_action_on(&mut self, action: &Action, target: &Character, effect_enc: &EffectEncyclopedia, statblocks: &StatBlockEncyclopedia) -> Hits {
+        self.spend_action_costs(action);
         let mut hits = Hits::new();
         for effect in &action.effects {
             hits.append(&mut effect_enc.resolve(effect).unwrap().actor_affect_target(self, target, statblocks));

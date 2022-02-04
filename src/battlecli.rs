@@ -9,6 +9,8 @@ use crate::battle::{Battle, PlayerIndex};
 
 const OUTER_ROW: &str = r" ============================== ";
 const INNER_ROW: &str = r" |                            | ";
+const TURN_OUTER_ROW: &str = r" =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~ ";
+const TURN_INNER_ROW: &str = r" !                            ! ";
 const TARGET_OUTER_ROW: &str = r" |\/\/\/\/\/\/\/\/\/\/\/\/\/\/| ";
 const TARGET_INNER_ROW: &str = r" >                            < ";
 const BOX_HEIGHT: u16 = 8;
@@ -63,7 +65,7 @@ BattleCLI<R, W> {
         // todo: for now this overwrites all character info
         for i in 0..n {
             let pi = if baddies { PlayerIndex::Baddy(i) } else { PlayerIndex::Ally(i) };
-            let mut row = if self.battle.targets.contains(&pi) { String::from(TARGET_OUTER_ROW) } else { String::from(OUTER_ROW) };
+            let mut row = if self.battle.targets.contains(&pi) { String::from(TARGET_OUTER_ROW) } else if self.battle.is_pc_turn(&pi) { String::from(TURN_OUTER_ROW) } else { String::from(OUTER_ROW) };
             if self.battle.is_player_down(&pi) {
                 row = format!("{}{}{}", color::Fg(color::Red), row, color::Fg(color::Reset));
             }
@@ -73,7 +75,7 @@ BattleCLI<R, W> {
         for _ in 2..=BOX_HEIGHT {
             for i in 0..n {
                 let pi = if baddies { PlayerIndex::Baddy(i) } else { PlayerIndex::Ally(i) };
-                let mut row = if self.battle.targets.contains(&pi) { String::from(TARGET_INNER_ROW) } else { String::from(INNER_ROW) };
+                let mut row = if self.battle.targets.contains(&pi) { String::from(TARGET_INNER_ROW) } else if self.battle.is_pc_turn(&pi) { String::from(TURN_INNER_ROW) } else { String::from(INNER_ROW) };
                 if self.battle.is_player_down(&pi) {
                     row = format!("{}{}{}", color::Fg(color::Red), row, color::Fg(color::Reset));
                 }
@@ -83,7 +85,7 @@ BattleCLI<R, W> {
         }
         for i in 0..n {
             let pi = if baddies { PlayerIndex::Baddy(i) } else { PlayerIndex::Ally(i) };
-            let mut row = if self.battle.targets.contains(&pi) { String::from(TARGET_OUTER_ROW) } else { String::from(OUTER_ROW) };
+            let mut row = if self.battle.targets.contains(&pi) { String::from(TARGET_OUTER_ROW) } else if self.battle.is_pc_turn(&pi) { String::from(TURN_OUTER_ROW) } else { String::from(OUTER_ROW) };
             if self.battle.is_player_down(&pi) {
                 row = format!("{}{}{}", color::Fg(color::Red), row, color::Fg(color::Reset));
             }

@@ -104,7 +104,13 @@ impl Battle {
     fn handle_hit(&mut self) {
         if let Some(th) = self.hits.pop_front() {
             let v = self.get_mut_character(&Some(th.target_pi)).unwrap().hit_pool(&th.pool, th.amount);
-            self.text.push_back(format!("Took {} damage!", v));
+            if v > 0 {
+                self.text.push_back(format!("Took {} damage!", v));
+            } else if v == 0 {
+                self.text.push_back(format!("No effect..."));
+            } else {
+                self.text.push_back(format!("Healed for {}!", -v));
+            }
         }
     }
     fn handle_effect(&mut self) {
@@ -399,6 +405,12 @@ impl Battle {
             self.ended = true;
         }
         self.ended
+    }
+    pub fn is_pc_turn(&self, pi: &PlayerIndex) -> bool {
+        match &self.current_pc_idx {
+            Some(cpi) => cpi == pi,
+            None => false,
+        }
     }
 }
 

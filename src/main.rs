@@ -38,6 +38,7 @@ fn bcli_test_boss<R: Read, W: Write>(stdin: R, stdout: W, ch_enc: &CharacterEncy
     allies.add_clone(&IndexedOrLiteral::Index(515), ch_enc);
     allies.add_clone(&IndexedOrLiteral::Index(521), ch_enc);
     allies.add_clone(&IndexedOrLiteral::Index(619), ch_enc);
+    allies.add_clone(&IndexedOrLiteral::Index(1007), ch_enc);
 
     let mut baddies = Party::new("Baddies".to_string());
     baddies.add_clone(&IndexedOrLiteral::Index(103), ch_enc);

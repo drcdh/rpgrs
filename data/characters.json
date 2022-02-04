@@ -198,5 +198,37 @@
             "HP": {"name": "HP", "current": 48, "maximum": 48},
             "MP": {"name": "MP", "current": 9, "maximum": 9}
         }
+    },
+    "1007": {
+        "id": 1007,
+        "name": "Thomas",
+        "base_stats": {
+            "Level":          1,
+            "Offense":       22,
+            "Defense":       52,
+            "Magic Defense": 31,
+            "Strength":      32,
+            "Stamina":       34,
+            "Magic":         29,
+            "Speed":         31
+        },
+        "actions": {"prompt": "ROOT", "options": [
+            {"Index": 0},
+            {"Menu": {"prompt": "Woodworking", "options": [
+                {"Literal": {
+                    "id": 0,
+                    "name": "Dove Tail",
+                    "costs": {"MP": 7},
+                    "effects": [{"Index": 90}, {"Index": 9194}],
+                    "scope": "Enemy",
+                    "message": "{:actor} chisels some chunks out of {:targets}!"
+                }}
+            ]}},
+            "UseItem"
+        ]},
+        "pools": {
+            "HP": {"name": "HP", "current": 57, "maximum": 57},
+            "MP": {"name": "MP", "current": 7, "maximum": 7}
+        }
     }
 }

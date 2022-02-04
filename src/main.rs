@@ -19,9 +19,11 @@ fn bcli_test<R: Read, W: Write>(stdin: R, stdout: W, ch_enc: &CharacterEncyclope
     allies.add_clone(&IndexedOrLiteral::Index(515), ch_enc);
     allies.add_clone(&IndexedOrLiteral::Index(521), ch_enc);
     allies.add_clone(&IndexedOrLiteral::Index(619), ch_enc);
+    allies.add_clone(&IndexedOrLiteral::Index(8330), ch_enc);
 
     let mut baddies = Party::new("Baddies".to_string());
     baddies.add_clone(&IndexedOrLiteral::Index(101), ch_enc);
+    baddies.add_clone(&IndexedOrLiteral::Index(102), ch_enc);
     baddies.add_clone(&IndexedOrLiteral::Index(102), ch_enc);
     baddies.add_clone(&IndexedOrLiteral::Index(101), ch_enc);
 

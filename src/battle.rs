@@ -355,6 +355,8 @@ impl Battle {
                         }
                     }
                 }
+            } else if key == Key::Esc {
+                self.targets.clear();
             }
             return;
         }
@@ -385,6 +387,10 @@ impl Battle {
                     if i >= options.len() { i = 0; }
                 }
                 self.selections.push(i);
+            } else if key == Key::Esc {
+                if self.selections.len() > 1 {
+                    self.selections.pop();
+                } // todo switch to next playable character
             }
         }
     }

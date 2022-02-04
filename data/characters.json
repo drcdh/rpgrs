@@ -93,6 +93,24 @@
             "HP": {"name": "HP", "current": 33, "maximum": 33}
         }
     },
+    "103": {
+        "id": 103,
+        "name": "Dinosaur Wearing a Human-Onsie",
+        "base_stats": {
+            "Level":          11,
+            "Offense":        25,
+            "Defense":       100,
+            "Magic Defense": 155,
+            "Strength":       63,
+            "Magic":          10,
+            "Speed":          35
+        },
+        "stats": 1,
+        "actions": {"prompt": "ROOT", "options": [{"Index": 1}]},
+        "pools": {
+            "HP": {"name": "HP", "current": 232, "maximum": 232}
+        }
+    },
     "515": {
         "id": 515,
         "name": "Stubert",
@@ -110,13 +128,14 @@
             {"Index": 0},
             {"Menu": {"prompt": "Babe Tech.", "options": [
                 {"Index": 8483},
+                {"Index": 8455},
                 {"Index": 9194}
             ]}},
             "UseItem"
         ]},
         "pools": {
             "HP": {"name": "HP", "current": 50, "maximum": 50},
-            "TP": {"name": "MP", "current": 8, "maximum": 8}
+            "MP": {"name": "MP", "current": 8, "maximum": 8}
         }
     },
     "521": {
@@ -135,7 +154,15 @@
         "actions": {"prompt": "ROOT", "options": [
             {"Index": 0},
             {"Menu": {"prompt": "Dandom Tech.", "options": [
-                {"Index": 1959}
+                {"Index": 1959},
+                {"Literal": {
+                    "id": 99,
+                    "name": "Breach Hull, All Die",
+                    "costs": {"MP": 12},
+                    "effects": [{"Index": 99 }],
+                    "scope": "All",
+                    "message": "Oops, {:actor} broke open a hole in space-time."
+                }}
             ]}},
             "UseItem"
         ]},
@@ -161,13 +188,14 @@
             {"Index": 0},
             {"Menu": {"prompt": "Babe Tech.", "options": [
                 {"Index": 8483},
+                {"Index": 8455},
                 {"Index": 88}
             ]}},
             "UseItem"
         ]},
         "pools": {
             "HP": {"name": "HP", "current": 48, "maximum": 48},
-            "TP": {"name": "MP", "current": 9, "maximum": 9}
+            "MP": {"name": "MP", "current": 9, "maximum": 9}
         }
     }
 }

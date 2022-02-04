@@ -31,7 +31,7 @@ fn _eval_stat_term(term: &str, c: &Character, base_stat_name: &Name) -> Stat {
         return item_attr;
     }
     let slot_or_stat_name: Name = if tokens[0].is_empty() { Name::from(base_stat_name) } else { Name::from(tokens[0]) };
-    let slot_or_stat_name = slot_or_stat_name.replace("-", " ");
+    let slot_or_stat_name = slot_or_stat_name.replace('-', " ");
     if tokens[1].is_empty() {
         return *c.get_base_stat(slot_or_stat_name).unwrap();
     }

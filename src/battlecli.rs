@@ -7,14 +7,14 @@ use std::io::Write;
 
 use crate::battle::{Battle, PlayerIndex};
 
-const OUTER_ROW: &str = r" ============================== ";
-const INNER_ROW: &str = r" |                            | ";
-const TURN_OUTER_ROW: &str = r" =~=~=~=~=~=~=~=~=~=~=~=~=~=~=~ ";
-const TURN_INNER_ROW: &str = r" !                            ! ";
-const TARGET_OUTER_ROW: &str = r" |\/\/\/\/\/\/\/\/\/\/\/\/\/\/| ";
-const TARGET_INNER_ROW: &str = r" >                            < ";
+const OUTER_ROW: &str = r" =================================== ";
+const INNER_ROW: &str = r" |                                 | ";
+const TURN_OUTER_ROW: &str = r" @=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=@ ";
+const TURN_INNER_ROW: &str = r" !                                 ! ";
+const TARGET_OUTER_ROW: &str = r" |\/\/\/\/\/\/\/\/|\/\/\/\/\/\/\/\/| ";
+const TARGET_INNER_ROW: &str = r" >                                 < ";
 const BOX_HEIGHT: u16 = 8;
-const BOX_WIDTH: u16 = 32;
+const BOX_WIDTH: u16 = 37;
 
 pub struct BattleCLI<R: Iterator<Item=Result<Key, std::io::Error>>, W: Write> {
     pub stdin: R,
@@ -50,18 +50,19 @@ BattleCLI<R, W> {
         false
     }
     pub fn write_menus(&mut self) {
-        if let Some(_) = self.battle.get_top_menu_options() { // fixme
+        if self.battle.get_top_menu_options().is_some() { // fixme
             let (menus, selections) = self.battle.get_menu_selections();
-            let depth = selections.len();
-            if depth == 0 { return; }
+            if selections.is_empty() { return; }
+            let depth = if self.battle.targets.is_empty() { selections.len() } else { selections.len() + 1 };
             for (im, (m, s)) in menus.iter().zip(selections.iter()).enumerate() {
-                write!(self.stdout, "{}{}##################################", Goto((1 + im*8) as u16, 25), color::Fg(color::AnsiValue::grayscale((24 - 4*(depth - im)) as u8))).unwrap();
+                let menu_width = m.iter().max_by_key(|&s| s.len()).unwrap().len() + 11;
+                write!(self.stdout, "{}{}{}", Goto((1 + im*8) as u16, 25), color::Fg(color::AnsiValue::grayscale(23u8.saturating_sub(5*(depth - im - 1) as u8))), "#".repeat(menu_width)).unwrap();
                 for (i, opt) in m.iter().enumerate() {
                     let opt_str = if i == *s { " -> " } else { "    " };
                     let opt_str = format!("# {}{}. {}", opt_str, i+1, opt);
                     write!(self.stdout, "{}{}", Goto((1 + im*8) as u16, (26 + i) as u16), opt_str).unwrap();
                 }
-                write!(self.stdout, "{}##################################", Goto((1 + im*8) as u16, (26 + m.len()) as u16)).unwrap();
+                write!(self.stdout, "{}{}{}", Goto((1 + im*8) as u16, (26 + m.len()) as u16), "#".repeat(menu_width), color::Fg(color::Reset)).unwrap();
             }
             write!(self.stdout, "{} >>> Pick your next action! ", Goto(1, 35)).unwrap();
         }

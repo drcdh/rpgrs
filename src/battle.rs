@@ -173,7 +173,7 @@ impl Battle {
         }
     }
     pub fn get_menu_selections(&self) -> (Vec<Vec<String>>, Vec<usize>) {
-        (self.get_current_pc_actions().clone(), self.selections.clone())
+        (self.get_current_pc_actions(), self.selections.clone())
     }
     fn get_ch_by_pi(&self, p_idx: &PlayerIndex) -> &Character {
         match p_idx {
@@ -261,7 +261,7 @@ impl Battle {
             // Enable targeting mode
             // todo: check Action scope
             let actor = self.get_current_pc().unwrap();
-            if actor.can_afford_action_costs(&a) {
+            if actor.can_afford_action_costs(a) {
                 if a.scope == Scope::Enemy {
                     self.targets = vec![PlayerIndex::Baddy(self.baddies.get_nth_up_pos(0))];
                 } else if a.scope == Scope::Ally {
@@ -272,17 +272,17 @@ impl Battle {
                         self.targets = vec![PlayerIndex::Ally(i)];
                     }*/
                 } else if a.scope == Scope::Enemies {
-                    self.targets = (0..self.baddies.len()).map(|i| PlayerIndex::Baddy(i)).collect::<Vec<_>>();
+                    self.targets = (0..self.baddies.len()).map(PlayerIndex::Baddy).collect::<Vec<_>>();
                 } else if a.scope == Scope::Allies {
-                    self.targets = (0..self.allies.len()).map(|i| PlayerIndex::Ally(i)).collect::<Vec<_>>();
+                    self.targets = (0..self.allies.len()).map(PlayerIndex::Ally).collect::<Vec<_>>();
                 } else if a.scope == Scope::All {
-                    self.targets.append(&mut (0..self.baddies.len()).map(|i| PlayerIndex::Baddy(i)).collect::<Vec<_>>());
-                    self.targets.append(&mut (0..self.allies.len()).map(|i| PlayerIndex::Ally(i)).collect::<Vec<_>>());
+                    self.targets.append(&mut (0..self.baddies.len()).map(PlayerIndex::Baddy).collect::<Vec<_>>());
+                    self.targets.append(&mut (0..self.allies.len()).map(PlayerIndex::Ally).collect::<Vec<_>>());
                 } else {
                     panic!("PC Action scopes other than Enemy, Ally, Enemies, Allies, and All not implemented yet.");
                 }
            } else {
-               self.text.push_back(format!("Can't afford that action :-/"));
+               self.text.push_back(String::from("Can't afford that action :-/"));
            }
         } else {
             eprintln!("Next menu");

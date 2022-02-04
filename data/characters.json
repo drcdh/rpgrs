@@ -95,7 +95,7 @@
     },
     "103": {
         "id": 103,
-        "name": "Dinosaur Wearing a Human-Onsie",
+        "name": "Dinosaur Wearing a Human-Onesie",
         "base_stats": {
             "Level":          11,
             "Offense":        25,
@@ -127,7 +127,7 @@
         },
         "actions": {"prompt": "ROOT", "options": [
             {"Index": 0},
-            {"Menu": {"prompt": "Babe Tech.", "options": [
+            {"Menu": {"prompt": "Babe Technique", "options": [
                 {"Index": 8483},
                 {"Index": 8455},
                 {"Index": 9194}
@@ -154,7 +154,7 @@
         },
         "actions": {"prompt": "ROOT", "options": [
             {"Index": 0},
-            {"Menu": {"prompt": "Dandom Tech.", "options": [
+            {"Menu": {"prompt": "Dandom Num Gen no Jitsu", "options": [
                 {"Index": 1959},
                 {"Literal": {
                     "id": 99,
@@ -187,7 +187,7 @@
         },
         "actions": {"prompt": "ROOT", "options": [
             {"Index": 0},
-            {"Menu": {"prompt": "Babe Tech.", "options": [
+            {"Menu": {"prompt": "Babe Technique", "options": [
                 {"Index": 8483},
                 {"Index": 8455},
                 {"Index": 88}

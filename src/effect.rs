@@ -43,15 +43,6 @@ impl Effect {
     pub fn whoami(&self) -> (Id, &str) {
         (self.id, &self.name[..])
     }
-    pub fn affect_target(&self, target: &mut Character, statblocks: &StatBlockEncyclopedia) -> () {
-        for hit in &self.hits {
-            let amount: i32 = match &hit.amount {
-                HitAmt::Constant(v) => *v,
-                HitAmt::Formula(f) => formula::eval_hit(f, None, target, statblocks),
-            };
-            let _v = target.hit_pool(&hit.pool, amount);
-        }
-    }
     pub fn actor_affect_target(&self, actor: &Character, target: &Character, statblocks: &StatBlockEncyclopedia) -> Hits {
         let mut hits = Hits::new();
         for hit in &self.hits {
@@ -95,21 +86,6 @@ mod tests {
         let (id, name) = (0, "Thingamajig");
         let effect = Effect::new(id, String::from(name));
         assert_eq!(effect.whoami(), (id, name));
-    }
-    #[test]
-    fn affect_test() {
-        let statblocks = StatBlockEncyclopedia::new("data/stats.json");
-        let mut t = Character::new(1, String::from("Test Target Character"));
-        let mut effect = Effect::new(0, "Test Effect".to_string());
-        let init_hp = t.get_pool_vals("HP".to_string()).unwrap().0;
-        let v = 1;
-        effect.hits = vec![
-            Hit { pool: String::from("HP"), amount: HitAmt::Constant(v) },
-            Hit { pool: String::from("HP"), amount: HitAmt::Formula(String::from("1")) },
-        ];
-        effect.affect_target(&mut t, &statblocks);
-        let hp = t.get_pool_vals("HP".to_string()).unwrap().0;
-        assert_eq!(hp, init_hp - 2);
     }
     #[test]
     fn actor_affect_test() {

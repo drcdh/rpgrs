@@ -110,10 +110,7 @@ impl Character {
         }
     }
     pub fn get_pool_vals(&self, name: String) -> Option<(i32, i32)> {
-        match self.pools.get(&name) {
-            Some(pool) => Some((pool.current, pool.maximum)),
-            None => None,
-        }
+        self.pools.get(&name).map(|pool| (pool.current, pool.maximum))
     }
     pub fn get_pools(&self) -> &Pools {
         &self.pools

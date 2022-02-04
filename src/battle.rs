@@ -104,13 +104,14 @@ impl Battle {
     }
     fn handle_hit(&mut self) {
         if let Some(th) = self.hits.pop_front() {
+            let name = self.get_character(&Some(th.target_pi.clone())).unwrap().copy_name();
             let v = self.get_mut_character(&Some(th.target_pi)).unwrap().hit_pool(&th.pool, th.amount);
             if v > 0 {
-                self.text.push_back(format!("Took {} damage!", v));
+                self.text.push_back(format!("{} took {} {} damage!", name, v, th.pool));
             } else if v == 0 {
-                self.text.push_back(format!("No effect..."));
+                self.text.push_back(format!("No effect on {}...", name));
             } else {
-                self.text.push_back(format!("Healed for {}!", -v));
+                self.text.push_back(format!("{} was healed for {} {}!", name, -v, th.pool));
             }
         }
     }

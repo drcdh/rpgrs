@@ -61,10 +61,10 @@ impl Party {
     pub fn get_nth_up_pos(&self, i: usize) -> usize {
         let mut i_up = i;
         for (i, ch) in self.group.iter().enumerate() {
+            if ch.is_down() { continue; }
             if i_up == 0 {
                 return i;
             }
-            if ch.is_down() { continue; }
             i_up -= 1;
         }
         panic!();

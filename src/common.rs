@@ -1,5 +1,10 @@
 use serde::{Serialize, Deserialize};
 
+#[derive(Serialize, Deserialize, Debug)]
+pub enum PlayerType {
+    NPC,
+    PC,
+}
 
 pub type Formula = String;
 pub type Id = u64;  // Conform to serde_json::Value

@@ -7,7 +7,7 @@ use crate::common::*;
 use crate::encyclopedia::StatBlockEncyclopedia;
 use crate::formula;
 
-type Traits = Vec::<Name>;
+pub type Traits = Vec::<Name>;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[derive(PartialEq)]

@@ -54,12 +54,14 @@ impl<T: Clone> Encyclopedia<T> {
 
 use crate::action::Action;
 use crate::character::Character;
+use crate::condition::Condition;
 use crate::effect::Effect;
 use crate::item::Item;
 use crate::stats::StatBlock;
 
 pub type ActionEncyclopedia    = Encyclopedia<Action>;
 pub type CharacterEncyclopedia = Encyclopedia<Character>;
+pub type ConditionEncyclopedia = Encyclopedia<Condition>;
 pub type EffectEncyclopedia    = Encyclopedia<Effect>;
 pub type ItemEncyclopedia      = Encyclopedia<Item>;
 pub type StatBlockEncyclopedia = Encyclopedia<StatBlock>;
@@ -71,22 +73,26 @@ mod tests {
 
     #[test]
     fn read_action_encyclopedia_test() {
-        assert_ne!(ActionEncyclopedia::new("data/actions.json").len(), 0);
+        assert!(!ActionEncyclopedia::new("data/actions.json").is_empty());
     }
     #[test]
     fn read_character_encyclopedia_test() {
-        assert_ne!(CharacterEncyclopedia::new("data/characters.json").len(), 0);
+        assert!(!CharacterEncyclopedia::new("data/characters.json").is_empty());
+    }
+    #[test]
+    fn read_condition_encyclopedia_test() {
+        assert!(!ConditionEncyclopedia::new("data/conditions.json").is_empty());
     }
     #[test]
     fn read_effect_encyclopedia_test() {
-        assert_ne!(EffectEncyclopedia::new("data/effects.json").len(), 0);
+        assert!(!EffectEncyclopedia::new("data/effects.json").is_empty());
     }
     #[test]
     fn read_item_encyclopedia_test() {
-        assert_ne!(ItemEncyclopedia::new("data/items.json").len(), 0);
+        assert!(!ItemEncyclopedia::new("data/items.json").is_empty());
     }
     #[test]
     fn read_statblocks_encyclopedia_test() {
-        assert_ne!(StatBlockEncyclopedia::new("data/stats.json").len(), 0);
+        assert!(!StatBlockEncyclopedia::new("data/stats.json").is_empty());
     }
 }

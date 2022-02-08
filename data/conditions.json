@@ -1,0 +1,8 @@
+{
+    "0": {
+        "name": "K.O.",
+        "removed_by": ["Revive"],
+        "mods": {"clock": {"MultMod2": 0}},
+        "visual": {"AnsiValue": 31}
+    }
+}

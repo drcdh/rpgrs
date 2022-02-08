@@ -4,7 +4,6 @@ use rand::Rng;
 use termion::event::Key;
 
 use crate::action::{Action, Costs, Scope};
-use crate::battlecli::BattleCLI;
 use crate::character::Character;
 use crate::common::*;
 use crate::effect::Effect;
@@ -442,6 +441,7 @@ impl Battle {
     }
     fn play_npc_action(&mut self) {
         if let Some(actor_pi) = self.current_npc_idx.as_ref() {
+            let mut costs = Costs::new();
             let mut teffects = VecDeque::<TargetedEffect>::new();
             let actor = self.get_current_npc().unwrap();
             if let Some(a) = actor.get_random_action(&self.action_enc) {
@@ -458,10 +458,13 @@ impl Battle {
                         teffects.push_back(te);
                     }
                 }
+                costs = a.costs.clone();
                 // Queue the Action message
                 let msg = a.get_message(&actor.copy_name(), &target_names);
                 self.text.push_back(msg);
             }
+            let pi = self.current_npc_idx.clone();
+            self.get_mut_character(&pi).unwrap().spend_costs(costs);
             self.effects.append(&mut teffects);
             self.current_npc_idx = None;
         }

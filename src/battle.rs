@@ -4,6 +4,7 @@ use rand::Rng;
 use termion::event::Key;
 
 use crate::action::{Action, Costs, Scope};
+use crate::battlecli::BattleCLI;
 use crate::character::Character;
 use crate::common::*;
 use crate::effect::Effect;
@@ -12,6 +13,8 @@ use crate::encyclopedia::EffectEncyclopedia;
 use crate::encyclopedia::StatBlockEncyclopedia;
 use crate::party::Party;
 
+pub mod battleui;
+use battleui::BattleUI;
 
 #[derive(PartialEq, Eq)]
 #[derive(Clone)]
@@ -141,10 +144,24 @@ impl Battle {
             None => Vec::<Vec::<Name>>::new(), // fixme??
         }
     }
-    pub fn handle_input(&mut self, key: Key) -> bool {
-        if key == Key::Char('q') {
-            // Handled in BattleCLI
+    pub fn run(&mut self, ui: &mut dyn BattleUI) {
+        loop {
+            ui.refresh(self);
+            let key = ui.get_key();
+            if key == Key::Char('q') {
+                break;
+            }
+            if let Key::Char(_c) = key {
+                // Collect it as entropy
+//                self.rand.write_u8(c as u8);
+            }
+            if self.handle_input(key) {
+                // Battle is over
+                break;
+            }
         }
+    }
+    fn handle_input(&mut self, key: Key) -> bool {
         if !self.text.is_empty() {
             self.pop_text();
             self.handle_effect();

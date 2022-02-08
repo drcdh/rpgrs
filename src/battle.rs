@@ -127,7 +127,7 @@ impl Battle {
                 let pool = hit.pool;
                 if let HitAmt::Constant(amount) = hit.amount {
                     self.hits.push_back(TargetedHit { target_pi, pool, amount });
-                } else { panic!(); }
+                } else { panic!("TargetedEffect.hits should always be HitAmt::Constant"); }
             }
         }
     }

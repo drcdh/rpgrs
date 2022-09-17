@@ -49,7 +49,7 @@ pub struct Character {
     #[serde(default = "Character::default_pools")]
     pools: Pools,
     #[serde(default)]
-    conditions: Vec::<Name>,
+    pub conditions: Vec::<Name>,
 }
 
 impl Character {

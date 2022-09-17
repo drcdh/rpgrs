@@ -46,3 +46,18 @@ pub struct Condition {
     #[serde(default)]
     visual: Option<Visual>,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::character::Character;
+    use crate::common::*;
+
+    #[test]
+    fn condition_target() {
+        let mut c = Character::new(0, String::from("Test Character"));
+        let hit = Hit { pool: String::from("Poison"), amount: HitAmt::Constant(100) };
+        c.take_condition(&hit);
+        assert!(c.conditions[0] == String::from("Poison"));
+    }
+}

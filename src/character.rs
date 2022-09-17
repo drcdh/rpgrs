@@ -24,6 +24,12 @@ pub struct Pool {
     pub maximum: i32,
 }
 
+impl fmt::Display for Pool {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}: {}/{}", self.name, self.current, self.maximum)
+    }
+}
+
 type Pools = HashMap::<Name, Pool>;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -240,7 +246,11 @@ impl Character {
 
 impl fmt::Display for Character {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}.{}", self.id, self.name)
+        writeln!(f, "{}.{}", self.id, self.name).ok();
+        for (_, pool) in &self.pools {
+            writeln!(f, "  {}", pool).ok();
+        }
+        Ok(())
     }
 }
 

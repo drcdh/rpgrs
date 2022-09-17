@@ -7,13 +7,13 @@ use crate::effect::{Effect, Traits};
 use crate::stats::Stat;
 
 #[derive(Serialize, Deserialize, Debug)]
-struct Repeat<T> {
-    rep: T,
-    period: u16,
+pub struct Repeat<T> {
+    pub rep: T,
+    pub period: u16,
     #[serde(default)]
-    number: Option<u16>,
+    pub number: Option<u16>,
 }
-type RepeatEffects = Vec::<Repeat<Effect>>;
+type RepeatEffects = Vec::<Repeat<IndexedOrLiteral<Effect>>>;
 type RepeatHits = Vec::<Repeat<Hit>>;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -29,15 +29,15 @@ enum Visual {
 pub struct Condition {
     name: Name,
     #[serde(default)]
-    duration: Option<u16>, // see Clocks in mod party
+    pub duration: Option<u16>, // see Clocks in mod party
     //stopped_by: Traits, // Conditions?
     #[serde(default)]
     removed_by: Traits, // Effects that have one of these traits will remove the Condition
     //repeat_actions: RepeatActions, // needs targeting
     #[serde(default)]
-    repeat_effects: RepeatEffects,
+    pub repeat_effects: RepeatEffects,
     #[serde(default)]
-    repeat_hits: RepeatHits,
+    pub repeat_hits: RepeatHits,
     #[serde(default)]
     mods: HashMap::<Name, HashMap::<Name, Stat>>, // e.g. {"clock": {"MultMod2": 0}} for K.O.
     //reactions: Map::<Trait, RelativeTargetedEffect>, // e.g. counter, reflect
@@ -47,17 +47,12 @@ pub struct Condition {
     visual: Option<Visual>,
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::character::Character;
-    use crate::common::*;
-
-    #[test]
-    fn condition_target() {
-        let mut c = Character::new(0, String::from("Test Character"));
-        let hit = Hit { pool: String::from("Poison"), amount: HitAmt::Constant(100) };
-        c.take_condition(&hit);
-        assert!(c.conditions[0] == String::from("Poison"));
-    }
+#[derive(Serialize, Deserialize, Debug)]
+#[derive(Clone)]
+pub struct TargetCondition {
+     pub condition_id: Id,  // IndexOrLiteral ?
+     pub duration: u16,
+     pub repeat_effect_countdowns: Vec::<u16>,
+     pub repeat_hit_countdowns: Vec::<u16>,
 }
+pub type TargetConditions = Vec::<TargetCondition>;

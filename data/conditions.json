@@ -4,5 +4,23 @@
         "removed_by": ["Revive"],
         "mods": {"clock": {"MultMod2": 0}},
         "visual": {"AnsiValue": 31}
+    },
+    "1": {
+        "name": "Test Condition RepeatEffect",
+        "removed_by": ["Antidote"],
+        "repeat_effects": [{
+            "rep": {"Index": 735730},
+            "period": 10,
+            "number": 1
+        }]
+    },
+    "2": {
+        "name": "Test Condition RepeatHit",
+        "removed_by": ["Antidote"],
+        "repeat_hits": [{
+            "rep": {"pool": "HP", "amount": {"Constant": 1}},
+            "period": 10,
+            "number": 1
+        }]
     }
 }

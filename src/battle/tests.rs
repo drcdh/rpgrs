@@ -99,6 +99,7 @@ fn handle_effect_test() {
             hits: VecDeque::<TargetedHit>::new(),
             // FIXME: references should be supplied by the top-level Game object
             action_enc: ActionEncyclopedia::new("data/actions.json"),
+            condition_enc: ConditionEncyclopedia::new("data/conditions.json"),
             effect_enc: EffectEncyclopedia::new("data/effects.json"),
             statblocks: StatBlockEncyclopedia::new("data/stats.json"),
     };
@@ -128,6 +129,7 @@ fn handle_hit_test() {
             hits,
             // FIXME: references should be supplied by the top-level Game object
             action_enc: ActionEncyclopedia::new("data/actions.json"),
+            condition_enc: ConditionEncyclopedia::new("data/conditions.json"),
             effect_enc: EffectEncyclopedia::new("data/effects.json"),
             statblocks: StatBlockEncyclopedia::new("data/stats.json"),
     };

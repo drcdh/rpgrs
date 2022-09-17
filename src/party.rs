@@ -3,6 +3,7 @@ use core::slice::Iter;
 use crate::common::*;
 use crate::character::Character;
 use crate::encyclopedia::CharacterEncyclopedia;
+use crate::encyclopedia::ConditionEncyclopedia;
 use crate::encyclopedia::StatBlockEncyclopedia;
 use crate::item::Item;
 
@@ -90,9 +91,9 @@ impl Party {
         }
         None
     }
-    pub fn increment_clocks(&mut self, dt: u16, statblocks: &StatBlockEncyclopedia) {
-        for (ch, clk) in self.group.iter().zip(self.clocks.iter_mut()) {
-            let dclk = ch.dclock(dt, statblocks);
+    pub fn increment_clocks(&mut self, dt: u16, conditions: &ConditionEncyclopedia, statblocks: &StatBlockEncyclopedia) {
+        for (ch, clk) in self.group.iter_mut().zip(self.clocks.iter_mut()) {
+            let dclk = ch.dclock(dt, conditions, statblocks);
             *clk = clk.saturating_add(dclk);
         }
     }
@@ -148,7 +149,7 @@ mod tests {
         let mog = Character::new(0, String::from("Mog"));
         party.add_character(mog);
         assert_eq!(party.get_ready_ch_pos(), None);
-        party.increment_clocks(u16::MAX, &StatBlockEncyclopedia::new("data/stats.json"));
+        party.increment_clocks(u16::MAX, &ConditionEncyclopedia::new("data/conditions.json"), &StatBlockEncyclopedia::new("data/stats.json"));
         assert!(matches!(party.get_ready_ch_pos(), Some(_)));
     }
 }

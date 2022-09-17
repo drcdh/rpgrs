@@ -7,7 +7,9 @@ use serde_json;
 
 use crate::action::{Action, ActionMenu, CharacterAction, Costs};
 use crate::common::*;
+use crate::condition::{Condition, TargetConditions};
 use crate::encyclopedia::ActionEncyclopedia;
+use crate::encyclopedia::ConditionEncyclopedia;
 use crate::encyclopedia::EffectEncyclopedia;
 use crate::encyclopedia::StatBlockEncyclopedia;
 use crate::formula::eval_stat;
@@ -49,7 +51,7 @@ pub struct Character {
     #[serde(default = "Character::default_pools")]
     pools: Pools,
     #[serde(default)]
-    pub conditions: Vec::<Name>,
+    pub conditions: TargetConditions,
 }
 
 impl Character {
@@ -81,7 +83,7 @@ impl Character {
             items: Items::new(),
             //equips: item::generate_equipment_set(),
             pools: Character::default_pools(),
-            conditions: Vec::<Name>::new(),
+            conditions: TargetConditions::new(),
         }
     }
     pub fn matches(&self, id: Id) -> bool {
@@ -194,12 +196,46 @@ impl Character {
         }
         None
     }
-    pub fn dclock(&self, dt: u16, statblocks: &StatBlockEncyclopedia) -> u16 {
-        // FIXME This is almost certainly error-prone
+    pub fn dclock(&mut self,
+        dt: u16,
+        conditions: &ConditionEncyclopedia,
+        statblocks: &StatBlockEncyclopedia,
+    ) -> u16 {
+        // FIXME This is almost certainly error-prone ???
         if self.is_down() {
             0
         } else {
+            self.experience_conditions(dt, conditions);
             dt.saturating_mul(u16::try_from(self.get_stat_val(String::from("Speed"), 0, statblocks)).ok().unwrap())
+        }
+    }
+    fn experience_conditions(&mut self, dt: u16, conditions: &ConditionEncyclopedia) {
+        let mut expired_condition_indices = Vec::<usize>::new();
+        for (idx, tcon) in self.conditions.iter_mut().enumerate() {
+            let con = conditions.get(&tcon.condition_id).expect("missing condition in encyclopedia");
+            for (reff, reff_cd) in con.repeat_effects.iter().zip(tcon.repeat_effect_countdowns.iter_mut()) {
+                *reff_cd = reff_cd.saturating_sub(dt);
+                if *reff_cd == 0 {
+                    // TODO reff.rep: IndexOrLiteral<Effect>
+                    *reff_cd = reff.period;
+                }
+            }
+            for (rhit, rhit_cd) in con.repeat_hits.iter().zip(tcon.repeat_hit_countdowns.iter_mut()) {
+                *rhit_cd = rhit_cd.saturating_sub(dt);
+                if *rhit_cd == 0 {
+                    // TODO rhit.rep: Hit
+                    *rhit_cd = rhit.period;
+                }
+            }
+            tcon.duration += dt;
+            if let Some(max_duration) = con.duration {
+                if tcon.duration >= max_duration {
+                    expired_condition_indices.insert(idx, 0);
+                }
+            }
+        }
+        for idx in expired_condition_indices.iter() {
+            // todo
         }
     }
     pub fn sum_add_mods(&self, stat_name: Name) -> Stat {
@@ -241,6 +277,10 @@ impl Character {
         //todo critical_pools attribute
         self.get_pool_vals(String::from("HP")).unwrap().0 <= 0
     }
+    pub fn take_condition(&mut self, cond: &Condition) -> bool {
+        // TODO
+        true
+    }
 }
 
 
@@ -271,10 +311,10 @@ impl Target for Character {
         }
         0 // todo None (so a zero isn't displayed)
     }
-    fn take_condition(&mut self, hit: &Hit) -> bool {
-        self.conditions.push(hit.pool.clone());
-        true // fixme
-    }
+/*    fn take_condition(&mut self, cond: &Condition) -> bool {
+        // TODO
+        true
+    }*/
 }
 
 

@@ -47,5 +47,5 @@ pub trait Target {
     // methods shouldn't be taking ownership of the Hit objects from
     // the Effect.
     fn hit_pool(&mut self, pool: &Name, amount: i32) -> i32;
-    fn take_condition(&mut self, hit: &Hit) -> bool;
+//    fn take_condition(&mut self, cond: &Condition) -> bool;
 }

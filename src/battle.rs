@@ -8,6 +8,7 @@ use crate::character::Character;
 use crate::common::*;
 use crate::effect::Effect;
 use crate::encyclopedia::ActionEncyclopedia;
+use crate::encyclopedia::ConditionEncyclopedia;
 use crate::encyclopedia::EffectEncyclopedia;
 use crate::encyclopedia::StatBlockEncyclopedia;
 use crate::party::Party;
@@ -56,6 +57,7 @@ pub struct Battle {
     hits: VecDeque::<TargetedHit>,
 
     action_enc: ActionEncyclopedia,
+    condition_enc: ConditionEncyclopedia,
     effect_enc: EffectEncyclopedia,
     statblocks: StatBlockEncyclopedia,
 }
@@ -77,6 +79,7 @@ impl Battle {
             hits: VecDeque::<TargetedHit>::new(),
             // FIXME: references should be supplied by the top-level Game object
             action_enc: ActionEncyclopedia::new("data/actions.json"),
+            condition_enc: ConditionEncyclopedia::new("data/conditions.json"),
             effect_enc: EffectEncyclopedia::new("data/effects.json"),
             statblocks: StatBlockEncyclopedia::new("data/stats.json"),
         }
@@ -100,8 +103,8 @@ impl Battle {
                 return;
             }
             // Increment characters' clocks
-            self.allies.increment_clocks(1, &self.statblocks);
-            self.baddies.increment_clocks(1, &self.statblocks);
+            self.allies.increment_clocks(1, &self.condition_enc, &self.statblocks);
+            self.baddies.increment_clocks(1, &self.condition_enc, &self.statblocks);
         }
     }
     fn handle_hit(&mut self) {

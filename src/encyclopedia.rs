@@ -66,6 +66,7 @@ pub type EffectEncyclopedia    = Encyclopedia<Effect>;
 pub type ItemEncyclopedia      = Encyclopedia<Item>;
 pub type StatBlockEncyclopedia = Encyclopedia<StatBlock>;
 
+pub type SpriteCode = Encyclopedia<Sprite>;
 
 #[cfg(test)]
 mod tests {

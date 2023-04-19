@@ -10,6 +10,12 @@ pub type Formula = String;
 pub type Id = u64;  // Conform to serde_json::Value
 pub type Name = String;
 
+pub type Coord = i16;
+pub type XY = (Coord, Coord);
+pub type XYZ = (Coord, Coord, Coord);
+
+pub type Sprite = char;  // TODO: very temporary
+
 #[derive(Serialize, Deserialize, Debug)]
 #[derive(PartialEq)]
 #[derive(Clone)]

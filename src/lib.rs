@@ -8,5 +8,8 @@ pub mod effect;
 pub mod encyclopedia;
 pub mod formula;
 pub mod item;
+pub mod map;
 pub mod party;
+pub mod scene;
+pub mod scenecli;
 pub mod stats;

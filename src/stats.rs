@@ -1,10 +1,9 @@
 use std::collections::HashMap;
 use std::fmt;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
-use crate::common::{Id, Name, Formula};
-
+use crate::common::{Formula, Id, Name};
 
 pub type Stat = i32;
 pub type BaseStats = HashMap<Name, Stat>;
@@ -27,6 +26,16 @@ impl StatBlock {
 
 impl fmt::Display for StatBlock {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}. {} ({})", self.id, self.name, self.stats.keys().map(|s| &**s).collect::<Vec<_>>().join(", "))
+        write!(
+            f,
+            "{}. {} ({})",
+            self.id,
+            self.name,
+            self.stats
+                .keys()
+                .map(|s| &**s)
+                .collect::<Vec<_>>()
+                .join(", ")
+        )
     }
 }

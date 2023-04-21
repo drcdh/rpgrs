@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::common::*;
 use crate::effect::{Effect, Traits};
@@ -13,8 +13,8 @@ pub struct Repeat<T> {
     #[serde(default)]
     pub number: Option<u16>,
 }
-type RepeatEffects = Vec::<Repeat<IndexedOrLiteral<Effect>>>;
-type RepeatHits = Vec::<Repeat<Hit>>;
+type RepeatEffects = Vec<Repeat<IndexedOrLiteral<Effect>>>;
+type RepeatHits = Vec<Repeat<Hit>>;
 
 #[derive(Serialize, Deserialize, Debug)]
 enum Visual {
@@ -39,7 +39,7 @@ pub struct Condition {
     #[serde(default)]
     pub repeat_hits: RepeatHits,
     #[serde(default)]
-    mods: HashMap::<Name, HashMap::<Name, Stat>>, // e.g. {"clock": {"MultMod2": 0}} for K.O.
+    mods: HashMap<Name, HashMap<Name, Stat>>, // e.g. {"clock": {"MultMod2": 0}} for K.O.
     //reactions: Map::<Trait, RelativeTargetedEffect>, // e.g. counter, reflect
     #[serde(default)]
     play_override: Option<PlayerType>,
@@ -47,12 +47,11 @@ pub struct Condition {
     visual: Option<Visual>,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-#[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct TargetCondition {
-     pub condition_id: Id,  // IndexOrLiteral ?
-     pub duration: u16,
-     pub repeat_effect_countdowns: Vec::<u16>,
-     pub repeat_hit_countdowns: Vec::<u16>,
+    pub condition_id: Id, // IndexOrLiteral ?
+    pub duration: u16,
+    pub repeat_effect_countdowns: Vec<u16>,
+    pub repeat_hit_countdowns: Vec<u16>,
 }
-pub type TargetConditions = Vec::<TargetCondition>;
+pub type TargetConditions = Vec<TargetCondition>;

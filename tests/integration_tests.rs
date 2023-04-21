@@ -1,7 +1,6 @@
 use rpgrs::common::*;
 use rpgrs::encyclopedia::*;
 
-
 #[test]
 fn read_encyclopedias() {
     println!("\n>>> ACTIONS <<<");
@@ -40,7 +39,9 @@ fn use_actions() {
     let statblocks = StatBlockEncyclopedia::new("data/stats.json");
     let test_act_0 = actions.resolve(&IndexedOrLiteral::Index(735740)).unwrap();
     let mut mog = characters.clone_entry(&IndexedOrLiteral::Index(0)).unwrap();
-    let mut rat = characters.clone_entry(&IndexedOrLiteral::Index(102)).unwrap();
+    let mut rat = characters
+        .clone_entry(&IndexedOrLiteral::Index(102))
+        .unwrap();
     let mog_mp = mog.get_pool_vals(String::from("MP")).unwrap().0;
     let rat_hp = rat.get_pool_vals(String::from("HP")).unwrap().0;
     let hits = mog.use_action_on(test_act_0, &rat, &effect_enc, &statblocks);
@@ -61,8 +62,8 @@ fn use_actions() {
     assert_eq!(hits[4].amount, HitAmt::Constant(1));
     assert_eq!(hits[5].pool, String::from("PP"));
     assert_eq!(hits[5].amount, HitAmt::Constant(1));
-    assert_eq!(mog.get_pool_vals(String::from("MP")).unwrap().0, mog_mp-1);
-    assert_eq!(rat.get_pool_vals(String::from("HP")).unwrap().0, rat_hp-2);
+    assert_eq!(mog.get_pool_vals(String::from("MP")).unwrap().0, mog_mp - 1);
+    assert_eq!(rat.get_pool_vals(String::from("HP")).unwrap().0, rat_hp - 2);
     assert_eq!(rat.get_pool_vals(String::from("MP")), None);
 }
 

@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum PlayerType {
@@ -7,41 +7,31 @@ pub enum PlayerType {
 }
 
 pub type Formula = String;
-pub type Id = u64;  // Conform to serde_json::Value
+pub type Id = u64; // Conform to serde_json::Value
 pub type Name = String;
 
-pub type Coord = i16;
+pub type Coord = u16;
 pub type XY = (Coord, Coord);
 pub type XYZ = (Coord, Coord, Coord);
 
-pub type Sprite = char;  // TODO: very temporary
-
-#[derive(Serialize, Deserialize, Debug)]
-#[derive(PartialEq)]
-#[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub enum IndexedOrLiteral<T> {
     Index(Id),
     Literal(T),
 }
 
-
-#[derive(Serialize, Deserialize, Debug)]
-#[derive(PartialEq)]
-#[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub enum HitAmt {
     Constant(i32),
     Formula(Formula),
-//todo    StandardFormula(StandardFormula),
+    //todo    StandardFormula(StandardFormula),
 }
-#[derive(Serialize, Deserialize, Debug)]
-#[derive(PartialEq)]
-#[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct Hit {
     pub pool: Name,
     pub amount: HitAmt,
 }
-pub type Hits = Vec::<Hit>;
-
+pub type Hits = Vec<Hit>;
 
 pub trait Target {
     // Hits should be borrowed by Targets since a single Hit may be
@@ -53,5 +43,5 @@ pub trait Target {
     // methods shouldn't be taking ownership of the Hit objects from
     // the Effect.
     fn hit_pool(&mut self, pool: &Name, amount: i32) -> i32;
-//    fn take_condition(&mut self, cond: &Condition) -> bool;
+    //    fn take_condition(&mut self, cond: &Condition) -> bool;
 }

@@ -5,21 +5,22 @@ use crate::character::Character;
 use crate::common::*;
 use crate::map::Map;
 use crate::party::Party;
+use crate::sprite::Sprite;
 
 pub mod sceneui;
 use sceneui::SceneUI;
-
-struct PlacedSprite {
+/*
+struct PlacedSprite<Fr> {
     id: Id,
-    sprite: IndexedOrLiteral<Sprite>,
+    sprite: IndexedOrLiteral<Sprite<Fr>>,
     x: Coord,
     y: Coord,
     z: Coord,
     //effects: VisualEffects,
     //script: SpriteScript,
 }
-
-type PlacedSprites = Vec::<PlacedSprite>;
+*/
+//type PlacedSprites = Vec::<PlacedSprite>;
 /*
 struct State {
     sprites: PlacedSprites,
@@ -36,7 +37,7 @@ impl State {
 pub struct Scene {
     pub center: XY,
     pub map: Map,
-    text: VecDeque::<String>,
+    text: VecDeque<String>,
     ended: bool,
 }
 
@@ -45,7 +46,7 @@ impl Scene {
         let mut text = VecDeque::<String>::new();
         text.push_back("So, here you are.".to_string());
         Scene {
-            center: (0i16, 0i16),
+            center: (0u16, 0u16), // replace with default XY
             map,
             text,
             ended: false,
@@ -60,7 +61,7 @@ impl Scene {
             }
             if let Key::Char(_c) = key {
                 // Collect it as entropy
-//                self.rand.write_u8(c as u8);
+                //                self.rand.write_u8(c as u8);
             }
             if self.handle_input(key) {
                 break;
@@ -72,7 +73,7 @@ impl Scene {
             self.pop_text();
             return false;
         }
-//        self.party_command(key);
+        //        self.party_command(key);
         self.ended
     }
     pub fn get_text(&self) -> Option<&String> {

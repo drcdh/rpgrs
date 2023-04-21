@@ -1,19 +1,17 @@
-use std::collections::HashMap;
 use std::collections::hash_map;
+use std::collections::HashMap;
 use std::fmt;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::common::*;
 use crate::effect::Effect;
 use crate::encyclopedia::ActionEncyclopedia;
 
-pub type Costs = HashMap::<String, i32>;
-type Effects = Vec::<IndexedOrLiteral<Effect>>;
+pub type Costs = HashMap<String, i32>;
+type Effects = Vec<IndexedOrLiteral<Effect>>;
 
-#[derive(Serialize, Deserialize, Debug)]
-#[derive(PartialEq)]
-#[derive(Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, Copy)]
 pub enum Scope {
     None,
     Me,
@@ -27,9 +25,7 @@ pub enum Scope {
     All,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-#[derive(PartialEq)]
-#[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct Action {
     id: Id,
     name: Name,
@@ -43,9 +39,7 @@ pub struct Action {
     message: String,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-#[derive(PartialEq)]
-#[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub enum CharacterAction {
     Index(Id),
     Menu(ActionMenu),
@@ -53,42 +47,42 @@ pub enum CharacterAction {
     UseItem,
 }
 
-#[derive(Serialize, Deserialize, Debug)]
-#[derive(PartialEq)]
-#[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct ActionMenu {
     prompt: Name,
-    options: Vec::<CharacterAction>,
+    options: Vec<CharacterAction>,
 }
 impl ActionMenu {
     // Used for serde(default) in Character
     pub fn new() -> ActionMenu {
-        let ca = vec![
-            CharacterAction::Index(0),
-            CharacterAction::UseItem,
-        ];
-        ActionMenu { prompt: "ROOT".to_string(), options: ca }
+        let ca = vec![CharacterAction::Index(0), CharacterAction::UseItem];
+        ActionMenu {
+            prompt: "ROOT".to_string(),
+            options: ca,
+        }
     }
-    pub fn is_empty(&self) -> bool { self.options.is_empty() }
-    pub fn len(&self) -> usize { self.options.len() }
+    pub fn is_empty(&self) -> bool {
+        self.options.is_empty()
+    }
+    pub fn len(&self) -> usize {
+        self.options.len()
+    }
     pub fn get_prompt(&self) -> &Name {
         &self.prompt
     }
-    pub fn get_prompts(&self, act_en: &ActionEncyclopedia) -> Vec::<Name> {
+    pub fn get_prompts(&self, act_en: &ActionEncyclopedia) -> Vec<Name> {
         let mut pr = Vec::<Name>::new();
         for ca in &self.options {
-            pr.push(
-                match ca {
-                    CharacterAction::Index(id) => act_en.get(id).unwrap().prompt(),
-                    CharacterAction::Menu(m) => m.prompt.clone(),
-                    CharacterAction::Literal(a) => a.prompt(),
-                    CharacterAction::UseItem => "Item".to_string(),
-                }
-            );
+            pr.push(match ca {
+                CharacterAction::Index(id) => act_en.get(id).unwrap().prompt(),
+                CharacterAction::Menu(m) => m.prompt.clone(),
+                CharacterAction::Literal(a) => a.prompt(),
+                CharacterAction::UseItem => "Item".to_string(),
+            });
         }
         pr
     }
-    pub fn get_option(&self, opt: usize) -> Option::<&CharacterAction> {
+    pub fn get_option(&self, opt: usize) -> Option<&CharacterAction> {
         self.options.get(opt)
     }
 }
@@ -120,15 +114,27 @@ impl Action {
     }
     pub fn get_message(&self, actor: &str, target_names: &[Name]) -> String {
         let ntargets = target_names.len();
-        let mut targets = target_names[..ntargets-1].join(", ");
+        let mut targets = target_names[..ntargets - 1].join(", ");
         if ntargets == 1 {
             targets = target_names.get(0).unwrap().to_string();
         } else if ntargets == 2 {
-            targets = format!("{} and {}", targets, target_names.get(ntargets-1).unwrap());
+            targets = format!(
+                "{} and {}",
+                targets,
+                target_names.get(ntargets - 1).unwrap()
+            );
         } else if ntargets > 2 {
-            targets = format!("{}, and {}", targets, target_names.get(ntargets-1).unwrap());
+            targets = format!(
+                "{}, and {}",
+                targets,
+                target_names.get(ntargets - 1).unwrap()
+            );
         }
-        String::from(&str::replace(&str::replace(&self.message, "{:actor}", actor), "{:targets}", &targets))
+        String::from(&str::replace(
+            &str::replace(&self.message, "{:actor}", actor),
+            "{:targets}",
+            &targets,
+        ))
     }
 }
 
@@ -147,13 +153,19 @@ mod tests {
         let act_en = ActionEncyclopedia::new("data/actions.json");
         let spell_id: Id = 0;
         let magic = vec![CharacterAction::Index(spell_id)];
-        let magic_menu = ActionMenu { prompt: "Magic".to_string(), options: magic };
-        assert_eq!(magic_menu.get_prompts(&act_en)[0], act_en.get(&spell_id).unwrap().name);
+        let magic_menu = ActionMenu {
+            prompt: "Magic".to_string(),
+            options: magic,
+        };
+        assert_eq!(
+            magic_menu.get_prompts(&act_en)[0],
+            act_en.get(&spell_id).unwrap().name
+        );
         let attack_id: Id = 0;
         let options = vec![
-                CharacterAction::Index(attack_id),
-                CharacterAction::Menu(magic_menu),
-                CharacterAction::UseItem,
+            CharacterAction::Index(attack_id),
+            CharacterAction::Menu(magic_menu),
+            CharacterAction::UseItem,
         ];
         let am = ActionMenu {
             prompt: "ROOT".to_string(),
@@ -177,7 +189,7 @@ mod tests {
             message: String::from("TEST {:actor} {:targets} TEST"),
         };
         let actor = "A";
-        let mut targets: Vec::<Name> = vec![String::from("1")];
+        let mut targets: Vec<Name> = vec![String::from("1")];
         assert_eq!(act.get_message(actor, &targets), "TEST A 1 TEST");
         targets.push(String::from("2"));
         assert_eq!(act.get_message(actor, &targets), "TEST A 1 and 2 TEST");

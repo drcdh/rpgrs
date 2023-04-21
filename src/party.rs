@@ -1,7 +1,7 @@
 use core::slice::Iter;
 
-use crate::common::*;
 use crate::character::Character;
+use crate::common::*;
 use crate::encyclopedia::CharacterEncyclopedia;
 use crate::encyclopedia::ConditionEncyclopedia;
 use crate::encyclopedia::StatBlockEncyclopedia;
@@ -23,28 +23,41 @@ pub struct Party {
 
 impl Party {
     pub fn new(name: Name) -> Party {
-        Party { id: 0, name, group: Group::new(), formation: Ordering::new(), items: ItemPool::new(), clocks: Clocks::new() }
+        Party {
+            id: 0,
+            name,
+            group: Group::new(),
+            formation: Ordering::new(),
+            items: ItemPool::new(),
+            clocks: Clocks::new(),
+        }
     }
     pub fn whoami(&self) -> (Id, &str) {
         (self.id, &self.name[..])
     }
     pub fn add_character(&mut self, ch: Character) {
         self.group.push(ch);
-        self.formation.push(self.group.len()-1);
+        self.formation.push(self.group.len() - 1);
         self.clocks.push(0);
     }
-    pub fn add_clone(&mut self, iol_ch: &IndexedOrLiteral<Character>, ch_enc: &CharacterEncyclopedia) {
+    pub fn add_clone(
+        &mut self,
+        iol_ch: &IndexedOrLiteral<Character>,
+        ch_enc: &CharacterEncyclopedia,
+    ) {
         self.group.push(ch_enc.clone_entry(iol_ch).unwrap());
-        self.formation.push(self.group.len()-1);
+        self.formation.push(self.group.len() - 1);
         self.clocks.push(0);
     }
     pub fn remove_character(&mut self, id: Id) -> Option<Character> {
-        if let Some(index) = self.group.iter().position(|ch| ch.matches(id) ) {
+        if let Some(index) = self.group.iter().position(|ch| ch.matches(id)) {
             let removed: Character = self.group.remove(index);
             self.formation.retain(|&i| i != index);
             self.clocks.remove(index);
             Some(removed)
-        } else { None }
+        } else {
+            None
+        }
     }
     pub fn is_empty(&self) -> bool {
         self.group.is_empty()
@@ -55,14 +68,18 @@ impl Party {
     pub fn get_num_up(&self) -> usize {
         let mut n: usize = 0;
         for ch in self.group.iter() {
-            if !ch.is_down() { n += 1; }
+            if !ch.is_down() {
+                n += 1;
+            }
         }
         n
     }
     pub fn get_nth_up_pos(&self, i: usize) -> usize {
         let mut i_up = i;
         for (i, ch) in self.group.iter().enumerate() {
-            if ch.is_down() { continue; }
+            if ch.is_down() {
+                continue;
+            }
             if i_up == 0 {
                 return i;
             }
@@ -91,7 +108,12 @@ impl Party {
         }
         None
     }
-    pub fn increment_clocks(&mut self, dt: u16, conditions: &ConditionEncyclopedia, statblocks: &StatBlockEncyclopedia) {
+    pub fn increment_clocks(
+        &mut self,
+        dt: u16,
+        conditions: &ConditionEncyclopedia,
+        statblocks: &StatBlockEncyclopedia,
+    ) {
         for (ch, clk) in self.group.iter_mut().zip(self.clocks.iter_mut()) {
             let dclk = ch.dclock(dt, conditions, statblocks);
             *clk = clk.saturating_add(dclk);
@@ -102,7 +124,9 @@ impl Party {
     }
     pub fn all_down(&self) -> bool {
         for ch in self.group.iter() {
-            if !ch.is_down() { return false; }
+            if !ch.is_down() {
+                return false;
+            }
         }
         true
     }
@@ -149,7 +173,11 @@ mod tests {
         let mog = Character::new(0, String::from("Mog"));
         party.add_character(mog);
         assert_eq!(party.get_ready_ch_pos(), None);
-        party.increment_clocks(u16::MAX, &ConditionEncyclopedia::new("data/conditions.json"), &StatBlockEncyclopedia::new("data/stats.json"));
+        party.increment_clocks(
+            u16::MAX,
+            &ConditionEncyclopedia::new("data/conditions.json"),
+            &StatBlockEncyclopedia::new("data/stats.json"),
+        );
         assert!(matches!(party.get_ready_ch_pos(), Some(_)));
     }
 }

@@ -6,7 +6,7 @@ use rpgrs::encyclopedia::CharacterEncyclopedia;
 #[derive(Parser, Debug)]
 #[clap(version, about)]
 struct Args {
-//    #[clap(long)]
+    //    #[clap(long)]
     id: u64,
 }
 
@@ -15,11 +15,13 @@ fn main() {
 
     let id = args.id as Id;
 
-//    let id = std::env::args().nth(1).expect("no Id given");
+    //    let id = std::env::args().nth(1).expect("no Id given");
 
     let phonebook = CharacterEncyclopedia::new("data/characters.json");
-    
-    let c = phonebook.get(&id).expect(&format!("no character with Id={id}").to_string()); 
-    
+
+    let c = phonebook
+        .get(&id)
+        .expect(&format!("no character with Id={id}").to_string());
+
     println!("{}", c);
 }

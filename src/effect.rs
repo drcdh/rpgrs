@@ -1,17 +1,15 @@
 use std::fmt;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::character::Character;
 use crate::common::*;
 use crate::encyclopedia::StatBlockEncyclopedia;
 use crate::formula;
 
-pub type Traits = Vec::<Name>;
+pub type Traits = Vec<Name>;
 
-#[derive(Serialize, Deserialize, Debug)]
-#[derive(PartialEq)]
-#[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct Effect {
     id: Id,
     #[serde(default)]
@@ -43,15 +41,23 @@ impl Effect {
     pub fn whoami(&self) -> (Id, &str) {
         (self.id, &self.name[..])
     }
-    pub fn actor_affect_target(&self, actor: &Character, target: &Character, statblocks: &StatBlockEncyclopedia) -> Hits {
+    pub fn actor_affect_target(
+        &self,
+        actor: &Character,
+        target: &Character,
+        statblocks: &StatBlockEncyclopedia,
+    ) -> Hits {
         let mut hits = Hits::new();
         for hit in &self.hits {
             let amount: i32 = match &hit.amount {
                 HitAmt::Constant(v) => *v,
                 HitAmt::Formula(f) => formula::eval_hit(f, Some(actor), target, statblocks),
             };
-//            let v: i32 = target.hit_pool(&hit.pool, amount);
-            hits.push(Hit { pool: hit.pool.clone(), amount: HitAmt::Constant(amount) });
+            //            let v: i32 = target.hit_pool(&hit.pool, amount);
+            hits.push(Hit {
+                pool: hit.pool.clone(),
+                amount: HitAmt::Constant(amount),
+            });
         }
         hits
     }
@@ -75,7 +81,6 @@ impl fmt::Display for Effect {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -93,19 +98,25 @@ mod tests {
         let c = Character::new(0, String::from("Test Character"));
         let t = Character::new(1, String::from("Test Target Character"));
         let mut effect = Effect::new(0, "Test Effect".to_string());
-//        let init_hp = t.get_pool_vals("HP".to_string()).unwrap().0;
+        //        let init_hp = t.get_pool_vals("HP".to_string()).unwrap().0;
         let v = 1;
         let f = format!("{}", v);
         effect.hits = vec![
-            Hit { pool: String::from("HP"), amount: HitAmt::Constant(v) },
-            Hit { pool: String::from("HP"), amount: HitAmt::Formula(f) },
+            Hit {
+                pool: String::from("HP"),
+                amount: HitAmt::Constant(v),
+            },
+            Hit {
+                pool: String::from("HP"),
+                amount: HitAmt::Formula(f),
+            },
         ];
         let hits = effect.actor_affect_target(&c, &t, &statblocks);
         assert_eq!(effect.hits[0].pool, hits[0].pool);
         assert_eq!(effect.hits[1].pool, hits[1].pool);
         assert_eq!(hits[0].amount, HitAmt::Constant(v));
         assert_eq!(hits[1].amount, HitAmt::Constant(v));
-//        let hp = t.get_pool_vals("HP".to_string()).unwrap().0;
-//        assert_eq!(hp, init_hp - 2);
+        //        let hp = t.get_pool_vals("HP".to_string()).unwrap().0;
+        //        assert_eq!(hp, init_hp - 2);
     }
 }

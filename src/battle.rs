@@ -1,5 +1,5 @@
-use std::collections::VecDeque;
 use rand::Rng;
+use std::collections::VecDeque;
 
 use termion::event::Key;
 
@@ -16,8 +16,7 @@ use crate::party::Party;
 pub mod battleui;
 use battleui::BattleUI;
 
-#[derive(PartialEq, Eq)]
-#[derive(Clone)]
+#[derive(PartialEq, Eq, Clone)]
 pub enum PlayerIndex {
     Ally(usize),
     Baddy(usize),
@@ -29,7 +28,12 @@ struct TargetedEffect {
     effect: Effect,
 }
 impl TargetedEffect {
-    fn new(actor_pi: &PlayerIndex, target_pi: &PlayerIndex, effect_iol: &IndexedOrLiteral<Effect>, effect_enc: &EffectEncyclopedia) -> TargetedEffect {
+    fn new(
+        actor_pi: &PlayerIndex,
+        target_pi: &PlayerIndex,
+        effect_iol: &IndexedOrLiteral<Effect>,
+        effect_enc: &EffectEncyclopedia,
+    ) -> TargetedEffect {
         TargetedEffect {
             actor_pi: actor_pi.clone(),
             target_pi: target_pi.clone(),
@@ -48,13 +52,13 @@ pub struct Battle {
     pub baddies: Party,
 
     ended: bool,
-    pub selections: Vec::<usize>,
-    text: VecDeque::<String>,
+    pub selections: Vec<usize>,
+    text: VecDeque<String>,
     current_pc_idx: Option<PlayerIndex>,
     current_npc_idx: Option<PlayerIndex>,
-    pub targets: Vec::<PlayerIndex>,
-    effects: VecDeque::<TargetedEffect>,
-    hits: VecDeque::<TargetedHit>,
+    pub targets: Vec<PlayerIndex>,
+    effects: VecDeque<TargetedEffect>,
+    hits: VecDeque<TargetedHit>,
 
     action_enc: ActionEncyclopedia,
     condition_enc: ConditionEncyclopedia,
@@ -103,20 +107,30 @@ impl Battle {
                 return;
             }
             // Increment characters' clocks
-            self.allies.increment_clocks(1, &self.condition_enc, &self.statblocks);
-            self.baddies.increment_clocks(1, &self.condition_enc, &self.statblocks);
+            self.allies
+                .increment_clocks(1, &self.condition_enc, &self.statblocks);
+            self.baddies
+                .increment_clocks(1, &self.condition_enc, &self.statblocks);
         }
     }
     fn handle_hit(&mut self) {
         if let Some(th) = self.hits.pop_front() {
-            let name = self.get_character(&Some(th.target_pi.clone())).unwrap().copy_name();
-            let v = self.get_mut_character(&Some(th.target_pi)).unwrap().hit_pool(&th.pool, th.amount);
+            let name = self
+                .get_character(&Some(th.target_pi.clone()))
+                .unwrap()
+                .copy_name();
+            let v = self
+                .get_mut_character(&Some(th.target_pi))
+                .unwrap()
+                .hit_pool(&th.pool, th.amount);
             if v > 0 {
-                self.text.push_back(format!("{} took {} {} damage!", name, v, th.pool));
+                self.text
+                    .push_back(format!("{} took {} {} damage!", name, v, th.pool));
             } else if v == 0 {
                 self.text.push_back(format!("No effect on {}...", name));
             } else {
-                self.text.push_back(format!("{} was healed for {} {}!", name, -v, th.pool));
+                self.text
+                    .push_back(format!("{} was healed for {} {}!", name, -v, th.pool));
             }
         }
     }
@@ -124,26 +138,42 @@ impl Battle {
         if let Some(te) = self.effects.pop_front() {
             let actor = self.get_ch_by_pi(&te.actor_pi);
             let target = self.get_ch_by_pi(&te.target_pi);
-            let hits = te.effect.actor_affect_target(actor, target, &self.statblocks);
+            let hits = te
+                .effect
+                .actor_affect_target(actor, target, &self.statblocks);
             for hit in hits {
                 let target_pi = te.target_pi.clone();
                 let pool = hit.pool;
                 if let HitAmt::Constant(amount) = hit.amount {
-                    self.hits.push_back(TargetedHit { target_pi, pool, amount });
-                } else { panic!("TargetedEffect.hits should always be HitAmt::Constant"); }
+                    self.hits.push_back(TargetedHit {
+                        target_pi,
+                        pool,
+                        amount,
+                    });
+                } else {
+                    panic!("TargetedEffect.hits should always be HitAmt::Constant");
+                }
             }
         }
     }
-    fn get_current_pc_actions(&self) -> Vec::<Vec::<Name>> {
+    fn get_current_pc_actions(&self) -> Vec<Vec<Name>> {
         if self.selections.is_empty() {
-            return Vec::<Vec::<Name>>::new();
+            return Vec::<Vec<Name>>::new();
         }
-        let ns = self.selections.len()-1;
+        let ns = self.selections.len() - 1;
         let parent_menu_selections = &self.selections[..ns];
         match self.current_pc_idx {
-            Some(PlayerIndex::Ally(i)) => self.allies.get_ch_by_pos(i).unwrap().get_action_options(parent_menu_selections, &self.action_enc),
-            Some(PlayerIndex::Baddy(i)) => self.baddies.get_ch_by_pos(i).unwrap().get_action_options(parent_menu_selections, &self.action_enc),
-            None => Vec::<Vec::<Name>>::new(), // fixme??
+            Some(PlayerIndex::Ally(i)) => self
+                .allies
+                .get_ch_by_pos(i)
+                .unwrap()
+                .get_action_options(parent_menu_selections, &self.action_enc),
+            Some(PlayerIndex::Baddy(i)) => self
+                .baddies
+                .get_ch_by_pos(i)
+                .unwrap()
+                .get_action_options(parent_menu_selections, &self.action_enc),
+            None => Vec::<Vec<Name>>::new(), // fixme??
         }
     }
     pub fn run(&mut self, ui: &mut dyn BattleUI) {
@@ -155,7 +185,7 @@ impl Battle {
             }
             if let Key::Char(_c) = key {
                 // Collect it as entropy
-//                self.rand.write_u8(c as u8);
+                //                self.rand.write_u8(c as u8);
             }
             if self.handle_input(key) {
                 // Battle is over
@@ -168,7 +198,11 @@ impl Battle {
             self.pop_text();
             self.handle_effect();
             self.handle_hit();
-            if !self.check_end_game() && self.text.is_empty() && self.current_pc_idx.is_none() && self.current_npc_idx.is_none() {
+            if !self.check_end_game()
+                && self.text.is_empty()
+                && self.current_pc_idx.is_none()
+                && self.current_npc_idx.is_none()
+            {
                 self.next_turn();
             }
             return false;
@@ -182,12 +216,15 @@ impl Battle {
     fn pop_text(&mut self) -> Option<String> {
         self.text.pop_front()
     }
-    pub fn get_top_menu_options(&self) -> Option<Vec::<String>> {
+    pub fn get_top_menu_options(&self) -> Option<Vec<String>> {
         if !self.text.is_empty() {
             return None; // todo
         }
         match self.current_pc_idx {
-            Some(_) => self.get_current_pc_actions().get(self.selections.len()-1).cloned(),
+            Some(_) => self
+                .get_current_pc_actions()
+                .get(self.selections.len() - 1)
+                .cloned(),
             None => None,
         }
     }
@@ -220,7 +257,7 @@ impl Battle {
     fn get_current_npc(&self) -> Option<&Character> {
         self.get_character(&self.current_npc_idx)
     }
-    fn _get_target_names(&self, targets: &[PlayerIndex]) -> Vec::<Name> {
+    fn _get_target_names(&self, targets: &[PlayerIndex]) -> Vec<Name> {
         let mut target_names = Vec::<Name>::new();
         for i in targets {
             if let PlayerIndex::Ally(i) = i {
@@ -233,7 +270,7 @@ impl Battle {
         }
         target_names
     }
-    fn get_target_names(&self) -> Vec::<Name> {
+    fn get_target_names(&self) -> Vec<Name> {
         self._get_target_names(&self.targets)
     }
     fn play_pc_action(&mut self) {
@@ -245,18 +282,16 @@ impl Battle {
                 // Queue up the Action Effects
                 for target in &self.targets {
                     for effect in &a.effects {
-                        let te = TargetedEffect::new(
-                                actor,
-                                target,
-                                effect,
-                                &self.effect_enc,
-                            );
+                        let te = TargetedEffect::new(actor, target, effect, &self.effect_enc);
                         teffects.push_back(te);
                     }
                 }
                 costs = a.costs.clone();
                 // Queue the Action message
-                let msg = a.get_message(&self.get_current_pc().unwrap().copy_name(), &self.get_target_names());
+                let msg = a.get_message(
+                    &self.get_current_pc().unwrap().copy_name(),
+                    &self.get_target_names(),
+                );
                 self.text.push_back(msg);
             }
             let pi = self.current_pc_idx.clone();
@@ -286,23 +321,36 @@ impl Battle {
                 } else if a.scope == Scope::Ally {
                     self.targets = vec![PlayerIndex::Ally(self.baddies.get_nth_up_pos(0))];
                 /*} else if a.scope == Scope::You {
-                    if let PlayerIndex::Ally(mut i) = self.current_pc_idx {
-                        Battle::change_member_selection(Key::Right, &mut i, self.allies.len());
-                        self.targets = vec![PlayerIndex::Ally(i)];
-                    }*/
+                if let PlayerIndex::Ally(mut i) = self.current_pc_idx {
+                    Battle::change_member_selection(Key::Right, &mut i, self.allies.len());
+                    self.targets = vec![PlayerIndex::Ally(i)];
+                }*/
                 } else if a.scope == Scope::Enemies {
-                    self.targets = (0..self.baddies.len()).map(PlayerIndex::Baddy).collect::<Vec<_>>();
+                    self.targets = (0..self.baddies.len())
+                        .map(PlayerIndex::Baddy)
+                        .collect::<Vec<_>>();
                 } else if a.scope == Scope::Allies {
-                    self.targets = (0..self.allies.len()).map(PlayerIndex::Ally).collect::<Vec<_>>();
+                    self.targets = (0..self.allies.len())
+                        .map(PlayerIndex::Ally)
+                        .collect::<Vec<_>>();
                 } else if a.scope == Scope::All {
-                    self.targets.append(&mut (0..self.baddies.len()).map(PlayerIndex::Baddy).collect::<Vec<_>>());
-                    self.targets.append(&mut (0..self.allies.len()).map(PlayerIndex::Ally).collect::<Vec<_>>());
+                    self.targets.append(
+                        &mut (0..self.baddies.len())
+                            .map(PlayerIndex::Baddy)
+                            .collect::<Vec<_>>(),
+                    );
+                    self.targets.append(
+                        &mut (0..self.allies.len())
+                            .map(PlayerIndex::Ally)
+                            .collect::<Vec<_>>(),
+                    );
                 } else {
                     panic!("PC Action scopes other than Enemy, Ally, Enemies, Allies, and All not implemented yet.");
                 }
-           } else {
-               self.text.push_back(String::from("Can't afford that action :-/"));
-           }
+            } else {
+                self.text
+                    .push_back(String::from("Can't afford that action :-/"));
+            }
         } else {
             eprintln!("Next menu");
             self.selections.push(0);
@@ -311,13 +359,15 @@ impl Battle {
     fn change_member_selection(key: Key, i: &mut usize, l: usize) {
         if key == Key::Left {
             if *i == 0 {
-                *i = l-1;
+                *i = l - 1;
             } else {
                 *i -= 1;
             }
         } else if key == Key::Right {
             *i += 1;
-            if *i >= l { *i = 0; }
+            if *i >= l {
+                *i = 0;
+            }
         }
     }
     fn make_selection(&mut self, key: Key) {
@@ -426,13 +476,15 @@ impl Battle {
                 let mut i = self.selections.pop().unwrap();
                 if key == Key::Up {
                     if i == 0 {
-                        i = options.len()-1;
+                        i = options.len() - 1;
                     } else {
                         i -= 1;
                     }
                 } else if key == Key::Down {
                     i += 1;
-                    if i >= options.len() { i = 0; }
+                    if i >= options.len() {
+                        i = 0;
+                    }
                 }
                 self.selections.push(i);
             } else if key == Key::Esc {
@@ -452,12 +504,8 @@ impl Battle {
                 let target_names = self._get_target_names(&targets);
                 for target_pi in targets {
                     for effect in &a.effects {
-                        let te = TargetedEffect::new(
-                                actor_pi,
-                                &target_pi,
-                                effect,
-                                &self.effect_enc,
-                            );
+                        let te =
+                            TargetedEffect::new(actor_pi, &target_pi, effect, &self.effect_enc);
                         teffects.push_back(te);
                     }
                 }
@@ -472,16 +520,24 @@ impl Battle {
             self.current_npc_idx = None;
         }
     }
-    fn get_random_targets(&self, actor_pi: &PlayerIndex, scope: &Scope) -> Vec::<PlayerIndex> {
+    fn get_random_targets(&self, actor_pi: &PlayerIndex, scope: &Scope) -> Vec<PlayerIndex> {
         // todo Assuming actor_pi is PlayerIndex::Baddy
         let na = self.allies.get_num_up();
         let nb = self.baddies.get_num_up();
         let mut rng = rand::thread_rng();
         match scope {
-            Scope::Enemy => vec![PlayerIndex::Ally(self.allies.get_nth_up_pos(rng.gen_range(0..na)))],
-            Scope::Ally => vec![PlayerIndex::Baddy(self.baddies.get_nth_up_pos(rng.gen_range(0..nb)))],
-            Scope::Enemies => (0..na).map(|i| PlayerIndex::Ally(self.allies.get_nth_up_pos(i))).collect::<Vec<_>>(),
-            Scope::Allies => (0..nb).map(|i| PlayerIndex::Baddy(self.baddies.get_nth_up_pos(i))).collect::<Vec<_>>(),
+            Scope::Enemy => vec![PlayerIndex::Ally(
+                self.allies.get_nth_up_pos(rng.gen_range(0..na)),
+            )],
+            Scope::Ally => vec![PlayerIndex::Baddy(
+                self.baddies.get_nth_up_pos(rng.gen_range(0..nb)),
+            )],
+            Scope::Enemies => (0..na)
+                .map(|i| PlayerIndex::Ally(self.allies.get_nth_up_pos(i)))
+                .collect::<Vec<_>>(),
+            Scope::Allies => (0..nb)
+                .map(|i| PlayerIndex::Baddy(self.baddies.get_nth_up_pos(i)))
+                .collect::<Vec<_>>(),
             _ => panic!("NPC Action scopes other than Enemy and Ally not implemented yet."),
         }
     }
@@ -500,7 +556,9 @@ impl Battle {
         self.hits.clear();
     }
     pub fn check_end_game(&mut self) -> bool {
-        if self.ended { return true; }
+        if self.ended {
+            return true;
+        }
         if self.effects.is_empty() && self.hits.is_empty() {
             if self.allies.all_down() {
                 self.reset();
@@ -509,8 +567,11 @@ impl Battle {
             } else if self.baddies.all_down() {
                 self.reset();
                 self.text.push_back(String::from("A winner is you!"));
-                self.text.push_back(String::from("You'd probably earn some experience points now."));
-                self.text.push_back(String::from("You'd probably find some phat loot now."));
+                self.text.push_back(String::from(
+                    "You'd probably earn some experience points now.",
+                ));
+                self.text
+                    .push_back(String::from("You'd probably find some phat loot now."));
                 self.ended = true;
             }
         }
@@ -528,10 +589,8 @@ impl Battle {
 impl Battle {
     fn force_turn(&mut self, pi: PlayerIndex) {
         match pi {
-            PlayerIndex::Ally(i) =>
-                self.current_pc_idx = Some(PlayerIndex::Ally(i)),
-            PlayerIndex::Baddy(i) =>
-                self.current_npc_idx = Some(PlayerIndex::Baddy(i)),
+            PlayerIndex::Ally(i) => self.current_pc_idx = Some(PlayerIndex::Ally(i)),
+            PlayerIndex::Baddy(i) => self.current_npc_idx = Some(PlayerIndex::Baddy(i)),
         }
     }
 }

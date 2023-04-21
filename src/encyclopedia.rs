@@ -3,18 +3,20 @@ use std::error::Error;
 use std::fs::File;
 use std::io::BufReader;
 
-use serde::Serialize;
 use serde::de::DeserializeOwned;
+use serde::Serialize;
 use serde_json;
 
 use crate::common::*;
 
-type _Encyclopedia<T> = HashMap::<Id, T>;
+type _Encyclopedia<T> = HashMap<Id, T>;
 pub struct Encyclopedia<T> {
     pub en: _Encyclopedia<T>,
 }
 
-fn _read_encyclopedia<T: Serialize + DeserializeOwned>(filename: &str) -> Result<_Encyclopedia<T>, Box<dyn Error>> {
+fn _read_encyclopedia<T: Serialize + DeserializeOwned>(
+    filename: &str,
+) -> Result<_Encyclopedia<T>, Box<dyn Error>> {
     let file = File::open(filename)?;
     let reader = BufReader::new(file);
     let en = serde_json::from_reader(reader)?;
@@ -23,22 +25,30 @@ fn _read_encyclopedia<T: Serialize + DeserializeOwned>(filename: &str) -> Result
 
 impl<T: Serialize + DeserializeOwned> Encyclopedia<T> {
     pub fn new(filename: &str) -> Encyclopedia<T> {
-        Encyclopedia { en: _read_encyclopedia::<T>(filename).expect("Failed to read encyclopedia") }
+        Encyclopedia {
+            en: _read_encyclopedia::<T>(filename).expect("Failed to read encyclopedia"),
+        }
     }
 }
 
 impl<T> Encyclopedia<T> {
-    pub fn is_empty(&self) -> bool { self.en.is_empty() }
-    pub fn len(&self) -> usize { self.en.len() }
-    pub fn get(&self, id: &Id) -> Option<&T> { self.en.get(id) }
+    pub fn is_empty(&self) -> bool {
+        self.en.is_empty()
+    }
+    pub fn len(&self) -> usize {
+        self.en.len()
+    }
+    pub fn get(&self, id: &Id) -> Option<&T> {
+        self.en.get(id)
+    }
     //pub fn iter(&self) -> Iter<'_, Id, T> { self.en.iter() }
-    pub fn resolve<'a>(&'a self, iol: &'a IndexedOrLiteral::<T>) -> Option<&'a T> {
+    pub fn resolve<'a>(&'a self, iol: &'a IndexedOrLiteral<T>) -> Option<&'a T> {
         match iol {
             IndexedOrLiteral::<T>::Index(i) => self.en.get(i),
             IndexedOrLiteral::<T>::Literal(c) => Some(c),
         }
     }
-/*    pub fn resolve_mut<'a>(&'a mut self, iol: &'a IndexedOrLiteral::<T>) -> Option<&'a mut T> {
+    /*    pub fn resolve_mut<'a>(&'a mut self, iol: &'a IndexedOrLiteral::<T>) -> Option<&'a mut T> {
         match iol {
             IndexedOrLiteral::<T>::Index(i) => self.en.get_mut(&i),
             IndexedOrLiteral::<T>::Literal(c) => Some(c),
@@ -47,7 +57,7 @@ impl<T> Encyclopedia<T> {
 }
 
 impl<T: Clone> Encyclopedia<T> {
-    pub fn clone_entry(&self, iol: &IndexedOrLiteral::<T>) -> Option<T> {
+    pub fn clone_entry(&self, iol: &IndexedOrLiteral<T>) -> Option<T> {
         self.resolve(iol).cloned()
     }
 }
@@ -57,16 +67,17 @@ use crate::character::Character;
 use crate::condition::Condition;
 use crate::effect::Effect;
 use crate::item::Item;
+use crate::sprite::Sprite;
 use crate::stats::StatBlock;
 
-pub type ActionEncyclopedia    = Encyclopedia<Action>;
+pub type ActionEncyclopedia = Encyclopedia<Action>;
 pub type CharacterEncyclopedia = Encyclopedia<Character>;
 pub type ConditionEncyclopedia = Encyclopedia<Condition>;
-pub type EffectEncyclopedia    = Encyclopedia<Effect>;
-pub type ItemEncyclopedia      = Encyclopedia<Item>;
+pub type EffectEncyclopedia = Encyclopedia<Effect>;
+pub type ItemEncyclopedia = Encyclopedia<Item>;
 pub type StatBlockEncyclopedia = Encyclopedia<StatBlock>;
 
-pub type SpriteCode = Encyclopedia<Sprite>;
+pub type SpriteEncyclopedia = Encyclopedia<Sprite>;
 
 #[cfg(test)]
 mod tests {

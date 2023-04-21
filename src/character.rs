@@ -1,8 +1,8 @@
+use rand::Rng;
 use std::collections::HashMap;
 use std::fmt;
-use rand::Rng;
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use serde_json;
 
 use crate::action::{Action, ActionMenu, CharacterAction, Costs};
@@ -13,13 +13,12 @@ use crate::encyclopedia::ConditionEncyclopedia;
 use crate::encyclopedia::EffectEncyclopedia;
 use crate::encyclopedia::StatBlockEncyclopedia;
 use crate::formula::eval_stat;
-use crate::stats::{BaseStats, Stat, DerivedStat};
+use crate::stats::{BaseStats, DerivedStat, Stat};
 
 type CharacterStats = Id; // todo, allow literals in JSON with enum
-type Items = Vec::<Id>; // todo, allow literals in JSON with CharacterItem
+type Items = Vec<Id>; // todo, allow literals in JSON with CharacterItem
 
-#[derive(Serialize, Deserialize, Debug)]
-#[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Pool {
     pub name: Name,
     pub current: i32,
@@ -32,10 +31,9 @@ impl fmt::Display for Pool {
     }
 }
 
-type Pools = HashMap::<Name, Pool>;
+type Pools = HashMap<Name, Pool>;
 
-#[derive(Serialize, Deserialize, Debug)]
-#[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Character {
     id: Id,
     name: Name,
@@ -69,8 +67,22 @@ impl Character {
     }
     fn default_pools() -> Pools {
         let mut pools = Pools::new();
-        pools.insert(String::from("HP"), Pool { name: String::from("HP"), current: 10, maximum: 10 });
-        pools.insert(String::from("MP"), Pool { name: String::from("MP"), current: 5, maximum: 5 });
+        pools.insert(
+            String::from("HP"),
+            Pool {
+                name: String::from("HP"),
+                current: 10,
+                maximum: 10,
+            },
+        );
+        pools.insert(
+            String::from("MP"),
+            Pool {
+                name: String::from("MP"),
+                current: 5,
+                maximum: 5,
+            },
+        );
         pools
     }
     pub fn new(id: Id, name: Name) -> Character {
@@ -90,7 +102,8 @@ impl Character {
         self.id == id
     }
     pub fn from_json(data: &str) -> Character {
-        let c: Character = serde_json::from_str(data).expect("Character JSON was not well-formatted");
+        let c: Character =
+            serde_json::from_str(data).expect("Character JSON was not well-formatted");
         c
     }
     // `&self` is short for `self: &Self`
@@ -104,13 +117,22 @@ impl Character {
     pub fn get_base_stat(&self, name: Name) -> Option<&Stat> {
         self.base_stats.get(&name)
     }
-    pub fn get_stat<'s>(&self, name: Name, statblocks: &'s StatBlockEncyclopedia) -> Option<&'s DerivedStat> {
+    pub fn get_stat<'s>(
+        &self,
+        name: Name,
+        statblocks: &'s StatBlockEncyclopedia,
+    ) -> Option<&'s DerivedStat> {
         match statblocks.get(&self.stats) {
             Some(statblock) => statblock.get_stat(name),
             None => None,
         }
     }
-    pub fn get_stat_val(&self, name: Name, default: Stat, statblocks: &StatBlockEncyclopedia) -> Stat {
+    pub fn get_stat_val(
+        &self,
+        name: Name,
+        default: Stat,
+        statblocks: &StatBlockEncyclopedia,
+    ) -> Stat {
         let base_stat = Name::from(&name);
         match self.get_stat(name, statblocks) {
             Some(formula) => eval_stat(base_stat, formula, self),
@@ -118,7 +140,9 @@ impl Character {
         }
     }
     pub fn get_pool_vals(&self, name: String) -> Option<(i32, i32)> {
-        self.pools.get(&name).map(|pool| (pool.current, pool.maximum))
+        self.pools
+            .get(&name)
+            .map(|pool| (pool.current, pool.maximum))
     }
     pub fn get_pools(&self) -> &Pools {
         &self.pools
@@ -142,7 +166,11 @@ impl Character {
             _ => None,
         }
     }
-    pub fn get_action_options(&self, selections: &[usize], act_en: &ActionEncyclopedia) -> Vec::<Vec::<Name>> {
+    pub fn get_action_options(
+        &self,
+        selections: &[usize],
+        act_en: &ActionEncyclopedia,
+    ) -> Vec<Vec<Name>> {
         // Start with the root CharacterActions (e.g. Attack, Magic, Item)
         // This needs to be a mutable reference for the loop below to work.
         let mut menu: &ActionMenu = &self.actions; // ROOT ActionMenu
@@ -158,7 +186,11 @@ impl Character {
         }
         result
     }
-    pub fn get_action_selection<'a>(&'a self, selections: &[usize], action_enc: &'a ActionEncyclopedia) -> Option<&'a Action> {
+    pub fn get_action_selection<'a>(
+        &'a self,
+        selections: &[usize],
+        action_enc: &'a ActionEncyclopedia,
+    ) -> Option<&'a Action> {
         // Start with the root CharacterActions (e.g. Attack, Magic, Item)
         let mut menu: &ActionMenu = &self.actions; // ROOT ActionMenu
         for s in selections {
@@ -176,7 +208,10 @@ impl Character {
         }
         None
     }
-    pub fn get_random_action<'a>(&'a self, action_enc: &'a ActionEncyclopedia) -> Option<&'a Action> {
+    pub fn get_random_action<'a>(
+        &'a self,
+        action_enc: &'a ActionEncyclopedia,
+    ) -> Option<&'a Action> {
         // TODO: Check for unusable actions and reroll in case
         let mut menu: &ActionMenu = &self.actions; // ROOT ActionMenu
         let mut rng = rand::thread_rng();
@@ -196,7 +231,8 @@ impl Character {
         }
         None
     }
-    pub fn dclock(&mut self,
+    pub fn dclock(
+        &mut self,
         dt: u16,
         conditions: &ConditionEncyclopedia,
         statblocks: &StatBlockEncyclopedia,
@@ -206,21 +242,35 @@ impl Character {
             0
         } else {
             self.experience_conditions(dt, conditions);
-            dt.saturating_mul(u16::try_from(self.get_stat_val(String::from("Speed"), 0, statblocks)).ok().unwrap())
+            dt.saturating_mul(
+                u16::try_from(self.get_stat_val(String::from("Speed"), 0, statblocks))
+                    .ok()
+                    .unwrap(),
+            )
         }
     }
     fn experience_conditions(&mut self, dt: u16, conditions: &ConditionEncyclopedia) {
         let mut expired_condition_indices = Vec::<usize>::new();
         for (idx, tcon) in self.conditions.iter_mut().enumerate() {
-            let con = conditions.get(&tcon.condition_id).expect("missing condition in encyclopedia");
-            for (reff, reff_cd) in con.repeat_effects.iter().zip(tcon.repeat_effect_countdowns.iter_mut()) {
+            let con = conditions
+                .get(&tcon.condition_id)
+                .expect("missing condition in encyclopedia");
+            for (reff, reff_cd) in con
+                .repeat_effects
+                .iter()
+                .zip(tcon.repeat_effect_countdowns.iter_mut())
+            {
                 *reff_cd = reff_cd.saturating_sub(dt);
                 if *reff_cd == 0 {
                     // TODO reff.rep: IndexOrLiteral<Effect>
                     *reff_cd = reff.period;
                 }
             }
-            for (rhit, rhit_cd) in con.repeat_hits.iter().zip(tcon.repeat_hit_countdowns.iter_mut()) {
+            for (rhit, rhit_cd) in con
+                .repeat_hits
+                .iter()
+                .zip(tcon.repeat_hit_countdowns.iter_mut())
+            {
                 *rhit_cd = rhit_cd.saturating_sub(dt);
                 if *rhit_cd == 0 {
                     // TODO rhit.rep: Hit
@@ -248,28 +298,50 @@ impl Character {
     }
     pub fn can_afford_action_costs(&self, action: &Action) -> bool {
         for (pool, cost) in action.costs_iter() {
-            let pool = self.pools.get(pool).expect("Character does not have Pool for Action cost");
-            if pool.current < *cost { return false; }
+            let pool = self
+                .pools
+                .get(pool)
+                .expect("Character does not have Pool for Action cost");
+            if pool.current < *cost {
+                return false;
+            }
         }
         true
     }
     pub fn spend_costs(&mut self, costs: Costs) {
         for (pool, cost) in costs.iter() {
-            let mut pool = self.pools.get_mut(pool).expect("Character does not have Pool for Action cost");
+            let mut pool = self
+                .pools
+                .get_mut(pool)
+                .expect("Character does not have Pool for Action cost");
             pool.current -= *cost;
         }
     }
     pub fn spend_action_costs(&mut self, action: &Action) {
         for (pool, cost) in action.costs_iter() {
-            let mut pool = self.pools.get_mut(pool).expect("Character does not have Pool for Action cost");
+            let mut pool = self
+                .pools
+                .get_mut(pool)
+                .expect("Character does not have Pool for Action cost");
             pool.current -= *cost;
         }
     }
-    pub fn use_action_on(&mut self, action: &Action, target: &Character, effect_enc: &EffectEncyclopedia, statblocks: &StatBlockEncyclopedia) -> Hits {
+    pub fn use_action_on(
+        &mut self,
+        action: &Action,
+        target: &Character,
+        effect_enc: &EffectEncyclopedia,
+        statblocks: &StatBlockEncyclopedia,
+    ) -> Hits {
         self.spend_action_costs(action);
         let mut hits = Hits::new();
         for effect in &action.effects {
-            hits.append(&mut effect_enc.resolve(effect).unwrap().actor_affect_target(self, target, statblocks));
+            hits.append(
+                &mut effect_enc
+                    .resolve(effect)
+                    .unwrap()
+                    .actor_affect_target(self, target, statblocks),
+            );
         }
         hits
     }
@@ -282,7 +354,6 @@ impl Character {
         true
     }
 }
-
 
 impl fmt::Display for Character {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -299,7 +370,7 @@ impl Target for Character {
         if let Some(mut affected_pool) = self.pools.get_mut(pool) {
             let curr = affected_pool.current;
             let v = amount;
-            if curr-v < 0 {
+            if curr - v < 0 {
                 affected_pool.current = 0;
             } else {
                 affected_pool.current = curr - v;
@@ -311,12 +382,11 @@ impl Target for Character {
         }
         0 // todo None (so a zero isn't displayed)
     }
-/*    fn take_condition(&mut self, cond: &Condition) -> bool {
+    /*    fn take_condition(&mut self, cond: &Condition) -> bool {
         // TODO
         true
     }*/
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -325,10 +395,7 @@ mod tests {
     #[test]
     fn new_test() {
         let (id, name) = (10, "Mog");
-        let mog = Character::new(
-            id,
-            String::from(name),
-        );
+        let mog = Character::new(id, String::from(name));
         assert!(mog.matches(id));
         assert_eq!(mog.whoami(), (id, "Mog"));
     }
@@ -360,7 +427,9 @@ mod tests {
         use crate::encyclopedia::StatBlockEncyclopedia;
         let statblocks = StatBlockEncyclopedia::new("data/stats.json");
         let mog = Character::from_json(r#"{"id": 10, "name": "Mog"}"#);
-        assert!(mog.get_stat(String::from("Strength"), &statblocks).is_some());
+        assert!(mog
+            .get_stat(String::from("Strength"), &statblocks)
+            .is_some());
         assert!(mog.get_stat(String::from("Offense"), &statblocks).is_some());
         assert!(mog.get_stat(String::from("Moxie"), &statblocks).is_none());
     }
@@ -378,7 +447,7 @@ mod tests {
         selections.push(1); // select "Dance"
         expected_menus.push(vec!["Water Harmony", "Desert Lullaby"]);
         let mog_menus = mog.get_action_options(&selections, &actions);
-        assert_eq!(mog_menus, expected_menus);        
+        assert_eq!(mog_menus, expected_menus);
     }
     #[test]
     fn get_action_selection_test() {
@@ -387,10 +456,10 @@ mod tests {
         let actions = ActionEncyclopedia::new("data/actions.json");
         let characters = CharacterEncyclopedia::new("data/characters.json");
         let mog = characters.get(&10).unwrap();
-        let selections: Vec::<usize> = vec![1, 1]; // "Dance" -> "Desert Lullaby"
+        let selections: Vec<usize> = vec![1, 1]; // "Dance" -> "Desert Lullaby"
         let selected_action = mog.get_action_selection(&selections, &actions).unwrap();
         assert_eq!(selected_action.copy_name(), "Desert Lullaby");
-        let selections: Vec::<usize> = vec![1, 0]; // "Dance" -> "Water Harmony"
+        let selections: Vec<usize> = vec![1, 0]; // "Dance" -> "Water Harmony"
         let selected_action = mog.get_action_selection(&selections, &actions).unwrap();
         assert_eq!(selected_action.copy_name(), "Water Harmony");
     }

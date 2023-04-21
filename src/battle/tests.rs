@@ -33,7 +33,7 @@ fn new_test() {
     assert!(battle.pop_text().is_none());
     assert!(battle.get_current_npc().is_none());
     assert!(battle.get_current_pc().is_none());
-//    assert!(!battle.get_current_pc_actions().is_empty());
+    //    assert!(!battle.get_current_pc_actions().is_empty());
     assert!(battle.get_top_menu_options().is_none());
     assert!(battle.get_selected_action().is_none());
     assert!(battle.get_target_names().is_empty());
@@ -48,22 +48,34 @@ fn get_character_test() {
     assert!(battle.get_character(&Some(PlayerIndex::Baddy(0))).is_some());
     assert!(battle.get_character(&Some(PlayerIndex::Baddy(1))).is_some());
     assert!(battle.get_character(&Some(PlayerIndex::Baddy(2))).is_none());
-    assert!(battle.get_mut_character(&Some(PlayerIndex::Ally(0))).is_some());
-    assert!(battle.get_mut_character(&Some(PlayerIndex::Ally(1))).is_some());
-    assert!(battle.get_mut_character(&Some(PlayerIndex::Ally(2))).is_none());
-    assert!(battle.get_mut_character(&Some(PlayerIndex::Baddy(0))).is_some());
-    assert!(battle.get_mut_character(&Some(PlayerIndex::Baddy(1))).is_some());
-    assert!(battle.get_mut_character(&Some(PlayerIndex::Baddy(2))).is_none());
+    assert!(battle
+        .get_mut_character(&Some(PlayerIndex::Ally(0)))
+        .is_some());
+    assert!(battle
+        .get_mut_character(&Some(PlayerIndex::Ally(1)))
+        .is_some());
+    assert!(battle
+        .get_mut_character(&Some(PlayerIndex::Ally(2)))
+        .is_none());
+    assert!(battle
+        .get_mut_character(&Some(PlayerIndex::Baddy(0)))
+        .is_some());
+    assert!(battle
+        .get_mut_character(&Some(PlayerIndex::Baddy(1)))
+        .is_some());
+    assert!(battle
+        .get_mut_character(&Some(PlayerIndex::Baddy(2)))
+        .is_none());
 }
 
 #[test]
 fn turn_start_test() {
     let mut battle = get_test_battle(1, 1);
-    while battle.pop_text().is_some() { }
+    while battle.pop_text().is_some() {}
     battle.force_turn(PlayerIndex::Ally(0));
     battle.selections.push(0);
     assert!(battle.get_current_pc().is_some());
-//    assert!(!battle.get_current_pc_actions().is_empty());
+    //    assert!(!battle.get_current_pc_actions().is_empty());
     assert!(battle.get_top_menu_options().is_some());
     battle.force_turn(PlayerIndex::Baddy(0));
     assert!(battle.get_current_npc().is_some());
@@ -87,21 +99,21 @@ fn handle_effect_test() {
         effect: effect_enc.get(&735730).unwrap().clone(),
     });
     let mut battle = Battle {
-            allies,
-            baddies,
-            ended: false,
-            selections: Vec::<usize>::new(),
-            text: VecDeque::<String>::new(),
-            current_pc_idx: None,
-            current_npc_idx: None,
-            targets: Vec::<PlayerIndex>::new(),
-            effects,
-            hits: VecDeque::<TargetedHit>::new(),
-            // FIXME: references should be supplied by the top-level Game object
-            action_enc: ActionEncyclopedia::new("data/actions.json"),
-            condition_enc: ConditionEncyclopedia::new("data/conditions.json"),
-            effect_enc: EffectEncyclopedia::new("data/effects.json"),
-            statblocks: StatBlockEncyclopedia::new("data/stats.json"),
+        allies,
+        baddies,
+        ended: false,
+        selections: Vec::<usize>::new(),
+        text: VecDeque::<String>::new(),
+        current_pc_idx: None,
+        current_npc_idx: None,
+        targets: Vec::<PlayerIndex>::new(),
+        effects,
+        hits: VecDeque::<TargetedHit>::new(),
+        // FIXME: references should be supplied by the top-level Game object
+        action_enc: ActionEncyclopedia::new("data/actions.json"),
+        condition_enc: ConditionEncyclopedia::new("data/conditions.json"),
+        effect_enc: EffectEncyclopedia::new("data/effects.json"),
+        statblocks: StatBlockEncyclopedia::new("data/stats.json"),
     };
     battle.handle_effect();
     assert!(!battle.hits.is_empty());
@@ -117,21 +129,21 @@ fn handle_hit_test() {
         amount: 5i32,
     });
     let mut battle = Battle {
-            allies,
-            baddies,
-            ended: false,
-            selections: Vec::<usize>::new(),
-            text: VecDeque::<String>::new(),
-            current_pc_idx: None,
-            current_npc_idx: None,
-            targets: Vec::<PlayerIndex>::new(),
-            effects: VecDeque::<TargetedEffect>::new(),
-            hits,
-            // FIXME: references should be supplied by the top-level Game object
-            action_enc: ActionEncyclopedia::new("data/actions.json"),
-            condition_enc: ConditionEncyclopedia::new("data/conditions.json"),
-            effect_enc: EffectEncyclopedia::new("data/effects.json"),
-            statblocks: StatBlockEncyclopedia::new("data/stats.json"),
+        allies,
+        baddies,
+        ended: false,
+        selections: Vec::<usize>::new(),
+        text: VecDeque::<String>::new(),
+        current_pc_idx: None,
+        current_npc_idx: None,
+        targets: Vec::<PlayerIndex>::new(),
+        effects: VecDeque::<TargetedEffect>::new(),
+        hits,
+        // FIXME: references should be supplied by the top-level Game object
+        action_enc: ActionEncyclopedia::new("data/actions.json"),
+        condition_enc: ConditionEncyclopedia::new("data/conditions.json"),
+        effect_enc: EffectEncyclopedia::new("data/effects.json"),
+        statblocks: StatBlockEncyclopedia::new("data/stats.json"),
     };
     battle.handle_hit();
     assert!(!battle.text.is_empty());

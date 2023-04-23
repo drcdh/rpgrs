@@ -87,6 +87,9 @@ fn scenecli_test() {
     let stdin = io::stdin();
     let stdin = stdin.lock();
 
+    // This is necessary to get individual keys without them being written first.
+    let stdout = stdout.into_raw_mode().unwrap();
+
     let encoded_map = vec![vec![1; 3], vec![1, 0, 1], vec![1; 3]];
     let _sprites = HashMap::from([(0, Sprite::new_solid(' ')), (1, Sprite::new_solid('-'))]);
     let sprite_code = SpriteEncyclopedia { en: _sprites };

@@ -81,7 +81,7 @@ fn boss_fight(phonebook: &CharacterEncyclopedia) {
     bcli_test_boss(stdin, stdout, &phonebook);
 }
 
-fn scenecli_test() {
+fn scenecli_test(display_size: uXY) {
     let stdout = io::stdout();
     let stdout = stdout.lock();
     let stdin = io::stdin();
@@ -90,17 +90,36 @@ fn scenecli_test() {
     // This is necessary to get individual keys without them being written first.
     let stdout = stdout.into_raw_mode().unwrap();
 
-    let encoded_map = vec![vec![1; 3], vec![1, 0, 1], vec![1; 3]];
-    let _sprites = HashMap::from([(0, Sprite::new_solid(' ')), (1, Sprite::new_solid('-'))]);
+    let origin = (0, 0);
+    let encoded_map = vec![
+        vec![4,0,4,0,4,0,4],
+        vec![0,4,2,1,3,4,0],
+        vec![4,0,6,7,6,0,4],
+        vec![0,4,6,7,6,4,0],
+        vec![5,5,6,7,6,5,5],
+    ];
+    let _sprites = HashMap::from([
+        (0, Sprite::new_solid(' ')),
+        (1, Sprite::new_solid('-')),
+        (2, Sprite::new_solid('(')),
+        (3, Sprite::new_solid(')')),
+        (4, Sprite::new_solid('~')),
+        (5, Sprite::new_solid('=')),
+        (6, Sprite::new_solid('|')),
+        (7, Sprite::new_solid('.')),
+    ]);
     let sprite_code = SpriteEncyclopedia { en: _sprites };
     let test_map = Map {
+        dim: (7, 5),
         encoded_map,
         sprite_code,
+        origin,
     };
     let mut scene = Scene::new(test_map);
     let mut cli = SceneCLI {
         stdin: stdin.keys(),
         stdout,
+        display_size,
     };
     scene.run(&mut cli);
 }
@@ -115,7 +134,8 @@ fn main() {
     easy_fight(&phonebook);
     boss_fight(&phonebook);
 
-    scenecli_test();
+    let display_size = (15, 5);
+    scenecli_test(display_size);
 
     print!("{}{}{}", ClearAll, termion::style::Reset, Goto(1, 1));
     println!("Terminal width, height is ({}, {})", termwidth, termheight);

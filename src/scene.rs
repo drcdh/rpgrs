@@ -35,10 +35,13 @@ impl State {
 }
 */
 pub struct Scene {
-    pub center: XY,
+    /// focus is the Map Coord that is aligned with the SceneUI.focus.
+    /// Typically, it will follow the lead party member.
+    pub focus: XY,
     pub map: Map,
     text: VecDeque<String>,
     ended: bool,
+    pub ticker: u8,
 }
 
 impl Scene {
@@ -46,10 +49,11 @@ impl Scene {
         let mut text = VecDeque::<String>::new();
         text.push_back("So, here you are.".to_string());
         Scene {
-            center: (0u16, 0u16), // replace with default XY
+            focus: (0i16, 0i16), // this will be a scene's entrance location
             map,
             text,
             ended: false,
+            ticker: 0,
         }
     }
     pub fn run(&mut self, ui: &mut dyn SceneUI) {
@@ -64,8 +68,9 @@ impl Scene {
                 //                self.rand.write_u8(c as u8);
             }
             if self.handle_input(key) {
-                break;
+                //break;
             }
+            self.ticker += 1;
         }
     }
     fn handle_input(&mut self, key: Key) -> bool {
@@ -73,8 +78,19 @@ impl Scene {
             self.pop_text();
             return false;
         }
-        //        self.party_command(key);
+        self.party_command(key);
         self.ended
+    }
+    fn party_command(&mut self, key: Key) {
+        if key == Key::Up {
+            self.focus.1 -= 1;
+        } else if key == Key::Left {
+            self.focus.0 -= 1;
+        } else if key == Key::Right {
+            self.focus.0 += 1;
+        } else if key == Key::Down {
+            self.focus.1 += 1;
+        }
     }
     pub fn get_text(&self) -> Option<&String> {
         self.text.front()

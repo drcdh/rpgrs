@@ -5,6 +5,8 @@ use crate::encyclopedia::SpriteEncyclopedia;
 use crate::sprite::Sprite;
 
 pub struct Map {
+    pub dim: uXY,
+    pub origin: XY,
     pub encoded_map: Vec<Vec<Id>>,
     pub sprite_code: SpriteEncyclopedia,
 }

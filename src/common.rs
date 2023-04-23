@@ -10,7 +10,11 @@ pub type Formula = String;
 pub type Id = u64; // Conform to serde_json::Value
 pub type Name = String;
 
-pub type Coord = u16;
+pub type uCoord = u16;
+pub type uXY = (uCoord, uCoord);
+pub type uXYZ = (uCoord, uCoord, uCoord);
+
+pub type Coord = i16;
 pub type XY = (Coord, Coord);
 pub type XYZ = (Coord, Coord, Coord);
 

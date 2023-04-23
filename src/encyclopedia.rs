@@ -9,7 +9,7 @@ use serde_json;
 
 use crate::common::*;
 
-type _Encyclopedia<T> = HashMap<Id, T>;
+pub type _Encyclopedia<T> = HashMap<Id, T>;
 pub struct Encyclopedia<T> {
     pub en: _Encyclopedia<T>,
 }

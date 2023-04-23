@@ -1,13 +1,17 @@
+use serde::{Deserialize, Serialize};
+
+
 type Fr = char;
 
+#[derive(Deserialize, Serialize, Debug)]
 /// A Sprite is an atomic, visual asset.
 pub struct Sprite {
     /// A Sprite is made of at least one visual frame. Multiple frames will
     ///  be cycled periodically (e.g., to create ocean waves or a flapping
     ///  flag).
-    frames: Vec<Fr>,
-    period: usize,
-    offset: usize,
+    pub frames: Vec<Fr>,
+    pub period: usize,
+    pub offset: usize,
 }
 
 //type Drawer<Fr, Cx> = dyn FnMut(Fr, Cx);

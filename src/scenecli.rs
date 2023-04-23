@@ -65,7 +65,7 @@ impl<R: Iterator<Item = Result<Key, std::io::Error>>, W: Write> SceneCLI<R, W> {
                 let x = (t.0 as Coord) + focus.0 - map.origin.0 - 1;
                 if x < 0 || x >= (map.dim.0 as Coord) ||
                    y < 0 || y >= (map.dim.1 as Coord) {
-                    write!(self.stdout, "{}{}", Goto(t_.0 + t.0, t_.1 + t.1), "`").unwrap(); // Print void
+                    write!(self.stdout, "{}{}", Goto(t_.0 + t.0, t_.1 + t.1), " ").unwrap(); // Print void
                     continue;
                 }
                 let i = x as usize;

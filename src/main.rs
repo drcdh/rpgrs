@@ -115,7 +115,8 @@ fn scenecli_test(display_size: uXY) {
         sprite_code,
         origin,
     };
-    let mut scene = Scene::new(test_map);
+    let tower_map = Map::from_files("./data/maps/tower.encoded", "./data/maps/tower.sprites");
+    let mut scene = Scene::new(tower_map);//test_map);
     let mut cli = SceneCLI {
         stdin: stdin.keys(),
         stdout,
@@ -134,7 +135,7 @@ fn main() {
     easy_fight(&phonebook);
     boss_fight(&phonebook);
 
-    let display_size = (15, 5);
+    let display_size = (60, 20);
     scenecli_test(display_size);
 
     print!("{}{}{}", ClearAll, termion::style::Reset, Goto(1, 1));

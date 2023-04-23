@@ -12,17 +12,6 @@ use crate::scene::sceneui::SceneUI;
 use crate::scene::Scene;
 use crate::sprite::Sprite;
 
-/*
-const OUTER_ROW: &str = r" =================================== ";
-const INNER_ROW: &str = r" |                                 | ";
-const TURN_OUTER_ROW: &str = r" @=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=@ ";
-const TURN_INNER_ROW: &str = r" !                                 ! ";
-const TARGET_OUTER_ROW: &str = r" |\/\/\/\/\/\/\/\/|\/\/\/\/\/\/\/\/| ";
-const TARGET_INNER_ROW: &str = r" >                                 < ";
-const BOX_HEIGHT: u16 = 8;
-const BOX_WIDTH: u16 = 37;
-*/
-
 pub struct SceneCLI<R: Iterator<Item = Result<Key, std::io::Error>>, W: Write> {
     pub stdin: R,
     pub stdout: W,
@@ -54,6 +43,12 @@ impl<R: Iterator<Item = Result<Key, std::io::Error>>, W: Write> SceneCLI<R, W> {
     fn clear(&mut self) {
         write!(self.stdout, "{}{}", ClearAll, Goto(1, 1)).unwrap();
     }
+    fn write_text(&mut self, text: Option<&String>) -> bool {
+        if let Some(text) = text {
+            write!(self.stdout, "{} >>> {}", Goto(1, 35), text).unwrap();
+        }
+        false
+    }
     fn render(&mut self, map: &Map, center: &XY) {
         for (j, row) in map.encoded_map.iter().enumerate() {
             for (i, code) in row.iter().enumerate() {
@@ -63,11 +58,5 @@ impl<R: Iterator<Item = Result<Key, std::io::Error>>, W: Write> SceneCLI<R, W> {
                 write!(self.stdout, "{}{}", Goto(x, y), sprite.draw(0)).unwrap();
             }
         }
-    }
-    fn write_text(&mut self, text: Option<&String>) -> bool {
-        if let Some(text) = text {
-            write!(self.stdout, "{} >>> {}", Goto(1, 35), text).unwrap();
-        }
-        false
     }
 }

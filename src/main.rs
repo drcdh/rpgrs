@@ -103,8 +103,6 @@ fn scenecli_test() {
 }
 
 fn main() {
-    scenecli_test();
-
     let phonebook = CharacterEncyclopedia::new("data/characters.json");
 
     let termsize = termion::terminal_size().ok();
@@ -113,6 +111,8 @@ fn main() {
 
     easy_fight(&phonebook);
     boss_fight(&phonebook);
+
+    scenecli_test();
 
     print!("{}{}{}", ClearAll, termion::style::Reset, Goto(1, 1));
     println!("Terminal width, height is ({}, {})", termwidth, termheight);

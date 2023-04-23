@@ -1,4 +1,4 @@
-use std::fmt::Write as StringWrite;
+//use std::fmt::Write as StringWrite;
 use std::io::Write;
 use termion::clear::All as ClearAll;
 use termion::color;
@@ -46,6 +46,7 @@ impl<R: Iterator<Item = Result<Key, std::io::Error>>, W: Write> SceneCLI<R, W> {
     fn write_text(&mut self, text: Option<&String>) -> bool {
         if let Some(text) = text {
             write!(self.stdout, "{} >>> {}", Goto(1, 35), text).unwrap();
+            return true;
         }
         false
     }

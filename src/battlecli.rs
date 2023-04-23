@@ -52,6 +52,7 @@ impl<R: Iterator<Item = Result<Key, std::io::Error>>, W: Write> BattleCLI<R, W> 
     fn write_text(&mut self, text: Option<&String>) -> bool {
         if let Some(text) = text {
             write!(self.stdout, "{} >>> {}", Goto(1, 35), text).unwrap();
+            return true;
         }
         false
     }

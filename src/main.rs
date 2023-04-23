@@ -116,7 +116,7 @@ fn scenecli_test(display_size: uXY) {
         origin,
     };
     let tower_map = Map::from_files("./data/maps/tower.encoded", "./data/maps/tower.sprites");
-    let mut scene = Scene::new(tower_map);//test_map);
+    let mut scene = Scene::new(tower_map, (21, 27));
     let mut cli = SceneCLI {
         stdin: stdin.keys(),
         stdout,

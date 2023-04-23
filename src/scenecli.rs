@@ -29,11 +29,11 @@ impl<R: Iterator<Item = Result<Key, std::io::Error>>, W: Write> Drop for SceneCL
 impl<R: Iterator<Item = Result<Key, std::io::Error>>, W: Write> SceneUI for SceneCLI<R, W> {
     fn refresh(&mut self, scene: &Scene) {
         self.clear();
-        //self.write_map(&scene.map, &scene.center);
-        //self.write_objects(scene.objects);
         self.render(&scene.map, &scene.focus, scene.ticker);
+        self.render_actors(&scene.actors, &scene.focus, scene.ticker, &scene.map.origin);
         self.write_text(scene.get_text());
         //self.write_huds(scene);
+        write!(self.stdout, "{}", Goto(1, 1)).unwrap();
     }
     fn get_key(&mut self) -> Key {
         self.stdout.flush().unwrap();
@@ -83,5 +83,10 @@ impl<R: Iterator<Item = Result<Key, std::io::Error>>, W: Write> SceneCLI<R, W> {
                 write!(self.stdout, "{}{}", Goto(x, y), sprite.draw(0)).unwrap();
             }
         }*/
+    }
+    fn render_actors(&mut self, actors: &Vec::<Sprite>, focus: &XY, ticker: u8, origin: &XY) {
+        let t_ = (3u16, 3u16);
+        let sprite = &actors[0];
+        write!(self.stdout, "{}{}", Goto(t_.0 + self.display_size.0/2, t_.1 + self.display_size.1/2), sprite.draw(ticker as usize)).unwrap();
     }
 }

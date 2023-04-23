@@ -39,18 +39,22 @@ pub struct Scene {
     /// Typically, it will follow the lead party member.
     pub focus: XY,
     pub map: Map,
+    pub actors: Vec<Sprite>,
     text: VecDeque<String>,
     ended: bool,
     pub ticker: u8,
 }
 
 impl Scene {
-    pub fn new(map: Map) -> Scene {
+    pub fn new(map: Map, focus: XY) -> Scene {
         let mut text = VecDeque::<String>::new();
+        let party_leader = Sprite::new_solid('@');
+        let actors = vec![party_leader];
         text.push_back("So, here you are.".to_string());
         Scene {
-            focus: (0i16, 0i16), // this will be a scene's entrance location
+            focus, // this will be a scene's entrance location
             map,
+            actors,
             text,
             ended: false,
             ticker: 0,

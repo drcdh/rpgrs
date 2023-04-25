@@ -7,20 +7,36 @@ use serde::{Deserialize, Serialize};
 use serde_json;
 
 use crate::common::*;
-use crate::encyclopedia::SpriteEncyclopedia;
+use crate::encyclopedia::_Encyclopedia;
 use crate::sprite::Sprite;
 
+pub type _EncodedMapLayer = Vec<Vec<Id>>;
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct EncodedMapLayer {
+    pub layer: _EncodedMapLayer,
+}
+impl EncodedMapLayer {
+    pub fn new() -> EncodedMapLayer {
+        EncodedMapLayer {
+            layer: _EncodedMapLayer::new(),
+        }
+    }
+}
+pub type MapLayers = Vec::<EncodedMapLayer>;
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Map {
     pub dim: uXY,
     pub origin: XY,
-    pub encoded_map: Vec<Vec<Id>>,
-    pub sprite_code: SpriteEncyclopedia,
+    pub layers: MapLayers,
+//    pub encoded_map: _EncodedMapLayer,
+    pub sprite_code: _Encyclopedia::<Sprite>,
 }
 
 impl Map {
-    pub fn from_files(encoded_map_filepath: &str, sprite_decoder_filename: &str) -> Map {
+/*    pub fn from_files(encoded_map_filepath: &str, sprite_decoder_filename: &str) -> Map {
         let encoded_map_json = std::fs::read_to_string(&encoded_map_filepath).expect("Failed to read map");
-        let encoded_map = serde_json::from_str::<Vec<Vec<Id>>>(&encoded_map_json).unwrap();
+        let encoded_map = serde_json::from_str::<_EncodedMapLayer>(&encoded_map_json).unwrap();
         let sprite_code = SpriteEncyclopedia::new(sprite_decoder_filename);
         Map {
             dim: (encoded_map[0].len().try_into().unwrap(), encoded_map.len().try_into().unwrap()),
@@ -28,12 +44,18 @@ impl Map {
             encoded_map,
             sprite_code,
         }
+    }*/
+    pub fn from_json(filename: &str) -> Map {
+        let file = File::open(filename).expect("Could not open serialized map file");
+        let reader = BufReader::new(file);
+        let map = serde_json::from_reader(reader).expect("Could not deserialize map");
+        map
     }
     pub fn decode_sprite(&self, code: Id) -> Option<&Sprite> {
         self.sprite_code.get(&code)
     }
-    pub fn sprite_at_loc(&self, i: usize, j: usize) -> Option<&Sprite> {
-        let code = self.encoded_map[j][i];
+    pub fn sprite_at_loc(&self, i: usize, j: usize, k: usize) -> Option<&Sprite> {
+        let code = self.layers[k].layer[j][i];
         self.sprite_code.get(&code)
     }
 }
@@ -46,7 +68,18 @@ mod tests {
 
     #[test]
     fn read_test() {
-        Map::from_files("./data/maps/tower.encoded", "./data/maps/tower.sprites");
+        Map::from_json("./data/maps/tower/map.json");
+    }
+
+    #[test]
+    fn deserialize_layer_test() {
+        let data = "\
+        { \"layer\": [\
+            [1, 2, 3],\
+            [4, 5, 6]\
+        ]}";
+        let l: EncodedMapLayer = serde_json::from_str(data).expect("EncodedMapLayer JSON not well-formatted");
+        assert_eq!(l.layer[0][2], 3);
     }
 /*    #[test]
     fn render_test() {

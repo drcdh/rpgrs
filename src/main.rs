@@ -90,7 +90,7 @@ fn scenecli_test(display_size: uXY) {
     // This is necessary to get individual keys without them being written first.
     let stdout = stdout.into_raw_mode().unwrap();
 
-    let origin = (0, 0);
+/*    let origin = (0, 0);
     let encoded_map = vec![
         vec![4,0,4,0,4,0,4],
         vec![0,4,2,1,3,4,0],
@@ -114,9 +114,9 @@ fn scenecli_test(display_size: uXY) {
         encoded_map,
         sprite_code,
         origin,
-    };
-    let tower_map = Map::from_files("./data/maps/tower.encoded", "./data/maps/tower.sprites");
-    let mut scene = Scene::new(tower_map, (21, 27));
+    };*/
+    let tower_map = Map::from_json("./data/maps/tower/map.json");
+    let mut scene = Scene::new(tower_map, (15, 15));
     let mut cli = SceneCLI {
         stdin: stdin.keys(),
         stdout,
@@ -132,8 +132,8 @@ fn main() {
     let termwidth = termsize.map(|(w, _)| w - 2).unwrap();
     let termheight = termsize.map(|(_, h)| h - 2).unwrap();
 
-    easy_fight(&phonebook);
-    boss_fight(&phonebook);
+/*    easy_fight(&phonebook);
+    boss_fight(&phonebook);*/
 
     let display_size = (60, 20);
     scenecli_test(display_size);

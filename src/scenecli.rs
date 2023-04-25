@@ -29,8 +29,9 @@ impl<R: Iterator<Item = Result<Key, std::io::Error>>, W: Write> Drop for SceneCL
 impl<R: Iterator<Item = Result<Key, std::io::Error>>, W: Write> SceneUI for SceneCLI<R, W> {
     fn refresh(&mut self, scene: &Scene) {
         self.clear();
-        self.render(&scene.map, &scene.focus, scene.ticker);
+        self.render(&scene.map, &scene.focus, scene.ticker, 0);
         self.render_actors(&scene.actors, &scene.focus, scene.ticker, &scene.map.origin);
+        self.render(&scene.map, &scene.focus, scene.ticker, 1);
         self.write_text(scene.get_text());
         //self.write_huds(scene);
         write!(self.stdout, "{}", Goto(1, 1)).unwrap();
@@ -52,7 +53,7 @@ impl<R: Iterator<Item = Result<Key, std::io::Error>>, W: Write> SceneCLI<R, W> {
         }
         false
     }
-    fn render(&mut self, map: &Map, focus: &XY, ticker: u8) {
+    fn render(&mut self, map: &Map, focus: &XY, ticker: u8, z: usize) {
         let beat = <u8 as TryInto<usize>>::try_into(ticker).unwrap();
         let t_ = (3u16, 3u16);
         let mut t = (0, 0);
@@ -65,13 +66,16 @@ impl<R: Iterator<Item = Result<Key, std::io::Error>>, W: Write> SceneCLI<R, W> {
                 let x = (t.0 as Coord) + focus.0 - map.origin.0 - 1;
                 if x < 0 || x >= (map.dim.0 as Coord) ||
                    y < 0 || y >= (map.dim.1 as Coord) {
-                    write!(self.stdout, "{}{}", Goto(t_.0 + t.0, t_.1 + t.1), " ").unwrap(); // Print void
+                    //write!(self.stdout, "{}{}", Goto(t_.0 + t.0, t_.1 + t.1), " ").unwrap(); // Print void
                     continue;
                 }
                 let i = x as usize;
                 let j = y as usize;
-                let sprite = map.sprite_at_loc(i, j).unwrap();
-                write!(self.stdout, "{}{}", Goto(t_.0 + t.0, t_.1 + t.1), sprite.draw(beat)).unwrap();
+                let sprite = map.sprite_at_loc(i, j, z).unwrap();
+                let s = sprite.draw(beat);
+                if s != ' ' {
+                    write!(self.stdout, "{}{}", Goto(t_.0 + t.0, t_.1 + t.1), s).unwrap();
+                }
             }
 //            write!(self.stdout, "\r\n").unwrap();
         }

@@ -132,10 +132,21 @@ fn main() {
     let termwidth = termsize.map(|(w, _)| w - 2).unwrap();
     let termheight = termsize.map(|(_, h)| h - 2).unwrap();
 
+    let display_size = (60, 20);
+
+    print!("{}{}{}", ClearAll, termion::style::Reset, Goto(1, 1));
+
+    // intro animation
+    let start = Menu {
+        "Load": FromFile(Input()),
+        "New": NewGame(),
+        "Quit": None,
+    }
+    present_menu(start);
+
 /*    easy_fight(&phonebook);
     boss_fight(&phonebook);*/
 
-    let display_size = (60, 20);
     scenecli_test(display_size);
 
     print!("{}{}{}", ClearAll, termion::style::Reset, Goto(1, 1));

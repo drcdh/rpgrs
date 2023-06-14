@@ -8,22 +8,35 @@ impl<'a> System<'a> for Animator {
     type SystemData = (
         WriteStorage<'a, MovementAnimation>,
         WriteStorage<'a, Sprite>,
+        ReadStorage<'a, Position>,
         ReadStorage<'a, Kinematics>,
     );
 
     fn run(&mut self, mut data: Self::SystemData) {
         use self::Direction::*;
-		// TODO: parallel join
-        for (anim, sprite, k) in (&mut data.0, &mut data.1, &data.2).join() {
-			// TODO: skip if not moving
-            let frames = match k.orientation {
+        // TODO: parallel join
+        for (anim, sprite, pos, k) in (&mut data.0, &mut data.1, &data.2, &data.3).join() {
+            if k.velocity.x == 0 && k.velocity.y == 0 {
+                if anim.current_frame == 0 {
+                    continue;
+                }
+                anim.current_frame = 0;
+            } else {
+                anim.current_frame += 1;
+            }
+            anim.frames_since_update += 1;
+            if anim.frames_since_update < anim.frame_period {
+                continue;
+            }
+            let frames = match pos.orientation {
                 Left => &anim.left_frames,
                 Right => &anim.right_frames,
                 Up => &anim.up_frames,
                 Down => &anim.down_frames,
             };
-
-            anim.current_frame = (anim.current_frame + 1) % frames.len();
+            anim.current_frame += 1;
+            anim.current_frame %= frames.len();
+            anim.frames_since_update = 0;
             *sprite = frames[anim.current_frame].clone();
         }
     }

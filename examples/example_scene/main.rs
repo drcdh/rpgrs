@@ -7,7 +7,6 @@ mod renderer;
 use sdl2::pixels::Color;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use sdl2::render::{WindowCanvas, Texture, TextureAccess, TextureCreator};
 use sdl2::rect::{Point, Rect};
 use sdl2::image::{self, LoadTexture, InitFlag};
 use specs::prelude::*;
@@ -94,7 +93,7 @@ fn main() -> Result<(), String> {
     // SDL2 textures created from source images below
 
     let mut dispatcher = DispatcherBuilder::new()
-        .with(keyboard::Keyboard, "Keyboard", &[])
+        .with(keyboard::Keyboard::new(), "Keyboard", &[])
         .with(physics::Physics, "Physics", &["Keyboard"])
         .with(animator::Animator, "Animator", &["Keyboard"])
         .build();
@@ -129,7 +128,6 @@ fn main() -> Result<(), String> {
     // Create the playable character entity
     world.create_entity()
         .with(KeyboardControlled)
-//        .with(Position {location: Point::new(-10*16, -10*16), orientation: Direction::Right})
         .with(Position {location: Point::new(20, 30), orientation: Direction::Right})
         .with(Kinematics {velocity: Point::new(0, 0), max_speed: 4})
         .with(player_animation.right_frames[0].clone())  // Sprite
@@ -144,10 +142,9 @@ fn main() -> Result<(), String> {
         for x in 0..width {
             for y in 0..height {
                 if let Some(layer_tile) = layer.get_tile(x as i32, y as i32) {
-//                    if let Some(tile) = layer_tile.get_tile() {
                         let tileset = layer_tile.get_tileset();
                         let tile_idx = layer_tile.id();
-                        let location = Point::new(x as i32 * 16, y as i32 * 16);
+                        let location = Point::new((x * map.tile_width) as i32, (y * map.tile_height) as i32);
                         let tileset_coord_x: u32 = tile_idx % tileset.columns;
                         let tileset_coord_y: u32 = (tile_idx - tileset_coord_x)/tileset.columns;
                         let sprite = Sprite {

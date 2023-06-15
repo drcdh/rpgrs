@@ -59,10 +59,6 @@ fn character_animation_frames(
     frames
 }
 /*
-fn update_player(player: &mut Player) {
-    update_location(&mut player.kinematics);
-}
-
 fn get_tileset_textures(texture_creator: &TextureCreator, tilesets: str) -> &[Texture] {
 }
 
@@ -75,10 +71,6 @@ fn get_map_texture(texture_creator: &TextureCreator, map: &Map) -> Texture {
 }
 */
 fn main() -> Result<(), String> {
-//    let mut loader = Loader::new();
-//    let map = loader.load_tmx_map("assets/test.tmx").unwrap();
-//    let map_texture = get_map_texture(map);
-
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
     // Leading "_" tells Rust that this is an unused variable that we don't care about. It has to
@@ -86,7 +78,7 @@ fn main() -> Result<(), String> {
     // temporary value and drop it right away!
     let _image_context = image::init(InitFlag::PNG | InitFlag::JPG)?;
 
-    let window = video_subsystem.window("game tutorial", ZOOM*320, ZOOM*240)
+    let window = video_subsystem.window("game tutorial", 800, 600)
         .position_centered()
         .build()
         .expect("could not initialize video subsystem");
@@ -94,6 +86,12 @@ fn main() -> Result<(), String> {
     let mut canvas = window.into_canvas().build()
         .expect("could not make a canvas");
     let texture_creator = canvas.texture_creator();
+
+    let mut loader = Loader::new();
+    let map = loader.load_tmx_map("assets/test.tmx").unwrap();
+    let tilesets = map.tilesets();
+    let tilecounts = [tilesets[0].tilecount, tilesets[1].tilecount];
+    // SDL2 textures created from source images below
 
     let mut dispatcher = DispatcherBuilder::new()
         .with(keyboard::Keyboard, "Keyboard", &[])
@@ -110,9 +108,11 @@ fn main() -> Result<(), String> {
     world.add_resource(movement_command);
 
     let textures = [
+        texture_creator.load_texture(&tilesets[0].image.as_ref().expect("No source image for tileset 0").source)?,
+        texture_creator.load_texture(&tilesets[1].image.as_ref().expect("No source image for tileset 1").source)?,
         texture_creator.load_texture("assets/daniel16.png")?,
     ];
-    let player_spritesheet = 0;
+    let player_spritesheet = 2;
     let player_top_left_frame = Rect::new(0, 0, 16, 16);
 
     let player_animation = MovementAnimation {
@@ -126,18 +126,47 @@ fn main() -> Result<(), String> {
         right_frames: character_animation_frames(player_spritesheet, player_top_left_frame, Direction::Right),
     };
 
-    let layers = [
-        texture_creator.load_texture("assets/test.png")?,
-    ];
-
     // Create the playable character entity
     world.create_entity()
         .with(KeyboardControlled)
-        .with(Position {location: Point::new(-10*16, -10*16), orientation: Direction::Right})
+//        .with(Position {location: Point::new(-10*16, -10*16), orientation: Direction::Right})
+        .with(Position {location: Point::new(20, 30), orientation: Direction::Right})
         .with(Kinematics {velocity: Point::new(0, 0), max_speed: 4})
         .with(player_animation.right_frames[0].clone())  // Sprite
         .with(player_animation)  // MovementAnimation
         .build();
+
+    for layer in map.layers().filter_map(|layer| match layer.layer_type() {
+        tiled::LayerType::Tiles(layer) => Some(layer),
+        _ => None,
+    }) {
+        let (width, height) = (layer.width().expect("Map must be finite (for now)"), layer.height().expect("Map must be finite (for now)"));
+        for x in 0..width {
+            for y in 0..height {
+                if let Some(layer_tile) = layer.get_tile(x as i32, y as i32) {
+//                    if let Some(tile) = layer_tile.get_tile() {
+                        let tileset = layer_tile.get_tileset();
+                        let tile_idx = layer_tile.id();
+                        let location = Point::new(x as i32 * 16, y as i32 * 16);
+                        let tileset_coord_x: u32 = tile_idx % tileset.columns;
+                        let tileset_coord_y: u32 = (tile_idx - tileset_coord_x)/tileset.columns;
+                        let sprite = Sprite {
+                            spritesheet: layer_tile.tileset_index(),  // FIXME
+                            region: Rect::new(
+                                (tileset_coord_x * tileset.tile_width) as i32,
+                                (tileset_coord_y * tileset.tile_height) as i32,
+                                tileset.tile_width,
+                                tileset.tile_height,
+                            ),
+                        };
+                        world.create_entity()
+                            .with(Position {location, orientation: Direction::Up})
+                            .with(sprite)
+                            .build();
+                }
+            }
+        }
+    }
 
     let mut event_pump = sdl_context.event_pump()?;
     let mut i = 0;
@@ -187,7 +216,13 @@ fn main() -> Result<(), String> {
         world.maintain();
 
         // Render
-        renderer::render(&mut canvas, Color::RGB(i, 64, 255 - i), &layers, &textures, world.system_data(), ZOOM)?;
+        renderer::render(
+            &mut canvas,
+            Color::RGB(i, 64, 255 - i),
+            &textures,
+            world.system_data(),
+            ZOOM,
+        )?;
 
         // Time management!
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));

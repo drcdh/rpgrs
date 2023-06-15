@@ -54,3 +54,12 @@ pub struct MovementAnimation {
     pub left_frames: Vec<Sprite>,
     pub right_frames: Vec<Sprite>,
 }
+
+#[derive(Component, Debug)]
+#[storage(VecStorage)]
+pub struct TileAnimation {
+    pub frame_period: usize,
+    pub frames_since_update: usize,
+    pub current_frame: usize,
+    pub frames: Vec<Sprite>,
+}

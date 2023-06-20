@@ -3,6 +3,7 @@ mod components;
 mod keyboard;
 mod physics;
 mod renderer;
+mod scripts;
 
 use sdl2::pixels::Color;
 use sdl2::event::Event;
@@ -94,7 +95,8 @@ fn main() -> Result<(), String> {
 
     let mut dispatcher = DispatcherBuilder::new()
         .with(keyboard::Keyboard::new(), "Keyboard", &[])
-        .with(physics::Physics, "Physics", &["Keyboard"])
+        .with(scripts::MovementScripts, "MovementScripts", &[])
+        .with(physics::Physics, "Physics", &["Keyboard", "MovementScripts"])
         .with(animator::Animator, "Animator", &["Keyboard"])
         .build();
 
@@ -132,6 +134,25 @@ fn main() -> Result<(), String> {
         .with(Kinematics {velocity: Point::new(0, 0), max_speed: 4})
         .with(player_animation.right_frames[0].clone())  // Sprite
         .with(player_animation)  // MovementAnimation
+        .build();
+
+    let npc_anim = MovementAnimation {
+        frame_period: 8,
+        frames_since_update: 0,
+        neutral_frame: 0,
+        current_frame: 0,
+        up_frames: character_animation_frames(player_spritesheet, player_top_left_frame, Direction::Up),
+        down_frames: character_animation_frames(player_spritesheet, player_top_left_frame, Direction::Down),
+        left_frames: character_animation_frames(player_spritesheet, player_top_left_frame, Direction::Left),
+        right_frames: character_animation_frames(player_spritesheet, player_top_left_frame, Direction::Right),
+    };
+
+    world.create_entity()
+        .with(Script {script_fn: scripts::test as fn(&Position, &mut Kinematics)})
+        .with(Position {location: Point::new(0, 60), orientation: Direction::Right})
+        .with(Kinematics {velocity: Point::new(0, 0), max_speed: 4})
+        .with(npc_anim.right_frames[0].clone())  // Sprite
+        .with(npc_anim)  // MovementAnimation
         .build();
 
     for layer in map.layers().filter_map(|layer| match layer.layer_type() {

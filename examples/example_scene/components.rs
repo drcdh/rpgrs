@@ -63,3 +63,10 @@ pub struct TileAnimation {
     pub current_frame: usize,
     pub frames: Vec<Sprite>,
 }
+
+#[derive(Component, Debug)]
+#[storage(VecStorage)]
+pub struct Script {
+    //pub script_data:
+    pub script_fn: fn(&Position, &mut Kinematics),
+}

@@ -129,7 +129,7 @@ fn main() -> Result<(), String> {
     world.create_entity()
         .with(KeyboardControlled)
         .with(Position {z: 1, location: Point::new(20, 30), orientation: Direction::Right})
-        .with(Kinematics {velocity: Point::new(0, 0), max_speed: 4})
+        .with(Kinematics {velocity: Point::new(0, 0), max_speed: 1})
         .with(player_animation.right_frames[0].clone())  // Sprite
         .with(player_animation)  // MovementAnimation
         .build();

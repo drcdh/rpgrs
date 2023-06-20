@@ -19,6 +19,7 @@ pub struct KeyboardControlled;
 #[storage(VecStorage)]
 pub struct Position {
     pub location: Point,
+    pub z: i32,
     pub orientation: Direction,
 }
 

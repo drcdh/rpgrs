@@ -24,7 +24,9 @@ pub fn render(
 
     let (width, height) = canvas.output_size()?;
 
-    for (pos, sprite) in (&data.0, &data.1).join() {
+    let mut data = (&data.0, &data.1).join().collect::<Vec<_>>();
+    data.sort_by(|&a, &b| a.0.z.cmp(&b.0.z));
+    for (pos, sprite) in data.iter() {
         let current_frame = sprite.region;
 
         let screen_rect = Rect::new(zoom as i32 * pos.location.x, zoom as i32 * pos.location.y, zoom*sprite.region.width(), zoom*sprite.region.height());

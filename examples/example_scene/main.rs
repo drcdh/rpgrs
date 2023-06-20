@@ -128,7 +128,7 @@ fn main() -> Result<(), String> {
     // Create the playable character entity
     world.create_entity()
         .with(KeyboardControlled)
-        .with(Position {location: Point::new(20, 30), orientation: Direction::Right})
+        .with(Position {z: 1, location: Point::new(20, 30), orientation: Direction::Right})
         .with(Kinematics {velocity: Point::new(0, 0), max_speed: 4})
         .with(player_animation.right_frames[0].clone())  // Sprite
         .with(player_animation)  // MovementAnimation
@@ -157,7 +157,7 @@ fn main() -> Result<(), String> {
                             ),
                         };
                         world.create_entity()
-                            .with(Position {location, orientation: Direction::Up})
+                            .with(Position {z: 0, location, orientation: Direction::Up})
                             .with(sprite)
                             .build();
                 }

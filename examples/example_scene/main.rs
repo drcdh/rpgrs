@@ -3,6 +3,7 @@ mod components;
 mod keyboard;
 mod physics;
 mod renderer;
+mod scripts;
 
 use sdl2::pixels::Color;
 use sdl2::event::Event;
@@ -38,12 +39,13 @@ fn character_animation_frames(
     spritesheet: usize,
     top_left_frame: Rect,
     direction: Direction,
+    num_frames: i32,
 ) -> Vec<Sprite> {
     let (frame_width, frame_height) = top_left_frame.size();
     let y_offset = top_left_frame.y() + frame_height as i32 * direction_spritesheet_row(direction);
 
     let mut frames = Vec::new();
-    for i in 0..4 {
+    for i in 0..num_frames {
         frames.push(Sprite {
             spritesheet,
             region: Rect::new(
@@ -94,7 +96,8 @@ fn main() -> Result<(), String> {
 
     let mut dispatcher = DispatcherBuilder::new()
         .with(keyboard::Keyboard::new(), "Keyboard", &[])
-        .with(physics::Physics, "Physics", &["Keyboard"])
+        .with(scripts::MovementScripts, "MovementScripts", &[])
+        .with(physics::Physics, "Physics", &["Keyboard", "MovementScripts"])
         .with(animator::Animator, "Animator", &["Keyboard"])
         .build();
 
@@ -110,6 +113,7 @@ fn main() -> Result<(), String> {
         texture_creator.load_texture(&tilesets[0].image.as_ref().expect("No source image for tileset 0").source)?,
         texture_creator.load_texture(&tilesets[1].image.as_ref().expect("No source image for tileset 1").source)?,
         texture_creator.load_texture("assets/daniel16.png")?,
+        texture_creator.load_texture("assets/rydia.png")?,
     ];
     let player_spritesheet = 2;
     let player_top_left_frame = Rect::new(0, 0, 16, 16);
@@ -119,19 +123,40 @@ fn main() -> Result<(), String> {
         frames_since_update: 0,
         neutral_frame: 0,
         current_frame: 0,
-        up_frames: character_animation_frames(player_spritesheet, player_top_left_frame, Direction::Up),
-        down_frames: character_animation_frames(player_spritesheet, player_top_left_frame, Direction::Down),
-        left_frames: character_animation_frames(player_spritesheet, player_top_left_frame, Direction::Left),
-        right_frames: character_animation_frames(player_spritesheet, player_top_left_frame, Direction::Right),
+        up_frames: character_animation_frames(player_spritesheet, player_top_left_frame, Direction::Up, 4),
+        down_frames: character_animation_frames(player_spritesheet, player_top_left_frame, Direction::Down, 4),
+        left_frames: character_animation_frames(player_spritesheet, player_top_left_frame, Direction::Left, 4),
+        right_frames: character_animation_frames(player_spritesheet, player_top_left_frame, Direction::Right, 4),
     };
 
     // Create the playable character entity
     world.create_entity()
         .with(KeyboardControlled)
-        .with(Position {z: 1, location: Point::new(20, 30), orientation: Direction::Right})
+        .with(Position {z: 1, location: Point::new(80, 120), orientation: Direction::Right})
         .with(Kinematics {velocity: Point::new(0, 0), max_speed: 1})
         .with(player_animation.right_frames[0].clone())  // Sprite
         .with(player_animation)  // MovementAnimation
+        .build();
+
+    let npc_spritesheet = 3;
+
+    let npc_anim = MovementAnimation {
+        frame_period: 16,
+        frames_since_update: 0,
+        neutral_frame: 0,
+        current_frame: 0,
+        up_frames: character_animation_frames(npc_spritesheet, player_top_left_frame, Direction::Up, 2),
+        down_frames: character_animation_frames(npc_spritesheet, player_top_left_frame, Direction::Down, 2),
+        left_frames: character_animation_frames(npc_spritesheet, player_top_left_frame, Direction::Left, 2),
+        right_frames: character_animation_frames(npc_spritesheet, player_top_left_frame, Direction::Right, 2),
+    };
+
+    world.create_entity()
+        .with(Script {script_fn: scripts::test as fn(&mut Position, &mut Kinematics)})
+        .with(Position {z: 1, location: Point::new(130, 130), orientation: Direction::Right})
+        .with(Kinematics {velocity: Point::new(0, 0), max_speed: 1})
+        .with(npc_anim.right_frames[0].clone())  // Sprite
+        .with(npc_anim)  // MovementAnimation
         .build();
 
     for layer in map.layers().filter_map(|layer| match layer.layer_type() {

@@ -1,0 +1,43 @@
+Generic "time pass" method, for in and out of battle.
+One abstract time-step passes for all characters/objects.
+Effects affect and/or decay.
+Contextual visualization options: display, display one-at-a-time, etc.
+This will be called regularly in real time if there is an ATB.
+If things are truely turn-based, then...
+Effects can be triggered by time passing or by something else, like a turn, action, etc.
+Until we implement ATB, effects trigger (unconditionally) on the affected's turn.
+
+
+Advanced programming/scripting.
+There needs to be a clear division between framework code (game-agnostic) and game code (which includes JSON, maps, etc.).
+This should be true even when game code is written in Rust, which is likely preferable (to, say, Python or Lua extension).
+This means that JSON (specifically actions.json and effects.json) will be referring to linked methods...
+Is there reflection in Rust?? If not, we can probably create a Map of strings to function pointers.
+
+
+Automated game testing.
+ALL actions/effects should be fuzz tested.
+ALL references to game data/methods should be followed (and run).
+ALL names/dialogue should be spell-checked.
+
+
+Map stuff.
+Objects (including (playable) characters) are at some integer z coordinate.
+Map elements at the SAME coordinate BLOCK movement.
+Map elements at LESSER coordinates are UNDER elements and objects at GREATER coordinates.
+Map elements at GREATER coordinates are ABOVE elements and objects at LESSER coordinates.
+Layers have a parallax factor: scroll "speed" is 1/(1+p).
+
+
+GameState object.
+New/Load/Save.
+"Compendium" has ALL Encyclopediae (copied from starting templates when New).
+
+PlayState object.
+Scene (Map and camera focus), Party control, optional Script (to run immediately).
+
+
+Conditions.
+Character objects HAVE Condition objects.
+ConditionGenerator objects INSTANTIATE Condition objects (with immutable reference to actor Character??).
+Lazily instantiate?

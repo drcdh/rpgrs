@@ -26,7 +26,7 @@ fn _read_encyclopedia<T: Serialize + DeserializeOwned>(
 impl<T: Serialize + DeserializeOwned> Encyclopedia<T> {
     pub fn new(filename: &str) -> Encyclopedia<T> {
         Encyclopedia {
-            en: _read_encyclopedia::<T>(filename).expect("Failed to read encyclopedia"),
+            en: _read_encyclopedia::<T>(filename).expect(&*format!("Failed to read encyclopedia from {filename}")),
         }
     }
 }
